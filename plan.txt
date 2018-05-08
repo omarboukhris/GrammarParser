@@ -1,0 +1,6 @@
+
+done	get production rules of an abstract non-deterministic language in a dict
+next	generate and test word checker (see if word is in a language)
+	
+	prod rules checker, to see if prod rules make sense and all non terminals are defined
+	graph_repr from production rules
