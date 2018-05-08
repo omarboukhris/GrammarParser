@@ -1,18 +1,19 @@
-from lexlib import grammarparser as gp
+from lexlib import grammarparser as gp, graphbuilder as gb
 
 txtgrammar = """
 AXIOM := S
 S     	 := 
-	'A' B C |
-	A 'B'
+	'cc' A A
 A := 
-	'B' C
+	'aa' B B |
+	''
 B :=
-	'B' C |
-	'B'
+	'bb' |
+	'xx' |
+	C
 C := 
-	'C' |
-	' '
+	'cc' |
+	''
 """
 
 if __name__ == '__main__':
@@ -23,11 +24,12 @@ if __name__ == '__main__':
 		('\'.*\'',			'TERMINAL'),
 		('\:=',				'EQUAL'),
 		('\|',				'OR'),
+		('\'\'',			'EMPTY'),
 	]
 	
 	AXIOM = r'AXIOM EQUAL NONTERMINAL'
-	LSIDE = r'NONTERMINAL EQUAL' 
-	RSIDE = r'(TERMINAL|NONTERMINAL)+ '
+	LSIDE = r'NONTERMINAL EQUAL'
+	RSIDE = r'(TERMINAL|NONTERMINAL)+|EMPTY '
 	OR = r'OR'
 	genericgrammarprodrules = [
 		(AXIOM, 'AXIOM'),
@@ -37,7 +39,6 @@ if __name__ == '__main__':
 	]
 
 	#lex language => tokenized grammar
-
 	tokenizer = gp.Tokenizer (grammartokens)
 	tokenizer.parse (txtgrammar)
 	print(tokenizer)
@@ -55,9 +56,10 @@ if __name__ == '__main__':
 	)
 	print (prodrulesgen)
 	prodrulesgen.save("blob.pkl")
+	prodrulesgen.load("blob.pkl")
 	
 	#graph generator goes here
-
-
-
+	gg = gb.GraphGenerator (prodrulesgen.production_rules)
+	axiom = gg.buildgraph()
+	print (axiom)
 	
