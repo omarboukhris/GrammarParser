@@ -1,41 +1,60 @@
 from lexlib import grammarparser as gp, graphbuilder as gb
 
 txtgrammar = """
-AXIOM := S
-S     	 := 
-	'cc' A A
+AXIOM := CLASS
+CLASS := 
+			CLASS_DECL.tok + A |
+			FUNK + B + DC
+
+FUNK := 
+	FDECL.tok |
+	""
+
 A := 
-	'aa' B B |
+	LCROCH.tok + B + RCROCH.tok |
 	''
+
 B :=
-	'bb' |
-	'xx' |
+	B |
 	C
+
 C := 
-	'cc' |
 	''
+DC := NOK.tok
 """
+#integrate "tokens" in grammar definition
+#non terminals are tokens pointing on regex
+#define language tokens
+#terminals' regex
+langtokens = [
+	('{{',		'LCROCH'),
+	('}}',		'RCROCH'),
+	('class',	'CLASS_DECL'),
+]
+
 
 if __name__ == '__main__':
 	#TEST_RUN
 	grammartokens = [
-		('AXIOM',			'AXIOM'),
-		('[a-zA-Z_]\w*',	'NONTERMINAL'),
-		('\'.*\'',			'TERMINAL'),
-		('\:=',				'EQUAL'),
-		('\|',				'OR'),
-		('\'\'',			'EMPTY'),
+		('AXIOM',				'AXIOM'),
+		('[a-zA-Z_]\w*\.tok',	'TERMINAL'),
+		('[a-zA-Z_]\w*',		'NONTERMINAL'),
+		('\:=',					'EQUAL'),
+		('\+',					'PLUS'),
+		('\|',					'OR'),
+		('\'\'|\"\"',			'EMPTY'),
 	]
 	
 	AXIOM = r'AXIOM EQUAL NONTERMINAL'
 	LSIDE = r'NONTERMINAL EQUAL'
-	RSIDE = r'(TERMINAL|NONTERMINAL)+|EMPTY '
-	OR = r'OR'
+	RSIDE = r'(TERMINAL|NONTERMINAL)+|EMPTY'
+	OR, PLUS = r'OR', r'PLUS'
 	genericgrammarprodrules = [
-		(AXIOM, 'AXIOM'),
-		(LSIDE, 'LSIDE'),
-		(RSIDE, 'RSIDE'),
+		(AXIOM,	'AXIOM'),
+		(LSIDE,	'LSIDE'),
+		(RSIDE,	'RSIDE'),
 		(OR,	'OR'),
+		(PLUS,	'PLUS'),
 	]
 
 	#lex language => tokenized grammar
@@ -50,16 +69,23 @@ if __name__ == '__main__':
 
 	#make production rules
 	prodrulesgen = gp.ProductionRulesGenerator ()
-	prodrulesgen.makeprodrules (
+	result = prodrulesgen.makeprodrules (
 		gram.tokenizedgrammar,
 		tokenizer.tokenizedgrammar,
 	)
-	print (prodrulesgen)
-	prodrulesgen.save("blob.pkl")
-	prodrulesgen.load("blob.pkl")
-	
+
+	if (result == (True,[])) :
+		prodrulesgen.regularizegrammar()
+		print (prodrulesgen)
+		prodrulesgen.save("lang.pkl")
+	else :
+		print (result)
+
 	#graph generator goes here
+	"""
 	gg = gb.GraphGenerator (prodrulesgen.production_rules)
 	axiom = gg.buildgraph()
+	#l = axiom.getgraph()
 	print (axiom)
+	"""
 	
