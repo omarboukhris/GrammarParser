@@ -3,8 +3,8 @@ from lexlib import grammarparser as gp, graphbuilder as gb
 txtgrammar = """
 AXIOM := CLASS
 CLASS := 
-			CLASS_DECL.tok + A |
-			FUNK + B + DC
+		CLASS_DECL.tok + A |
+		FUNK + B + VF.tok + DC.tok
 
 FUNK := 
 	FDECL.tok |
@@ -20,8 +20,8 @@ B :=
 
 C := 
 	''
-DC := NOK.tok
 """
+#DC := NOK.tok
 #integrate "tokens" in grammar definition
 #non terminals are tokens pointing on regex
 #define language tokens
@@ -31,7 +31,6 @@ langtokens = [
 	('}}',		'RCROCH'),
 	('class',	'CLASS_DECL'),
 ]
-
 
 if __name__ == '__main__':
 	#TEST_RUN
@@ -50,18 +49,18 @@ if __name__ == '__main__':
 	RSIDE = r'(TERMINAL|NONTERMINAL)+|EMPTY'
 	OR, PLUS = r'OR', r'PLUS'
 	genericgrammarprodrules = [
-		(AXIOM,	'AXIOM'),
-		(LSIDE,	'LSIDE'),
-		(RSIDE,	'RSIDE'),
-		(OR,	'OR'),
-		(PLUS,	'PLUS'),
+		(AXIOM,		'AXIOM'),
+		(LSIDE,		'LSIDE'),
+		(RSIDE,		'RSIDE'),
+		(OR,		'OR'),
+		(PLUS,		'PLUS'),
 	]
 
 	#lex language => tokenized grammar
 	tokenizer = gp.Tokenizer (grammartokens)
 	tokenizer.parse (txtgrammar)
 	print(tokenizer)
-	
+
 	#lex tokenized grammar => tokenized language
 	gram = gp.GenericGrammarParser (genericgrammarprodrules)
 	gram.parse (tokenizer)
