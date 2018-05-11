@@ -33,58 +33,13 @@ langtokens = [
 ]
 
 if __name__ == '__main__':
-	#TEST_RUN
-	grammartokens = [
-		('AXIOM',				'AXIOM'),
-		('[a-zA-Z_]\w*\.tok',	'TERMINAL'),
-		('[a-zA-Z_]\w*',		'NONTERMINAL'),
-		('\:=',					'EQUAL'),
-		('\+',					'PLUS'),
-		('\|',					'OR'),
-		('\'\'|\"\"',			'EMPTY'),
-	]
-	
-	AXIOM = r'AXIOM EQUAL NONTERMINAL'
-	LSIDE = r'NONTERMINAL EQUAL'
-	RSIDE = r'(TERMINAL|NONTERMINAL)+|EMPTY'
-	OR, PLUS = r'OR', r'PLUS'
-	genericgrammarprodrules = [
-		(AXIOM,		'AXIOM'),
-		(LSIDE,		'LSIDE'),
-		(RSIDE,		'RSIDE'),
-		(OR,		'OR'),
-		(PLUS,		'PLUS'),
-	]
+	ggp = gp.GenericGrammarParser (txtgrammar)
+	ggp.parse (verbose=True)
 
-	#lex language => tokenized grammar
-	tokenizer = gp.Tokenizer (grammartokens)
-	tokenizer.parse (txtgrammar)
-	print(tokenizer)
-
-	#lex tokenized grammar => tokenized language
-	gram = gp.GenericGrammarParser (genericgrammarprodrules)
-	gram.parse (tokenizer)
-	print(gram)
-
-	#make production rules
-	prodrulesgen = gp.ProductionRulesGenerator ()
-	result = prodrulesgen.makeprodrules (
-		gram.tokenizedgrammar,
-		tokenizer.tokenizedgrammar,
-	)
-
-	if (result == (True,[])) :
-		prodrulesgen.regularizegrammar()
-		print (prodrulesgen)
-		prodrulesgen.save("lang.pkl")
-	else :
-		print (result)
-
-	#graph generator goes here
-	"""
-	gg = gb.GraphGenerator (prodrulesgen.production_rules)
-	axiom = gg.buildgraph()
-	#l = axiom.getgraph()
-	print (axiom)
-	"""
+	##graph generator goes here
+	#"""
+	#gg = gb.GraphGenerator (prodrulesgen.production_rules)
+	#axiom = gg.buildgraph()
+	#print (axiom)
+	#"""
 	
