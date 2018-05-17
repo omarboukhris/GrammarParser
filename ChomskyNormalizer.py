@@ -21,7 +21,7 @@ class ChomskyNormalForm :
 		dels = DEL (bins.production_rules)
 		dels.apply ()
 		self.normalForm = dels.production_rules
-		print (self)
+		print ("del" + self.__str__())
 		unit = UNIT (dels.production_rules)
 		unit.apply ()
 		#self.normalForm = unit.production_rules
@@ -154,13 +154,13 @@ class DEL :
 		
 
 	def _exploderule (self, production_rules, key, rule_index, op_index) :
-
+	
 		rule = deepcopy(production_rules[key][rule_index])
 		del production_rules[key][rule_index][op_index]
 		production_rules[key].append (
 			rule
 		)
-		
+	
 		return production_rules
 	
 	def _isoperandinrule (self, rule, operand) :
@@ -180,21 +180,32 @@ class DEL :
 	def _getemptykeys (self) :
 		keys = []
 		production_rules = deepcopy(self.production_rules)
-		for key in self.production_rules.keys () :
+		for key in production_rules.keys () :
 			if key == 'AXIOM' :
 				continue
 			del_id = 0
 			for r_id in range(len(production_rules[key])) :
 				rule = production_rules[key][r_id]
 				if (len(rule) == 1) and (rule[0].type == "EMPTY") :
-					del self.production_rules[key][r_id-del_id]
+					del self.production_rules[key][del_id]
 					keys.append ((key, rule[0].val))
-					del_id += 1
 				else :
 					production_rules[key].append(rule)
+					del_id += 1
+
 		#self.production_rules = deepcopy(production_rules)
 		return keys
 		
+	def __str__ (self) :
+		text_rule = ""
+		self.normalForm = self.production_rules
+		for key, rules in self.normalForm.items() :
+			text_rule += "\nRULE " + key + " = [\n\t"
+			rule_in_a_line = []
+			for rule in self.normalForm[key] :
+				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
+			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
+		return text_rule
 
 class UNIT :
 	def __init__ (self, production_rules) :
@@ -236,7 +247,7 @@ class UNIT :
 
 	def _exploderule (self, production_rules, key, rule_index, op_index, lunitk) :
 
-		rule = production_rules[key][rule_index].copy()
+		rule = deepcopy(production_rules[key][rule_index])
 		production_rules[key][rule_index][op_index] = Token("NONTERMINAL", lunitk, '1')
 		production_rules[key].append (
 			rule
@@ -268,11 +279,11 @@ class UNIT :
 			for r_id in range(len(production_rules[key])) :
 				rule = production_rules[key][r_id] 
 				if (len(rule) == 1) and (rule[0].type == "NONTERMINAL"):
-					del self.production_rules[key][r_id-del_id]
+					del self.production_rules[key][del_id]
 					keys.append ((key, rule[0].val))
-					del_id += 1
 				else :
 					production_rules[key].append(rule)
+					del_id += 1
 		#self.production_rules = production_rules
 		return keys
 
