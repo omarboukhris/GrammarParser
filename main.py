@@ -22,6 +22,23 @@ B :=
 C := 
 	''
 """
+
+txtgrammar = """
+
+AXIOM := S
+
+S := a.tok + A |
+''
+
+A := a.tok + A + S |
+	A B |
+	A
+	
+B := ''
+
+"""
+
+
 #DC := NOK.tok
 #integrate "tokens" in grammar definition
 #non terminals are tokens pointing on regex
@@ -34,9 +51,8 @@ langtokens = [
 ]
 
 if __name__ == '__main__':
-	gram = gp.GenericGrammarParser (genericgrammarprodrules)
-	gram.parse (txtgrammar)
-	print(gram)
+	gram = gp.GenericGrammarParser (txtgrammar)
+	gram.parse (verbose=True)
 
 	#graph generator goes here
 	"""
