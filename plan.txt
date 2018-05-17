@@ -4,3 +4,9 @@ next	generate and test word checker (see if word is in a language)
 			build graph from production rules
 	prod rules checker, to see if prod rules make sense and all non terminals are defined
 	graph_repr from production rules
+	
+	
+	utiliser des dictionnaires imbriqués pour gérer la génération de code
+	
+	
+	

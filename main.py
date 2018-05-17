@@ -6,12 +6,14 @@ CLASS :=
 		CLASS_DECL.tok + A |
 		FUNK + B + VF.tok + DC.tok
 
-FUNK := 
-	FDECL.tok |
+FUNK :=
+	FDECL.gen |
+	FUNK + B + VF.tok + DC.tok|
 	""
 
 A := 
 	LCROCH.tok + B + RCROCH.tok |
+	A |
 	''
 
 B :=
@@ -21,6 +23,7 @@ B :=
 C := 
 	''
 """
+
 #DC := NOK.tok
 #integrate "tokens" in grammar definition
 #non terminals are tokens pointing on regex
@@ -30,6 +33,8 @@ langtokens = [
 	('{{',		'LCROCH'),
 	('}}',		'RCROCH'),
 	('class',	'CLASS_DECL'),
+	('VF',		'VF'),
+	('DC',		'DC'),
 ]
 
 if __name__ == '__main__':
