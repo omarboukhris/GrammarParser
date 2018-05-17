@@ -1,4 +1,4 @@
-from lexlib.lexlib import Token
+from lexlib import Token
 from collections import OrderedDict as odict
 
 	
@@ -14,8 +14,6 @@ class ChomskyNormalForm :
 		bins.apply ()
 		dels = DEL (bins.production_rules)
 		dels.apply ()
-		self.normalForm = dels.production_rules
-		print (self)
 		unit = UNIT (dels.production_rules)
 		unit.apply ()
 		return  unit.production_rules
@@ -42,7 +40,7 @@ class TERM :
 
 	def _term (self) :
 		normalForm = odict ()
-		production_rules = self.production_rules
+		production_rules = self.production_rules.copy()
 		for key, rules in production_rules.items () :
 			if not (key in normalForm.keys()) :
 				normalForm[key] = []
@@ -82,7 +80,7 @@ class BIN :
 
 	def _binonce (self) :
 		normalForm = odict ()
-		production_rules = self.production_rules
+		production_rules = self.production_rules.copy()
 		changed = False
 		for key, rules in production_rules.items () :
 			if not (key in normalForm.keys ()) :
@@ -109,155 +107,141 @@ class BIN :
 
 #grammar must be binned
 class DEL :
-	def __init__ (self, production_rules) :
-		self.production_rules = production_rules
-		self.normalForm = production_rules #odict
-	
-	def apply (self) :
-		self._del ()
-		self.production_rules = self.normalForm
+    def __init__ (self, production_rules) :
+        self.production_rules = production_rules
+    
+    def apply (self) :
+        while self._unit () :
+            pass
+            
+    def _del (self) :
+        changed = False
+        emptykeys = self._getemptykeys ()
+        for remptyk, lemptyk in emptykeys :
+            changed = True
+            production_rules = self.production_rules.copy()
+            out = production_rules.copy()
+            for key in production_rules.keys() :
 
-	def _del (self) :
-		emptykeys = self._getemptykeys()
-		while emptykeys != [] :
-			emptykeys = self._getemptykeys()
-			for key in emptykeys :
-				self._delEmpty (key)
+                for rule_index in range(len(production_rules[key])) :
 
-			for key in emptykeys :
-				#for each rule using an empty non terminal, delete the void (empty) element
-				self.cleanup()
-				self._scrapempty (key)
+                    #if rule contains runit replace with lunit
+                    op_index = self._isoperandinrule (
+                        production_rules[key][rule_index], 
+                        runitk
+                    )
+                    
+                    if op_index != -1 : #operand is in rule
+                        out = self._exploderule (
+                            out,
+                            key,
+                            rule_index,
+                            op_index,
+                        )
+            self.production_rules = out.copy()
+        return changed
+        
 
-	def cleanup (self) :
-		for key, rules in self.normalForm.items() :
-			if rules == [] :
-				del self.normalForm[key]
+    def _exploderule (self, production_rules, key, rule_index, op_index, lunitk) :
 
-	def _scrapempty (self, key) :
-		normalForm = odict()
-		production_rules = self.normalForm
-		for label, rules in production_rules.items () :
-			normalForm[label] = []
-			for rule in rules :
-				if rule == [] :
-					continue
-				if key in [op.val for op in rule] :
-					if len (rule) == 1 :
-						continue
-					newRules = [rule]
-					newRules.append([op for op in rule if op.val != key])
-					normalForm[label] += newRules
-				else :
-					normalForm[label].append(rule)
-		self.normalForm = normalForm
-
-
-	def _delEmpty (self, key) :
-		copyNonTerminal = []
-		production_rules = self.normalForm
-		for rule in production_rules[key] :
-			newrule = []
-			for operand in rule :
-				if operand.type != "EMPTY" :
-					newrule.append (operand)
-			if newrule != [] :
-				copyNonTerminal.append (newrule)
-		self.normalForm[key] = copyNonTerminal
-		if self.normalForm[key] == [] :
-			del self.normalForm[key]
-
-	def _getemptykeys (self) :
-		keys = []
-		for key, rules in self.normalForm.items() :
-			if key == "AXIOM" : 
-				continue
-			for rule in rules :
-				if rule[0].type == "EMPTY" or (rule[0].val == key and len(rule) == 1) :
-					keys.append(key)
-		return list(set(keys))
-
-	
-	def __str__ (self) :
-		text_rule = ""
+        rule = production_rules[key][rule_index].copy()
+        del production_rules[key][rule_index][op_index]
+        production_rules[key].append (
+            rule
+        )
 		
-		for key, rules in self.normalForm.items() :
-			text_rule += "\nRULE " + key + " = [\n\t"
-			rule_in_a_line = []
-			for rule in rules :
-				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
-			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
-		return text_rule
+        return production_rules
+    
+    def _isoperandinrule (self, rule, operand) :
+        for op_index in range(len(rule)) :
+            if rule[op_index].val == operand :
+                return op_index
+        return -1
+    
+    def _getemptykeys (self) :
+        keys = []
+        production_rules = self.production_rules.copy()
+        
+        for key in production_rules.keys () :
+            if key == 'AXIOM' :
+                continue
+            for r_id in range(len(production_rules[key])) :
+                rule = production_rules[key][r_id] 
+                if (len(rule) == 1) and (rule[0].type == "EMPTY"):
+                    del self.production_rules[key][r_id]
+                    if self.production_rules[key] == [] :
+                        del self.production_rules[key]
+                    keys.append ((key, rule[0].val))
+        return keys
 
 class UNIT :
-	def __init__ (self, production_rules) :
-		self.production_rules = production_rules
-		self.normalForm = production_rules #odict
-	
-	def apply (self) :
-		self._unit ()
-		self.production_rules = self.normalForm
+    def __init__ (self, production_rules) :
+        self.production_rules = production_rules
+    
+    def apply (self) :
+        while self._unit () :
+            pass
+            
+    def _unit (self) :
+        changed = False
+        unitkeys = self._getunitkeys ()
+        for runitk, lunitk in unitkeys :
+            changed = True
+            production_rules = self.production_rules
+            out = production_rules.copy()
+            for key in production_rules.keys() :
 
-	def _unit (self) :
-		unitkeys = self._getunitkeys()
-		while unitkeys != [] :
-			for key in unitkeys :
-				self._delunit (key)
+                for rule_index in range(len(production_rules[key])) :
 
-			for key in unitkeys :
-				#for each rule using an empty non terminal, delete the void (empty) element
-				self.cleanup()
-				self._scrapunit (key)
+                    #if rule contains runit replace with lunit
+                    op_index = self._isoperandinrule (
+                        production_rules[key][rule_index], 
+                        runitk
+                    )
+                    
+                    if op_index != -1 : #operand is in rule
+                        out = self._exploderule (
+                            out,
+                            key,
+                            rule_index,
+                            op_index,
+                            lunitk,
+                        )
+            self.production_rules = out.copy()
+        return changed
+        
 
-	def cleanup (self) :
-		for key, rules in self.normalForm.items() :
-			if rules == [] :
-				del self.normalForm[key]
+    def _exploderule (self, production_rules, key, rule_index, op_index, lunitk) :
 
-	def _scrapunit (self, key) :
-		normalForm = odict()
-		production_rules = self.normalForm
-		for label, rules in production_rules.items () :
-			normalForm[label] = []
-			for rule in rules :
-				if rule == [] :
-					continue
-				if key[0] in [op.val for op in rule] :
-					newRules = [rule]
-					arule = []
-					for operand in rule :
-						arule.append(operand if operand.val != key[0] else key[1])
-					newRules.append(arule)
-					normalForm[label] += newRules
-				else :
-					normalForm[label].append(rule)
-		self.normalForm = normalForm
-
-	def _delunit (self, _key) : 
-		key = _key[0]
-		copyNonTerminal = []
-		production_rules = self.normalForm
-		for rule in production_rules[key] :
-			newrule = []
-			for operand in rule :
-				if rule[0].type != "NONTERMINAL" or len(rule) != 1 :
-					newrule.append (operand)
-			if newrule != [] :
-				copyNonTerminal.append (newrule)
-		self.normalForm[key] = copyNonTerminal
-		if self.normalForm[key] == [] :
-			del self.normalForm[key]
-
-	def _getunitkeys (self) :
-		keys = []
-		for key, rules in self.normalForm.items() :
-			if key == "AXIOM" :
-				continue
-			for rule in rules :
-				if rule[0].type == "NONTERMINAL" and len(rule) == 1 :
-					keys.append((key, rule[0]))
-		return list(set(keys))
-
+        rule = production_rules[key][rule_index].copy()
+        production_rules[key][rule_index][op_index] = Token("NONTERMINAL", lunitk, '1')
+        production_rules[key].append (
+            rule
+        )
+        
+        return production_rules
+    
+    def _isoperandinrule (self, rule, operand) :
+        for op_index in range(len(rule)) :
+            if rule[op_index].val == operand :
+                return op_index
+        return -1
+    
+    def _getunitkeys (self) :
+        keys = []
+        production_rules = self.production_rules.copy()
+        
+        for key in production_rules.keys () :
+            if key == 'AXIOM' :
+                continue
+            for r_id in range(len(production_rules[key])) :
+                rule = production_rules[key][r_id] 
+                if (len(rule) == 1) and (rule[0].type == "NONTERMINAL"):
+                    del self.production_rules[key][r_id]
+                    if self.production_rules[key] == [] :
+                        del self.production_rules[key]
+                    keys.append ((key, rule[0].val))
+        return keys
 
 
 

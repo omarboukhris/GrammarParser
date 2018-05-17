@@ -1,5 +1,5 @@
-from lexlib.lexlib import Lexer, LexerError, Token
-from lexlib.ChomskyNormalizer import *
+from lexlib import Lexer, LexerError, Token
+from ChomskyNormalizer import *
 from collections import OrderedDict as odict
 
 import pickle, random
