@@ -18,15 +18,16 @@ class ChomskyNormalForm :
 		bins.apply ()
 		#self.normalForm = bins.production_rules
 		#print (self)
-		dels = DEL (bins.production_rules)
-		dels.apply ()
-		self.normalForm = dels.production_rules
-		print ("del" + self.__str__())
-		unit = UNIT (dels.production_rules)
-		unit.apply ()
+		#dels = DEL (bins.production_rules)
+		#dels.apply ()
+		#self.normalForm = dels.production_rules
+		#print ("del" + self.__str__())
+		#unit = UNIT (bins.production_rules)
+		#unit.apply ()
 		#self.normalForm = unit.production_rules
 		#print (self)
-		return  unit.production_rules
+		#return  unit.production_rules
+		return  bins.production_rules
 		
 	def __str__ (self) :
 		text_rule = ""
@@ -125,75 +126,84 @@ class DEL :
 			pass
 			
 	def _del (self) :
-		changed = False
-		emptykeys = self._getemptykeys ()
-		for remptyk, lemptyk in emptykeys :
-			changed = True
-			production_rules = deepcopy(self.production_rules)
-			out = deepcopy(production_rules)
-			for key in production_rules.keys() :
-
-				for rule_index in range(len(production_rules[key])) :
-
-					#if rule contains runit replace with lunit
-					op_index = self._isoperandinrule (
-						production_rules[key][rule_index], 
-						remptyk
-					)
-					
-					if op_index != -1 : #operand is in rule
-						out = self._exploderule (
-							out,
-							key,
-							rule_index,
-							op_index,
-						)
-			self.production_rules = deepcopy(out)
-			self._delemptyrules()
-		return changed
 		
+		emptykeys = self._getemptykeys ()
+		doubleemptykeys = self._getdoubleemptykeys () 
+		
+		if emptykeys == [] and doubleemptykeys == [] :
+			return
+		
+		
+		production_rules = odict ()
+		for key in self.production_rules.keys () :
+			production_rules[key] =
+			node = []
 
-	def _exploderule (self, production_rules, key, rule_index, op_index) :
-	
-		rule = deepcopy(production_rules[key][rule_index])
-		del production_rules[key][rule_index][op_index]
-		production_rules[key].append (
-			rule
-		)
-	
-		return production_rules
-	
-	def _isoperandinrule (self, rule, operand) :
-		for op_index in range(len(rule)) :
-			if rule[op_index].val == operand :
-				return op_index
-		return -1
-	
-	def _delemptyrules (self) :
-		keys = self.production_rules.keys ()
-		for key in keys :
-			if key == 'AXIOM' :
-				continue
-			if (len(self.production_rules[key]) == 0) :
-				del self.production_rules[key]
+			rules = self.production_rules[key]
+
+			for rule in rules :
+				#returns a single rule
+				implosion = self._implode (rule, emptykey)
+				if implosion != []
+					node += [implosion]
+				explosion = self._explode (rule, doubleemptykeys)
+				if explosion != [] :
+					node += [explosion]
+				
+			if 
 			
-	def _getemptykeys (self) :
-		keys = []
-		production_rules = deepcopy(self.production_rules)
-		for key in production_rules.keys () :
-			if key == 'AXIOM' :
+				
+				
+			
+	def _explode (self, rule, emptykeys) :
+		if rule == [] :
+			return []
+		fixedrules = [rule]
+		if rule[0].val in emptykeys :
+			newRule = [rule[1]]
+			fixedrules.append(newRule)
+		
+		if len(rule) > 1 :
+			if rule[1].val in emptykeys :
+				newRule = [rule[0]]
+				fixedrules.append(newRule)
+			
+		return fixedrules
+		
+	def _implode (self, rule, emptykeys) :
+		fixedrule = []
+		for operand in rule :
+			if operand.val in emptykeys :
 				continue
-			del_id = 0
-			for r_id in range(len(production_rules[key])) :
-				rule = production_rules[key][r_id]
-				if (len(rule) == 1) and (rule[0].type == "EMPTY") :
-					del self.production_rules[key][del_id]
-					keys.append ((key, rule[0].val))
+			fixedrule.append(operand)
+		return fixedrule
+	
+	def _getemptykeys (self) :
+		production_rules = odict ()
+		keys = []
+		for key, rules in self.production_rules.items() :
+			production_rules[key] = []
+			if rules == [] :
+				keys.append(key)
+			for rule in rules :
+				if len(rule) == 1 and rule[0].type == 'EMPTY' :
+					keys.append (key)
 				else :
 					production_rules[key].append(rule)
-					del_id += 1
-
-		#self.production_rules = deepcopy(production_rules)
+		self.production_rules = production_rules
+		return list(set(keys))
+	
+	def _getdoubleemptykeys (self) :
+		production_rules = odict ()
+		keys = []
+		for key, rules in self.production_rules.items() :
+			production_rules[key] = []
+			for rule in rules :
+				if len(rules) > 1 and len(rule) == 1 and rule[0].type == 'EMPTY' :
+					keys.append (key)
+				else :
+					production_rules[key].append(rule)
+		self.production_rules = production_rules
 		return keys
 		
 	def __str__ (self) :
@@ -220,8 +230,8 @@ class UNIT :
 		unitkeys = self._getunitkeys ()
 		for runitk, lunitk in unitkeys :
 			changed = True
-			production_rules = deepcopy(self.production_rules)
-			out = deepcopy(production_rules)
+			production_rules = self.production_rules
+			out = production_rules.copy()
 			for key in production_rules.keys() :
 
 				for rule_index in range(len(production_rules[key])) :
@@ -240,18 +250,21 @@ class UNIT :
 							op_index,
 							lunitk,
 						)
-			self.production_rules = deepcopy(out)
-			self._delemptyrules()
+			self.production_rules = out.copy()
 		return changed
 		
 
 	def _exploderule (self, production_rules, key, rule_index, op_index, lunitk) :
-
-		rule = deepcopy(production_rules[key][rule_index])
-		production_rules[key][rule_index][op_index] = Token("NONTERMINAL", lunitk, '1')
+		rule = production_rules[key][rule_index].copy()
+		production_rules[key][rule_index][op_index] = Token(
+			"NONTERMINAL", 
+			lunitk, 
+			production_rules[key][rule_index][op_index].pos
+		)
 		production_rules[key].append (
 			rule
 		)
+
 		
 		return production_rules
 	
@@ -261,30 +274,20 @@ class UNIT :
 				return op_index
 		return -1
 	
-	def _delemptyrules (self) :
-		keys = self.production_rules.keys ()
-		for key in keys :
-			if key == 'AXIOM' :
-				continue
-			if (len(self.production_rules[key]) == 0) :
-				del self.production_rules[key]
-			
 	def _getunitkeys (self) :
 		keys = []
 		production_rules = deepcopy(self.production_rules)
-		for key in self.production_rules.keys () :
+		
+		for key in production_rules.keys () :
 			if key == 'AXIOM' :
 				continue
-			del_id = 0
 			for r_id in range(len(production_rules[key])) :
 				rule = production_rules[key][r_id] 
 				if (len(rule) == 1) and (rule[0].type == "NONTERMINAL"):
-					del self.production_rules[key][del_id]
+					del self.production_rules[key][r_id]
+					if self.production_rules[key] == [] :
+						del self.production_rules[key]
 					keys.append ((key, rule[0].val))
-				else :
-					production_rules[key].append(rule)
-					del_id += 1
-		#self.production_rules = production_rules
 		return keys
 
 

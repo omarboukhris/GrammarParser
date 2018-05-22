@@ -27,17 +27,17 @@ txtgrammar = """
 
 AXIOM := S
 
-S := a.tok + A |
-''
+S := a.tok + A 
 
 A := a.tok + A + S |
-	A B |
-	A
+	A A |
+	B
 	
-B := ''
+B := '' |
+	A |
+	d.tok
 
 """
-
 
 #DC := NOK.tok
 #integrate "tokens" in grammar definition
@@ -55,10 +55,11 @@ if __name__ == '__main__':
 	gram.parse (verbose=True)
 
 	#graph generator goes here
+
 	"""
 	gg = gb.GraphGenerator (prodrulesgen.production_rules)
 	axiom = gg.buildgraph()
 	#l = axiom.getgraph()
 	print (axiom)
 	"""
-	
+
