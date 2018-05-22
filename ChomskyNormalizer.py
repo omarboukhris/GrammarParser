@@ -18,8 +18,8 @@ class ChomskyNormalForm :
 		bins.apply ()
 		#self.normalForm = bins.production_rules
 		#print (self)
-		#dels = DEL (bins.production_rules)
-		#dels.apply ()
+		dels = DEL (bins.production_rules)
+		dels.apply ()
 		#self.normalForm = dels.production_rules
 		#print ("del" + self.__str__())
 		#unit = UNIT (bins.production_rules)
@@ -27,7 +27,7 @@ class ChomskyNormalForm :
 		#self.normalForm = unit.production_rules
 		#print (self)
 		#return  unit.production_rules
-		return  bins.production_rules
+		return  dels.production_rules
 		
 	def __str__ (self) :
 		text_rule = ""
@@ -123,70 +123,122 @@ class DEL :
 	
 	def apply (self) :
 		while self._del () :
-			pass
+			self.eliminatedoubles ()
+			print (self)
+			#pass
 			
+	def eliminatedoubles (self) :
+		production_rules = odict()
+		for key in self.production_rules.keys() :
+			rules = self.production_rules[key]
+			
+			uniquerules = []
+			banned = []
+			for i in range (len (rules)) :
+				ruleexists = self.checkunique (uniquerules, rules[i])
+				if not ruleexists :
+					uniquerules.append (rules [i])
+
+			production_rules[key] = uniquerules
+		self.production_rules = production_rules
+
+	def checkunique (self, uniquerules, rule) :
+		for r in uniquerules :
+			if self.samerule (r, rule) :
+				return True
+		return False
+		
+	def samerule (self, rulea, ruleb) :
+		if len(rulea) == len(ruleb) :
+			for opa, opb in zip (rulea, ruleb) :
+				if not (opa.type == opb.type and opa.val == opb.val and opa.pos == opb.pos) : 
+					return False
+			return True
+
 	def _del (self) :
 		
 		emptykeys = self._getemptykeys ()
 		doubleemptykeys = self._getdoubleemptykeys () 
+
+		print (emptykeys, doubleemptykeys)
 		
 		if emptykeys == [] and doubleemptykeys == [] :
-			return
+			return False
 		
 		
 		production_rules = odict ()
 		for key in self.production_rules.keys () :
-			production_rules[key] =
+			production_rules[key] = []
 			node = []
 
 			rules = self.production_rules[key]
 
 			for rule in rules :
-				#returns a single rule
-				implosion = self._implode (rule, emptykey)
-				if implosion != []
-					node += [implosion]
-				explosion = self._explode (rule, doubleemptykeys)
-				if explosion != [] :
-					node += [explosion]
+
+				exploded, explosion = self._explode1 (rule, emptykeys)
+				if exploded :
+					for r in explosion :
+						node.append (r)
+
+				exploded, explosion = self._explode2 (rule, emptykeys)
+				if exploded :
+					for r in explosion :
+						node.append(r)
 				
-			if 
-			
-				
-				
-			
-	def _explode (self, rule, emptykeys) :
-		if rule == [] :
-			return []
-		fixedrules = [rule]
-		if rule[0].val in emptykeys :
-			newRule = [rule[1]]
+			if node != [] :
+				production_rules[key] = node
+		self.production_rules = production_rules
+		return True
+		
+		
+	def _explode1 (self, rule, emptykeys) :
+		if len(rule) != 1 :
+			return False, []
+
+		fixedrules = []
+		
+		op = rule[0]
+		if op.val in emptykeys :
+			fixedrules = []
+		else :
+			fixedrules = [rule]
+		return True, fixedrules
+		
+	def _explode2 (self, rule, emptykeys, doubleemptykeys) :
+		if len(rule) != 2 :
+			return False, []
+
+		fixedrules = []
+		#REWRITE THIS
+		op = rule[0]
+		if not op.val in emptykeys :
+			fixedrules = []
+		else :
+			fixedrules = [rule]
+		
+		if rule[1].val in emptykeys :
+			exploded = True
+			newRule = [rule[0]]
+			if newRule == [] :
+				newRule = [Token ('EMPTY', "''", -1)]
 			fixedrules.append(newRule)
-		
-		if len(rule) > 1 :
-			if rule[1].val in emptykeys :
-				newRule = [rule[0]]
-				fixedrules.append(newRule)
-			
-		return fixedrules
-		
-	def _implode (self, rule, emptykeys) :
-		fixedrule = []
-		for operand in rule :
-			if operand.val in emptykeys :
-				continue
-			fixedrule.append(operand)
-		return fixedrule
+
+		for r in fixedrules :
+			print ("expl")
+			self.printRule (r)
+
+		return exploded, fixedrules
 	
 	def _getemptykeys (self) :
 		production_rules = odict ()
 		keys = []
 		for key, rules in self.production_rules.items() :
-			production_rules[key] = []
 			if rules == [] :
 				keys.append(key)
+				continue
+			production_rules[key] = []
 			for rule in rules :
-				if len(rule) == 1 and rule[0].type == 'EMPTY' :
+				if len(rules) == 1 and len(rule) == 1 and rule[0].type == 'EMPTY' :
 					keys.append (key)
 				else :
 					production_rules[key].append(rule)
@@ -197,6 +249,8 @@ class DEL :
 		production_rules = odict ()
 		keys = []
 		for key, rules in self.production_rules.items() :
+			if rules == [] :
+				continue
 			production_rules[key] = []
 			for rule in rules :
 				if len(rules) > 1 and len(rule) == 1 and rule[0].type == 'EMPTY' :
@@ -204,7 +258,7 @@ class DEL :
 				else :
 					production_rules[key].append(rule)
 		self.production_rules = production_rules
-		return keys
+		return list(set(keys))
 		
 	def __str__ (self) :
 		text_rule = ""
@@ -216,6 +270,9 @@ class DEL :
 				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
 			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
 		return text_rule
+	
+	def printRule (self, rule) :
+		print (" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
 
 class UNIT :
 	def __init__ (self, production_rules) :

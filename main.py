@@ -30,13 +30,11 @@ AXIOM := S
 S := a.tok + A 
 
 A := a.tok + A + S |
-	A A |
-	B
-	
+	B A 
 B := '' |
-	A |
+	C |
 	d.tok
-
+C := ''
 """
 
 #DC := NOK.tok
