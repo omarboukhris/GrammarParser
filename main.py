@@ -23,19 +23,20 @@ C :=
 	''
 """
 
-txtgrammar = """
+#txtgrammar = """
 
-AXIOM := S
+#AXIOM := S
 
-S := a.tok + A 
+#S := a.tok + A 
 
-A := a.tok + A + S |
-	B A 
-B := '' |
-	C |
-	d.tok
-C := ''
-"""
+#A := a.tok + A + S |
+	#B A 
+#B := '' |
+	#C |
+	#C d.tok |
+	#d.tok
+#C := ''
+#"""
 
 #DC := NOK.tok
 #integrate "tokens" in grammar definition

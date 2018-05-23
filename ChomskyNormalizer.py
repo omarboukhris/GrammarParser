@@ -122,6 +122,7 @@ class DEL :
 		self.production_rules = production_rules
 	
 	def apply (self) :
+		print (self)
 		while self._del () :
 			self.eliminatedoubles ()
 			print (self)
@@ -168,6 +169,9 @@ class DEL :
 		
 		production_rules = odict ()
 		for key in self.production_rules.keys () :
+			if key == "AXIOM" :
+				production_rules[key] = self.production_rules[key]
+				continue
 			production_rules[key] = []
 			node = []
 
@@ -180,7 +184,7 @@ class DEL :
 					for r in explosion :
 						node.append (r)
 
-				exploded, explosion = self._explode2 (rule, emptykeys)
+				exploded, explosion = self._explode2 (rule, emptykeys, doubleemptykeys)
 				if exploded :
 					for r in explosion :
 						node.append(r)
@@ -207,27 +211,107 @@ class DEL :
 	def _explode2 (self, rule, emptykeys, doubleemptykeys) :
 		if len(rule) != 2 :
 			return False, []
-
-		fixedrules = []
-		#REWRITE THIS
-		op = rule[0]
-		if not op.val in emptykeys :
-			fixedrules = []
-		else :
-			fixedrules = [rule]
 		
-		if rule[1].val in emptykeys :
-			exploded = True
-			newRule = [rule[0]]
-			if newRule == [] :
-				newRule = [Token ('EMPTY', "''", -1)]
-			fixedrules.append(newRule)
+		fixedrules = []
+		op1, op2 = rule[0], rule[1]
+		
+		op1_erasable, op2_erasable = (op1.val in emptykeys), (op2.val in emptykeys)
+		op1_nullable, op2_nullable = (op1.val in doubleemptykeys), (op2.val in doubleemptykeys)
+		op1_allcool, op2_allcool = (not op1_erasable and not op1_nullable), (not op2_erasable and not op2_nullable)
+		
+		if op1_erasable and op2_erasable :
+			fixedrules.append (
+				[Token('""', "EMPTY", op1.pos)]
+			)
+		elif op1_erasable and op2_nullable :
+			fixedrules.append (
+				[Token('""', "EMPTY", op1.pos)]
+			)
+			fixedrules.append (
+				[op2]
+			)
+		elif op1_erasable and op2_allcool :
+			fixedrules.append (
+				[op2]
+			)
+		elif op1_nullable and op2_erasable :
+			fixedrules.append (
+				[Token('""', "EMPTY", op1.pos)]
+			)
+			fixedrules.append (
+				[op1]
+			)
+		elif op1_nullable and op2_nullable :
+			fixedrules.append (
+				[Token('""', "EMPTY", op1.pos)]
+			)
+			fixedrules.append (
+				[op1]
+			)
+			fixedrules.append (
+				[op2]
+			)
+			fixedrules.append (
+				[op1, op2]
+			)
+		elif op1_nullable and op2_allcool :
+			fixedrules.append (
+				[op2]
+			)
+			fixedrules.append (
+				[op1, op2]
+			)
+		elif op1_allcool and op2_erasable :
+			fixedrules.append (
+				[op1]
+			)
+		elif op1_allcool and op2_nullable :
+			fixedrules.append (
+				[op1, op2]
+			)
+			fixedrules.append (
+				[op1]
+			)
+		elif op1_allcool and op2_allcool :
+			fixedrules.append (
+				[op1, op2]
+			)
+		return True, fixedrules
 
+
+			
+		
+
+		
+		fixedrules = []
+		op1, op2 = rule[0], rule[1]
+		newrule = rule
+		if not op1.val in emptykeys and not op2.val in emptykeys and not op1.val in doubleemptykeys and not op2.val in doubleemptykeys :
+			return True, [rule]
+		
+		if op1.val in emptykeys and not op2.val in emptykeys :
+			newrule = [op2]
+		if op2.val in emptykeys and not op1.val in emptykeys :
+			newrule = [op1]
+
+		if op1.val in doubleemptykeys or op2.val in doubleemptykeys :
+			fixedrules.append (newrule)
+		if op1.val in doubleemptykeys and op2.val in doubleemptykeys :
+			fixedrules.append (
+				[Token('""', "EMPTY", op1.pos)]
+			)
+		
+		if op1.val in doubleemptykeys and not op2.val in doubleemptykeys :
+			fixedrules.append(
+				[op2]
+			)
+		if  op2.val in doubleemptykeys and not op1.val in doubleemptykeys :
+			fixedrules.append(
+				[op1]
+			)
 		for r in fixedrules :
-			print ("expl")
 			self.printRule (r)
-
-		return exploded, fixedrules
+		return True, fixedrules
 	
 	def _getemptykeys (self) :
 		production_rules = odict ()
@@ -238,7 +322,11 @@ class DEL :
 				continue
 			production_rules[key] = []
 			for rule in rules :
-				if len(rules) == 1 and len(rule) == 1 and rule[0].type == 'EMPTY' :
+				
+				isruleempty = (len(rules) == 1 and len(rule) == 1 and rule[0].type == 'EMPTY')
+				isruleonself = (len(rules) == 1 and len(rule) == 1 and rule[0].val == key)
+				
+				if isruleempty or isruleonself :
 					keys.append (key)
 				else :
 					production_rules[key].append(rule)
