@@ -152,7 +152,7 @@ class DEL :
 	def samerule (self, rulea, ruleb) :
 		if len(rulea) == len(ruleb) :
 			for opa, opb in zip (rulea, ruleb) :
-				if not (opa.type == opb.type and opa.val == opb.val and opa.pos == opb.pos) : 
+				if not (opa.type == opb.type and opa.val == opb.val) : 
 					return False
 			return True
 
