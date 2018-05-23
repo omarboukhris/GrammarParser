@@ -8,12 +8,11 @@ CLASS :=
 		FUNK + B + VF.tok + DC.tok
 
 FUNK := 
-	FDECL.tok |
-	""
+	FDECL.tok 
 
 A := 
 	LCROCH.tok + B + RCROCH.tok |
-	''
+	B
 
 B :=
 	B |
@@ -31,6 +30,7 @@ S := a.tok + A
 
 A := a.tok + A + S |
 	B A 
+	
 B := '' |
 	C |
 	C d.tok |

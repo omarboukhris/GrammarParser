@@ -22,12 +22,12 @@ class ChomskyNormalForm :
 		dels.apply ()
 		#self.normalForm = dels.production_rules
 		#print ("del" + self.__str__())
-		#unit = UNIT (bins.production_rules)
-		#unit.apply ()
+		unit = UNIT (dels.production_rules)
+		unit.apply ()
 		#self.normalForm = unit.production_rules
 		#print (self)
 		#return  unit.production_rules
-		return  dels.production_rules
+		return  unit.production_rules
 		
 	def __str__ (self) :
 		text_rule = ""
@@ -122,10 +122,10 @@ class DEL :
 		self.production_rules = production_rules
 	
 	def apply (self) :
-		print (self)
+		#print (self)
 		while self._del () :
 			self.eliminatedoubles ()
-			print (self)
+			#print (self)
 			#pass
 			
 	def eliminatedoubles (self) :
@@ -161,7 +161,7 @@ class DEL :
 		emptykeys = self._getemptykeys ()
 		doubleemptykeys = self._getdoubleemptykeys () 
 
-		print (emptykeys, doubleemptykeys)
+		#print (emptykeys, doubleemptykeys)
 		
 		if emptykeys == [] and doubleemptykeys == [] :
 			return False
@@ -203,7 +203,7 @@ class DEL :
 		
 		op = rule[0]
 		if op.val in emptykeys :
-			fixedrules = []
+			fixedrules = [[Token("EMPTY", '""', op.pos)]]
 		else :
 			fixedrules = [rule]
 		return True, fixedrules
@@ -221,11 +221,11 @@ class DEL :
 		
 		if op1_erasable and op2_erasable :
 			fixedrules.append (
-				[Token('""', "EMPTY", op1.pos)]
+				[Token("EMPTY", '""', op1.pos)]
 			)
 		elif op1_erasable and op2_nullable :
 			fixedrules.append (
-				[Token('""', "EMPTY", op1.pos)]
+				[Token("EMPTY", '""', op1.pos)]
 			)
 			fixedrules.append (
 				[op2]
@@ -236,14 +236,14 @@ class DEL :
 			)
 		elif op1_nullable and op2_erasable :
 			fixedrules.append (
-				[Token('""', "EMPTY", op1.pos)]
+				[Token("EMPTY", '""', op1.pos)]
 			)
 			fixedrules.append (
 				[op1]
 			)
 		elif op1_nullable and op2_nullable :
 			fixedrules.append (
-				[Token('""', "EMPTY", op1.pos)]
+				[Token("EMPTY", '""', op1.pos)]
 			)
 			fixedrules.append (
 				[op1]
@@ -279,39 +279,6 @@ class DEL :
 		return True, fixedrules
 
 
-			
-		
-
-		
-		fixedrules = []
-		op1, op2 = rule[0], rule[1]
-		newrule = rule
-		if not op1.val in emptykeys and not op2.val in emptykeys and not op1.val in doubleemptykeys and not op2.val in doubleemptykeys :
-			return True, [rule]
-		
-		if op1.val in emptykeys and not op2.val in emptykeys :
-			newrule = [op2]
-		if op2.val in emptykeys and not op1.val in emptykeys :
-			newrule = [op1]
-
-		if op1.val in doubleemptykeys or op2.val in doubleemptykeys :
-			fixedrules.append (newrule)
-		if op1.val in doubleemptykeys and op2.val in doubleemptykeys :
-			fixedrules.append (
-				[Token('""', "EMPTY", op1.pos)]
-			)
-		
-		if op1.val in doubleemptykeys and not op2.val in doubleemptykeys :
-			fixedrules.append(
-				[op2]
-			)
-		if  op2.val in doubleemptykeys and not op1.val in doubleemptykeys :
-			fixedrules.append(
-				[op1]
-			)
-		for r in fixedrules :
-			self.printRule (r)
-		return True, fixedrules
 	
 	def _getemptykeys (self) :
 		production_rules = odict ()
@@ -373,51 +340,11 @@ class UNIT :
 	def _unit (self) :
 		changed = False
 		unitkeys = self._getunitkeys ()
-		for runitk, lunitk in unitkeys :
-			changed = True
-			production_rules = self.production_rules
-			out = production_rules.copy()
-			for key in production_rules.keys() :
 
-				for rule_index in range(len(production_rules[key])) :
+		print (unitkeys)
+		#magic happens here
 
-					#if rule contains runit replace with lunit
-					op_index = self._isoperandinrule (
-						production_rules[key][rule_index], 
-						runitk
-					)
-					
-					if op_index != -1 : #operand is in rule
-						out = self._exploderule (
-							out,
-							key,
-							rule_index,
-							op_index,
-							lunitk,
-						)
-			self.production_rules = out.copy()
 		return changed
-		
-
-	def _exploderule (self, production_rules, key, rule_index, op_index, lunitk) :
-		rule = production_rules[key][rule_index].copy()
-		production_rules[key][rule_index][op_index] = Token(
-			"NONTERMINAL", 
-			lunitk, 
-			production_rules[key][rule_index][op_index].pos
-		)
-		production_rules[key].append (
-			rule
-		)
-
-		
-		return production_rules
-	
-	def _isoperandinrule (self, rule, operand) :
-		for op_index in range(len(rule)) :
-			if rule[op_index].val == operand :
-				return op_index
-		return -1
 	
 	def _getunitkeys (self) :
 		keys = []
