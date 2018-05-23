@@ -354,11 +354,8 @@ class UNIT :
 			if key == 'AXIOM' :
 				continue
 			for r_id in range(len(production_rules[key])) :
-				rule = production_rules[key][r_id] 
+				rule = production_rules[key][r_id]
 				if (len(rule) == 1) and (rule[0].type == "NONTERMINAL"):
-					del self.production_rules[key][r_id]
-					if self.production_rules[key] == [] :
-						del self.production_rules[key]
 					keys.append ((key, rule[0].val))
 		return keys
 
