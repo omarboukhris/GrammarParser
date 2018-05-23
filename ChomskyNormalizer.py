@@ -20,13 +20,13 @@ class ChomskyNormalForm :
 		#print (self)
 		dels = DEL (bins.production_rules)
 		dels.apply ()
-		#self.normalForm = dels.production_rules
-		#print ("del" + self.__str__())
+		self.normalForm = dels.production_rules
+		print ("del" + self.__str__())
 		unit = UNIT (dels.production_rules)
 		unit.apply ()
 		#self.normalForm = unit.production_rules
 		#print (self)
-		#return  unit.production_rules
+		#return  dels.production_rules
 		return  unit.production_rules
 		
 	def __str__ (self) :
@@ -335,32 +335,115 @@ class UNIT :
 	
 	def apply (self) :
 		while self._unit () :
-			pass
+			self.eliminatedoubles ()
+			print (self)
 			
 	def _unit (self) :
-		changed = False
-		unitkeys = self._getunitkeys ()
+		unitkeys, doubleunitkeys = self._getunitkeys ()
 
-		print (unitkeys)
-		#magic happens here
-
-		return changed
-	
-	def _getunitkeys (self) :
-		keys = []
-		production_rules = deepcopy(self.production_rules)
+		print (unitkeys, doubleunitkeys)
 		
-		for key in production_rules.keys () :
+		if unitkeys == {} and doubleunitkeys == {} :
+			return False
+		
+		production_rules = odict()
+		
+		for key, rules in self.production_rules.items() :
 			if key == 'AXIOM' :
+				production_rules["AXIOM"] = rules
 				continue
-			for r_id in range(len(production_rules[key])) :
-				rule = production_rules[key][r_id]
-				if (len(rule) == 1) and (rule[0].type == "NONTERMINAL"):
-					keys.append ((key, rule[0].val))
-		return keys
+			
+			#eliminate if in unit
+			node = []
+			for rule in rules :
+				newRule = []
+				for op_id in range(len(rule)) :
+					operand = rule[op_id]
+					if operand.val in unitkeys.keys() and operand.val != unitkeys[operand.val] :
+						newRule.append(
+							Token ("NONTERMINAL", unitkeys[operand.val], operand.pos)
+						)
 
+					else :
+						newRule.append(operand)
+				if newRule != [] :
+					node.append (newRule)
+			production_rules[key] = node
+			
+			
 
+		self.production_rules = production_rules
+		return True
+		#return False
 
+	def _getunitkeys (self) :
+		production_rules = odict()
+		unitkeys, doubleunitkeys = {}, {}
+		for key, rules in self.production_rules.items () :
+			if key == 'AXIOM' :
+				production_rules["AXIOM"] = self.production_rules["AXIOM"]
+				continue
+			node = []
+			rules = self.production_rules[key]
+			if len(rules) == 1 :
+				rule = rules[0]
+				if len(rule) == 1 and rule[0].type == "NONTERMINAL" and rule[0].val[-8:] != '_TOK_NT_' :
+					unitkeys[key] = rule[0].val
+				else :
+					node = rules
+			else :
+				keyslist = []
+				for rule in rules :
+					if len(rule) == 1 and rule[0].type == "NONTERMINAL"  and rule[0].val[-8:] != '_TOK_NT_' :
+						if rule[0].val != key :
+							keyslist.append(rule[0].val)
+					else :
+						node.append(rule)
+				if keyslist != [] : 
+					doubleunitkeys[key] = keyslist
+			if node != [] :
+				production_rules[key] = node
+		self.production_rules = production_rules
+		return unitkeys, doubleunitkeys
+
+	def eliminatedoubles (self) :
+		production_rules = odict()
+		for key in self.production_rules.keys() :
+			rules = self.production_rules[key]
+			
+			uniquerules = []
+			banned = []
+			for i in range (len (rules)) :
+				ruleexists = self.checkunique (uniquerules, rules[i])
+				if not ruleexists :
+					uniquerules.append (rules [i])
+
+			production_rules[key] = uniquerules
+		self.production_rules = production_rules
+
+	def checkunique (self, uniquerules, rule) :
+		for r in uniquerules :
+			if self.samerule (r, rule) :
+				return True
+		return False
+		
+	def samerule (self, rulea, ruleb) :
+		if len(rulea) == len(ruleb) :
+			for opa, opb in zip (rulea, ruleb) :
+				if not (opa.type == opb.type and opa.val == opb.val) : 
+					return False
+			return True
+
+	def __str__ (self) :
+		text_rule = ""
+		self.normalForm = self.production_rules
+		for key, rules in self.normalForm.items() :
+			text_rule += "\nRULE " + key + " = [\n\t"
+			rule_in_a_line = []
+			for rule in self.normalForm[key] :
+				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
+			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
+		return text_rule
 
 
 

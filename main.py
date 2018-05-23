@@ -29,7 +29,9 @@ AXIOM := S
 S := a.tok + A 
 
 A := a.tok + A + S |
-	B A 
+	B A |
+	B | 
+	C
 	
 B := '' |
 	C |
