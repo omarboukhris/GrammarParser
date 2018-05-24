@@ -15,23 +15,23 @@ import sys
 class Tokenizer :
 	def __init__ (self, tokens_re_list) :
 		self.tokens_re_list = tokens_re_list
-		self.tokenizedgrammar = None
+		self.tokenized = None
 	
 	def parse (self, source) :
 		lx = Lexer(self.tokens_re_list, skip_whitespace=True)
 		lx.input(source)
 
 		try:
-			tokenizedgrammar = []
+			tokenized = []
 			for tok in lx.tokens():
-				tokenizedgrammar.append(tok)
+				tokenized.append(tok)
 		except LexerError as err:
 			print('LexerError at position %s' % err.pos)
-		self.tokenizedgrammar = tokenizedgrammar
+		self.tokenized = tokenized
 
 	def __str__ (self) :
 		s = ""
-		for token in self.tokenizedgrammar :
+		for token in self.tokenized :
 			s += token.__str__() + "\n"
 		return s
 

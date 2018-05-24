@@ -72,22 +72,22 @@ class GenericGrammarParser :
 	def parse (self, txt_grammar="", verbose=False) :
 
 		#lex language => tokenized grammar
-		tokenizer = Tokenizer (self.grammartokens)
+		lang = Tokenizer (self.grammartokens)
 		#lex tokenized grammar => tokenized language
 		gram = Tokenizer (self.genericgrammarprodrules)
 
-		tokenizer.parse (txt_grammar)
-		if verbose : print(tokenizer)
+		lang.parse (txt_grammar)
+		if verbose : print(lang)
 
-		txtok = transformtosource (tokenizer.tokenizedgrammar)
+		txtok = transformtosource (lang.tokenized)
 		gram.parse (txtok)
 		if verbose : print(gram)
 
 		#make production rules
 		grammar = Grammar ()
 		result = grammar.makegrammar (
-			gram.tokenizedgrammar,
-			tokenizer.tokenizedgrammar,
+			gram.tokenized,
+			lang.tokenized,
 		)
 
 		if (result == (True,[])) :
@@ -95,3 +95,4 @@ class GenericGrammarParser :
 		else :
 			if verbose : print (result)
 		return grammar
+	

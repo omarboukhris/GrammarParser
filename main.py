@@ -23,23 +23,23 @@ C :=
 	''
 """
 
-#txtgrammar = """
+txtgrammar = """
 
-#AXIOM := S
+AXIOM := S
 
-#S := a.tok + A 
+S := a.tok + A 
 
-#A := a.tok + A + S |
-	#B A |
-	#B | 
-	#C
+A := a.tok + A + S |
+	B A |
+	B | 
+	C
 	
-#B := '' |
-	#C |
-	#C d.tok |
-	#d.tok
-#C := ''
-#"""
+B := '' |
+	C |
+	C d.tok |
+	d.tok
+C := ''
+"""
 
 #DC := NOK.tok
 #integrate "tokens" in grammar definition
@@ -54,25 +54,14 @@ langtokens = [
 
 if __name__ == '__main__':
 	gramparser = gp.GenericGrammarParser ()
-	grammar = gramparser.parse (txtgrammar, verbose=True)
+	grammar = gramparser.parse (txtgrammar)#, verbose=True)
 	
-	if grammar == [] :
-		print ('illegal grammar')
-		exit()
-		
 	gb.dotgraph (grammar, "before_CNF")
-	grammar.production_rules = cnf.getnormalform (grammar.production_rules)
+	grammar = cnf.getnormalform (grammar)
+	#print (grammar)
 	gb.dotgraph (grammar, "after_CNF")
 
 	grammar.save ("lang.pkl")
 
 	#graph generator goes here
 	#langraph = gb.LanguageGraph (grammar)
-	
-	
-	
-	
-	
-	
-
-

@@ -1,8 +1,10 @@
 from lexlib import Token
+from grammaroperations import eliminatedoubles
 from collections import OrderedDict as odict
 from copy import deepcopy
 
-def getnormalform (production_rules) :
+def getnormalform (grammar) :
+	production_rules = grammar.production_rules
 	term = TERM (production_rules)
 	term.apply ()
 	bins = BIN (term.production_rules)
@@ -11,7 +13,8 @@ def getnormalform (production_rules) :
 	dels.apply ()
 	unit = UNIT (dels.production_rules)
 	unit.apply ()
-	return  unit.production_rules
+	grammar.production_rules = unit.production_rules
+	return grammar
 
 class TERM :
 	def __init__ (self, production_rules) :
@@ -96,37 +99,7 @@ class DEL :
 	def apply (self) :
 		#print (self)
 		while self._del () :
-			self.eliminatedoubles ()
-			#print (self)
-			#pass
-			
-	def eliminatedoubles (self) :
-		production_rules = odict()
-		for key in self.production_rules.keys() :
-			rules = self.production_rules[key]
-			
-			uniquerules = []
-			banned = []
-			for i in range (len (rules)) :
-				ruleexists = self.checkunique (uniquerules, rules[i])
-				if not ruleexists :
-					uniquerules.append (rules [i])
-
-			production_rules[key] = uniquerules
-		self.production_rules = production_rules
-
-	def checkunique (self, uniquerules, rule) :
-		for r in uniquerules :
-			if self.samerule (r, rule) :
-				return True
-		return False
-		
-	def samerule (self, rulea, ruleb) :
-		if len(rulea) == len(ruleb) :
-			for opa, opb in zip (rulea, ruleb) :
-				if not (opa.type == opb.type and opa.val == opb.val) : 
-					return False
-			return True
+			self = eliminatedoubles (self)
 
 	def _del (self) :
 		
@@ -304,7 +277,7 @@ class UNIT :
 	
 	def apply (self) :
 		while self._unit () :
-			self.eliminatedoubles ()
+			self = eliminatedoubles (self)
 	
 	def _unit (self) :
 		unitkeys, doubleunitkeys = self._getunitkeys ()
@@ -355,31 +328,3 @@ class UNIT :
 				production_rules[key] = node
 		self.production_rules = production_rules
 		return unitkeys, doubleunitkeys
-
-	def eliminatedoubles (self) :
-		production_rules = odict()
-		for key in self.production_rules.keys() :
-			rules = self.production_rules[key]
-			
-			uniquerules = []
-			banned = []
-			for i in range (len (rules)) :
-				ruleexists = self.checkunique (uniquerules, rules[i])
-				if not ruleexists :
-					uniquerules.append (rules [i])
-
-			production_rules[key] = uniquerules
-		self.production_rules = production_rules
-
-	def checkunique (self, uniquerules, rule) :
-		for r in uniquerules :
-			if self.samerule (r, rule) :
-				return True
-		return False
-		
-	def samerule (self, rulea, ruleb) :
-		if len(rulea) == len(ruleb) :
-			for opa, opb in zip (rulea, ruleb) :
-				if not (opa.type == opb.type and opa.val == opb.val) : 
-					return False
-			return True
