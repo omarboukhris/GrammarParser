@@ -20,13 +20,12 @@ class ChomskyNormalForm :
 		#print (self)
 		dels = DEL (bins.production_rules)
 		dels.apply ()
-		self.normalForm = dels.production_rules
-		print ("del" + self.__str__())
+		#self.normalForm = dels.production_rules
+		#print ("del" + self.__str__())
 		unit = UNIT (dels.production_rules)
 		unit.apply ()
 		#self.normalForm = unit.production_rules
 		#print (self)
-		#return  dels.production_rules
 		return  unit.production_rules
 		
 	def __str__ (self) :
@@ -336,45 +335,26 @@ class UNIT :
 	def apply (self) :
 		while self._unit () :
 			self.eliminatedoubles ()
-			print (self)
-			
+	
 	def _unit (self) :
 		unitkeys, doubleunitkeys = self._getunitkeys ()
 
-		print (unitkeys, doubleunitkeys)
 		
 		if unitkeys == {} and doubleunitkeys == {} :
 			return False
 		
 		production_rules = odict()
-		
-		for key, rules in self.production_rules.items() :
-			if key == 'AXIOM' :
-				production_rules["AXIOM"] = rules
-				continue
-			
-			#eliminate if in unit
-			node = []
-			for rule in rules :
-				newRule = []
-				for op_id in range(len(rule)) :
-					operand = rule[op_id]
-					if operand.val in unitkeys.keys() and operand.val != unitkeys[operand.val] :
-						newRule.append(
-							Token ("NONTERMINAL", unitkeys[operand.val], operand.pos)
-						)
 
-					else :
-						newRule.append(operand)
-				if newRule != [] :
-					node.append (newRule)
-			production_rules[key] = node
-			
-			
+		for key, rules in self.production_rules.items() :
+			production_rules[key] = rules
+			if key in doubleunitkeys.keys () :
+				for repl in doubleunitkeys[key] :
+					if repl in doubleunitkeys.keys() or repl in unitkeys.keys() :
+						continue
+					production_rules[key] += self.production_rules[repl]
 
 		self.production_rules = production_rules
 		return True
-		#return False
 
 	def _getunitkeys (self) :
 		production_rules = odict()

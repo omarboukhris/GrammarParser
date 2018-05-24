@@ -4,14 +4,14 @@ import graphbuilder as gb
 txtgrammar = """
 AXIOM := CLASS
 CLASS := 
-		CLASS_DECL.tok + A |
-		FUNK + B + VF.tok + DC.tok
+		CL.tok + A |
+		FK + B + VF.tok + DC.tok
 
-FUNK := 
-	FDECL.tok 
+FK := 
+	FL.tok 
 
 A := 
-	LCROCH.tok + B + RCROCH.tok |
+	LC.tok + B + RC.tok |
 	B
 
 B :=
@@ -22,23 +22,23 @@ C :=
 	''
 """
 
-txtgrammar = """
+#txtgrammar = """
 
-AXIOM := S
+#AXIOM := S
 
-S := a.tok + A 
+#S := a.tok + A 
 
-A := a.tok + A + S |
-	B A |
-	B | 
-	C
+#A := a.tok + A + S |
+	#B A |
+	#B | 
+	#C
 	
-B := '' |
-	C |
-	C d.tok |
-	d.tok
-C := ''
-"""
+#B := '' |
+	#C |
+	#C d.tok |
+	#d.tok
+#C := ''
+#"""
 
 #DC := NOK.tok
 #integrate "tokens" in grammar definition
@@ -52,8 +52,10 @@ langtokens = [
 ]
 
 if __name__ == '__main__':
-	gram = gp.GenericGrammarParser (txtgrammar)
-	gram.parse (verbose=True)
+	gramparser = gp.GenericGrammarParser (txtgrammar)
+	grammar = gramparser.parse (verbose=True)
+
+	grammar.save ("lang.pkl")
 
 	#graph generator goes here
 

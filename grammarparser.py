@@ -140,97 +140,13 @@ class ProductionRulesGenerator :
 		self.production_rules = pickle.load (serialFile)
 		serialFile.close()
 
-
-class GrammarLinearizer :
-	def __init__ (self, production_rules) :
-		self.production_rules = production_rules
-		self.regularized_production_rules = None
-
-	def linearizegrammar (self) :
-		self.regularized_production_rules = odict()
-		changed = False
-		for key, rules in self.production_rules.items() :
-			keyprefix = key
-			self.regularized_production_rules[keyprefix] = []
-			for rule in rules :
-				if len(rule) == 1 : #single operand
-					self.regularized_production_rules[keyprefix].append([rule[0]])
-				elif len(rule) == 2 : # 2 operands whatever they are
-					self.regularized_production_rules[keyprefix].append(rule)
-				elif rule[0].type == "TERMINAL" : #regularize from left
-					self.leftregularizerule (keyprefix, rule)
-					changed = True
-				elif rule[-1].type == "TERMINAL" : #regularize from right
-					self.rightregularizerule (keyprefix, rule)
-					changed = True
-				elif rule[0].type == rule[-1].type : #divide expression for regularization purposes
-					self.divideexpression (keyprefix, rule)
-					changed = True
-		return self.regularized_production_rules, changed
-
-	def __str__ (self) :
-		text_rule = ""
-		
-		for key, rules in self.regularized_production_rules.items() :
-			text_rule += "\nRULE " + key + " = [\n\t"
-			rule_in_a_line = []
-			for rule in rules :
-				#text_rule += str(type(rule))
-				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
-			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
-
-		return text_rule
-
-
-	def divideexpression (self, keyprefix, rule) :
-		lenmax = random.sample (range(1, len(rule)-1), 1)[0]
-		rule_id = keyprefix + "-".join([r.val for r in rule[:lenmax]])
-		if rule_id in self.regularized_production_rules.keys() :
-			return 
-		tok1 = Token ("NONTERMINAL", rule_id, rule[0].pos)
-		self.regularized_production_rules[rule_id] = [rule[:lenmax]]
-		
-		rule_id = keyprefix + "-".join([r.val for r in rule[lenmax:]])
-		if rule_id in self.regularized_production_rules.keys() :
-			return 
-		self.regularized_production_rules[rule_id] = [rule[lenmax:]]
-		tok2 = Token ("NONTERMINAL", rule_id, rule[lenmax].pos)
-
-		self.regularized_production_rules[keyprefix].append([tok1, tok2])
-		
-		gr = GrammarLinearizer (self.regularized_production_rules) 
-		self.regularized_production_rules = gr.regularizegrammar()
-	
-	def leftregularizerule (self, keyprefix, rule) :
-		rule_id = keyprefix + "-".join([rule[i].val for i in range(1, len(rule))])
-		if rule_id in self.regularized_production_rules.keys() :
-			return 
-		else :
-			self.regularized_production_rules[keyprefix].append([
-				rule[0],
-				Token ("NONTERMINAL", rule_id, rule[1].pos),
-			])
-			self.regularized_production_rules[rule_id] = [rule[1:]]
-
-	def rightregularizerule (self, keyprefix, rule) :
-		rule_id = keyprefix + "-".join([rule[i].val for i in range(0, len(rule)-1)])
-		if rule_id in self.regularized_production_rules.keys() :
-			return 
-		else :
-			self.regularized_production_rules[keyprefix].append([
-				Token ("NONTERMINAL", rule_id, rule[-2].pos),
-				rule[-1], 
-			])
-			self.regularized_production_rules[rule_id] = [rule[:-1]]
-
-
 class GenericGrammarParser :
 	def __init__ (self, txt_grammar="") :
 		self.txt_grammar = txt_grammar
 		
 	def parse (self, verbose=False) :
 		tok, grm = self.tokenize(verbose)
-		self.getproductions (tok, grm, verbose)
+		return self.getproductions (tok, grm, verbose)
 	
 	def tokenize (self, verbose=False) :
 		grammartokens = [
