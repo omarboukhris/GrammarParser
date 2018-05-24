@@ -52,8 +52,8 @@ langtokens = [
 ]
 
 if __name__ == '__main__':
-	gramparser = gp.GenericGrammarParser (txtgrammar)
-	grammar = gramparser.parse (verbose=True)
+	gramparser = gp.GenericGrammarParser ()
+	grammar = gramparser.parse (txtgrammar, verbose=True)
 
 	grammar.save ("lang.pkl")
 

@@ -11,6 +11,29 @@
 import re
 import sys
 
+#parse grammar source code to tokens
+class Tokenizer :
+	def __init__ (self, tokens_re_list) :
+		self.tokens_re_list = tokens_re_list
+		self.tokenizedgrammar = None
+	
+	def parse (self, source) :
+		lx = Lexer(self.tokens_re_list, skip_whitespace=True)
+		lx.input(source)
+
+		try:
+			tokenizedgrammar = []
+			for tok in lx.tokens():
+				tokenizedgrammar.append(tok)
+		except LexerError as err:
+			print('LexerError at position %s' % err.pos)
+		self.tokenizedgrammar = tokenizedgrammar
+
+	def __str__ (self) :
+		s = ""
+		for token in self.tokenizedgrammar :
+			s += token.__str__() + "\n"
+		return s
 
 class Token(object):
     """ A simple Token structure.

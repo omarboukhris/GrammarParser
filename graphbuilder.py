@@ -11,6 +11,7 @@ class LanguageGraph :
 			x = False
 			if transition[0].type == "TERMINAL" : #left terminal
 				(x, word) = self.checkToken (word, transition[0].val)
+			
 			elif (transition[0].type == "NONTERMINAL") : #left nonterminal
 				(x, word) = self.wordinlanguage (word, transition[0].val)
 

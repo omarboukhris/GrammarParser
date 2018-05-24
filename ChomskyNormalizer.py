@@ -1,44 +1,17 @@
 from lexlib import Token
 from collections import OrderedDict as odict
 from copy import deepcopy
-	
-class ChomskyNormalForm :
-	def __init__ (self, production_rules) :
-		self.production_rules = production_rules
-		self.normalForm = odict()
 
-	def getnormalform (self) :
-		self.normalForm = self.production_rules
-		print (self)
-		term = TERM (self.production_rules)
-		term.apply ()
-		#self.normalForm = term.production_rules
-		#print (self)
-		bins = BIN (term.production_rules)
-		bins.apply ()
-		#self.normalForm = bins.production_rules
-		#print (self)
-		dels = DEL (bins.production_rules)
-		dels.apply ()
-		#self.normalForm = dels.production_rules
-		#print ("del" + self.__str__())
-		unit = UNIT (dels.production_rules)
-		unit.apply ()
-		#self.normalForm = unit.production_rules
-		#print (self)
-		return  unit.production_rules
-		
-	def __str__ (self) :
-		text_rule = ""
-		
-		for key, rules in self.normalForm.items() :
-			text_rule += "\nRULE " + key + " = [\n\t"
-			rule_in_a_line = []
-			for rule in self.normalForm[key] :
-				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
-			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
-		return text_rule
-
+def getnormalform (production_rules) :
+	term = TERM (production_rules)
+	term.apply ()
+	bins = BIN (term.production_rules)
+	bins.apply ()
+	dels = DEL (bins.production_rules)
+	dels.apply ()
+	unit = UNIT (dels.production_rules)
+	unit.apply ()
+	return  unit.production_rules
 
 class TERM :
 	def __init__ (self, production_rules) :
@@ -324,9 +297,6 @@ class DEL :
 				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
 			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
 		return text_rule
-	
-	def printRule (self, rule) :
-		print (" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
 
 class UNIT :
 	def __init__ (self, production_rules) :
@@ -413,17 +383,3 @@ class UNIT :
 				if not (opa.type == opb.type and opa.val == opb.val) : 
 					return False
 			return True
-
-	def __str__ (self) :
-		text_rule = ""
-		self.normalForm = self.production_rules
-		for key, rules in self.normalForm.items() :
-			text_rule += "\nRULE " + key + " = [\n\t"
-			rule_in_a_line = []
-			for rule in self.normalForm[key] :
-				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
-			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
-		return text_rule
-
-
-
