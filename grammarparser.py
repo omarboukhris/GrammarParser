@@ -15,24 +15,12 @@ class Grammar :
 		i, j = 0, 0
 		current_rule = ""
 		while i < len(parsedgrammar) :
-			self.production_rules, i, j, current_rule = checkaxiom (self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
+			self.production_rules, i, j, current_rule, self.axiomflag = checkaxiom (self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule, self.axiomflag)
 			self.production_rules, i, j, current_rule = checkleftside (self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
 			self.production_rules, i, j, current_rule = checkoperators(self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
 			self.production_rules, i, j, current_rule = checkrightside(self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
 		gramtest = checkproductionrules(self.production_rules)
 		return gramtest
-
-	def __str__ (self) :
-		text_rule = ""
-		
-		for key, rules in self.production_rules.items() :
-			text_rule += "\nRULE " + key + " = [\n\t"
-			rule_in_a_line = []
-			for rule in rules :
-				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
-			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
-
-		return text_rule
 
 	def save (self, filename) :
 		serialFile = open (filename, "wb")

@@ -12,15 +12,15 @@ def checkproductionrules (production_rules) :
 	else :
 		return False, list(set(production_rules.keys())-set(keys))
 
-def checkaxiom (production_rules, i, grammar, j, tokens, current_rule) :
+def checkaxiom (production_rules, i, grammar, j, tokens, current_rule, axiomflag) :
 	if not i < len(grammar) :
 		return (i, j, current_rule)
-	if grammar[i].type == "AXIOM" : #and self.axiomflag :
+	if grammar[i].type == "AXIOM" and axiomflag :
 		production_rules["AXIOM"] = [[tokens[j+2]]]
-		#axiomflag = False
+		axiomflag = False
 		i += 1
 		j += 3
-	return (production_rules, i, j, current_rule)
+	return (production_rules, i, j, current_rule, axiomflag)
 
 def checkleftside (production_rules, i, grammar, j, tokens, current_rule) :
 	if not i < len(grammar) :
