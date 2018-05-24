@@ -15,7 +15,9 @@ class Grammar :
 		i, j = 0, 0
 		current_rule = ""
 		while i < len(parsedgrammar) :
-			self.production_rules, i, j, current_rule, self.axiomflag = checkaxiom (self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule, self.axiomflag)
+			self.production_rules, i, j, current_rule, self.axiomflag = checkaxiom (
+				self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule, self.axiomflag
+			)
 			self.production_rules, i, j, current_rule = checkleftside (self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
 			self.production_rules, i, j, current_rule = checkoperators(self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
 			self.production_rules, i, j, current_rule = checkrightside(self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
@@ -30,6 +32,18 @@ class Grammar :
 		serialFile = open (filename, "rb")
 		self.production_rules = pickle.load (serialFile)
 		serialFile.close()
+
+	def __str__ (self) :
+		text_rule = ""
+		
+		for key, rules in self.production_rules.items() :
+			text_rule += "\nRULE " + key + " = [\n\t"
+			rule_in_a_line = []
+			for rule in rules :
+				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
+			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
+
+		return text_rule
 
 class GenericGrammarParser :
 	def __init__ (self) :
@@ -77,8 +91,6 @@ class GenericGrammarParser :
 		)
 
 		if (result == (True,[])) :
-			if verbose : print (grammar)
-			grammar.production_rules = getnormalform (grammar.production_rules)
 			if verbose : print (grammar)
 		else :
 			if verbose : print (result)

@@ -1,5 +1,4 @@
 
-
 def checkproductionrules (production_rules) :
 	keys = ["AXIOM"]
 	for key, rules in production_rules.items() :

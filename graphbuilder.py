@@ -1,8 +1,30 @@
 from collections import OrderedDict as odict
+import os
+
+def dotgraph (gram, filename) :
+	ss = "graph {\n"
+	for key, rules in gram.production_rules.items() :
+		for rule in rules :
+			r = [op.val for op in rule]
+			r = [i.replace ("-", "") for i in r]
+			r = [i.replace ("\'\'", "eps") for i in r]
+			r = [i.replace ("\"\"", "eps") for i in r]
+			k = key.replace ("-", "")
+			ss += "\t" + k + " -- " 
+			ss += " -- ".join (r)
+			ss += " ;\n"
+	ss += "}"
+	filestream = open (filename + '.dot', 'w') 
+	filestream.write(ss)
+	filestream.close ()
+	cmd = 'dot -Tpng -o ' + filename + '.png ' + filename + '.dot'
+	os.system (cmd)
+	cmd = 'rm ' + filename + '.dot'
+	os.system (cmd)
 
 class LanguageGraph :
-	def __init__ (self, production_rules=odict) :
-		self.production_rules = production_rules
+	def __init__ (self, grammar) :
+		self.production_rules = grammar.production_rules
 
 	def wordinlanguage (self, word, rulename="AXIOM") :
 		if word == [] :

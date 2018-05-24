@@ -1,5 +1,6 @@
 import grammarparser as gp
 import graphbuilder as gb
+import ChomskyNormalizer as cnf
 
 txtgrammar = """
 AXIOM := CLASS
@@ -54,15 +55,24 @@ langtokens = [
 if __name__ == '__main__':
 	gramparser = gp.GenericGrammarParser ()
 	grammar = gramparser.parse (txtgrammar, verbose=True)
+	
+	if grammar == [] :
+		print ('illegal grammar')
+		exit()
+		
+	gb.dotgraph (grammar, "before_CNF")
+	grammar.production_rules = cnf.getnormalform (grammar.production_rules)
+	gb.dotgraph (grammar, "after_CNF")
 
 	grammar.save ("lang.pkl")
 
 	#graph generator goes here
+	#langraph = gb.LanguageGraph (grammar)
+	
+	
+	
+	
+	
+	
 
-	"""
-	gg = gb.GraphGenerator (prodrulesgen.production_rules)
-	axiom = gg.buildgraph()
-	#l = axiom.getgraph()
-	print (axiom)
-	"""
 
