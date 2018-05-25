@@ -1,6 +1,6 @@
-import grammarparser as gp
-import graphbuilder as gb
-import ChomskyNormalizer as cnf
+from grammarparser		import *
+from graphbuilder		import *
+from ChomskyNormalizer 	import *
 
 txtgrammar = """
 AXIOM := CLASS
@@ -27,19 +27,22 @@ txtgrammar = """
 
 AXIOM := S
 
-S := a.tok + A 
+S := 
+	a.tok + S + d.tok | 
+	''
 
-A := a.tok + A + S |
-	B A |
-	B | 
-	C
-	
-B := '' |
-	C |
-	C d.tok |
-	d.tok
-C := ''
 """
+#A := a.tok + A + S |
+	#B A |
+	#B | 
+	#C
+	
+#B := '' |
+	#C |
+	#C d.tok |
+	#d.tok
+#C := ''
+#"""
 
 #DC := NOK.tok
 #integrate "tokens" in grammar definition
@@ -47,21 +50,37 @@ C := ''
 #define language tokens
 #terminals' regex
 langtokens = [
-	('{{',		'LCROCH'),
-	('}}',		'RCROCH'),
-	('class',	'CLASS_DECL'),
+	('a',		'a'),
+	('d',		'd'),
+	#('class',	'CLASS_DECL'),
 ]
 
-if __name__ == '__main__':
-	gramparser = gp.GenericGrammarParser ()
-	grammar = gramparser.parse (txtgrammar)#, verbose=True)
-	
-	gb.dotgraph (grammar, "before_CNF")
-	grammar = cnf.getnormalform (grammar)
-	#print (grammar)
-	gb.dotgraph (grammar, "after_CNF")
+source = "ad"
 
-	grammar.save ("lang.pkl")
+if __name__ == '__main__':
+	gramparser = GenericGrammarParser ()
+	grammar = gramparser.parse (txtgrammar, verbose=True)
+	
+	dotgraph (grammar, "before_CNF")
+	grammar = getnormalform (grammar)
+	print (grammar)
+	dotgraph (grammar, "after_CNF")
+
+	grammar.save ("lang.pkl") #grammar contains everything we want
+
+	#load source to parse
+	TokCode = Tokenizer(langtokens)
+	TokCode.parse (source)
+	
 
 	#graph generator goes here
-	#langraph = gb.LanguageGraph (grammar)
+	langraph = LanguageGraph (grammar)
+
+	x, w = langraph.wordinlanguage (TokCode.tokenized)
+	if not x :
+		for letter in w :
+			print (letter)
+	else :
+		print (w, x)
+		print ('allzgoud')
+	

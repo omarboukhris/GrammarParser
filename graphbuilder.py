@@ -27,21 +27,30 @@ class LanguageGraph :
 		self.production_rules = grammar.production_rules
 
 	def wordinlanguage (self, word, rulename="AXIOM") :
+		for w in word :
+			print (w.val)
 		if word == [] :
 			return True, []
+		x = False
 		for transition in self.production_rules[rulename] :
-			x = False
 			if transition[0].type == "TERMINAL" : #left terminal
+				print ('terminal ' + transition[0].val)
 				(x, word) = self.checkToken (word, transition[0].val)
 			
 			elif (transition[0].type == "NONTERMINAL") : #left nonterminal
+				print ('nonterminal ' + transition[0].val )
 				(x, word) = self.wordinlanguage (word, transition[0].val)
 
 			if (x and len(transition) > 1 and word != []) : #right operand if any
-				x = self.wordinlanguage (word, transition[1].val)
+				print ('len sup 2 ' + transition[1].val )
+				(x, word) = self.wordinlanguage (word, transition[1].val)
 
 			if x and word == [] :
 				return True, []
+			elif x and word != [] :
+				return False, word
+			
+			x = False
 
 		return x, word
  

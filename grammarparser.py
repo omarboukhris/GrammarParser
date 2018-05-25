@@ -48,13 +48,13 @@ class Grammar :
 class GenericGrammarParser :
 	def __init__ (self) :
 		self.grammartokens = [
-			('AXIOM',				'AXIOM'),
+			('AXIOM',					'AXIOM'),
 			('[a-zA-Z_]\w*\.(tok|gen)',	'TERMINAL'),
-			('[a-zA-Z_]\w*',		'NONTERMINAL'),
-			('\:=',					'EQUAL'),
-			('\+',					'PLUS'),
-			('\|',					'OR'),
-			('\'\'|\"\"',			'EMPTY'),
+			('[a-zA-Z_]\w*',			'NONTERMINAL'),
+			('\:=',						'EQUAL'),
+			('\+',						'PLUS'),
+			('\|',						'OR'),
+			('\'\'|\"\"',				'EMPTY'),
 		]
 		
 		AXIOM = r'AXIOM EQUAL NONTERMINAL'

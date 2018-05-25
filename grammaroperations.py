@@ -31,8 +31,6 @@ def samerule (rulea, ruleb) :
 	else :
 		return False
 
-
-
 def checkproductionrules (production_rules) :
 	keys = ["AXIOM"]
 	for key, rules in production_rules.items() :
