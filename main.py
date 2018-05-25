@@ -55,7 +55,7 @@ langtokens = [
 	#('class',	'CLASS_DECL'),
 ]
 
-source = "ad"
+source = "aadd"
 
 if __name__ == '__main__':
 	gramparser = GenericGrammarParser ()

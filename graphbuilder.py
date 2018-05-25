@@ -27,32 +27,62 @@ class LanguageGraph :
 		self.production_rules = grammar.production_rules
 
 	def wordinlanguage (self, word, rulename="AXIOM") :
-		for w in word :
-			print (w.val)
-		if word == [] :
+		print ("rulename : " + rulename + " : " + " ".join ([
+			w.val for w in word
+		]))
+		if len(word) == 0 :
 			return True, []
-		x = False
 		for transition in self.production_rules[rulename] :
-			if transition[0].type == "TERMINAL" : #left terminal
-				print ('terminal ' + transition[0].val)
-				(x, word) = self.checkToken (word, transition[0].val)
-			
-			elif (transition[0].type == "NONTERMINAL") : #left nonterminal
-				print ('nonterminal ' + transition[0].val )
-				(x, word) = self.wordinlanguage (word, transition[0].val)
-
-			if (x and len(transition) > 1 and word != []) : #right operand if any
-				print ('len sup 2 ' + transition[1].val )
-				(x, word) = self.wordinlanguage (word, transition[1].val)
-
-			if x and word == [] :
+			if self.dotransition (word, transion) :
 				return True, []
-			elif x and word != [] :
-				return False, word
-			
-			x = False
+		return False, word
 
-		return x, word
+
+			x = False
+			ex_word = word.copy()
+			if len(transition) == 1 :
+				x, word = self._transit_1 (word, transition[0])
+			else : #len == 2
+				x, word = self._transit_1 (word, transition[0])
+				if x and len(word) != 0 : 
+					x, word = self._transit_1 (word, transition[1])
+				else :
+					x = False
+			if x and len(word) == 0 :
+				return True, []
+			else :
+				word = ex_word.copy()
+			
+		return False, word
+
+			#if transition[0].type == "TERMINAL" : #left terminal
+				#print ('terminal ' + transition[0].val)
+				##(x, word) = self.checkToken (word, transition[0].val)
+				#return self.checkToken (word, transition[0].val)
+			
+			#elif (transition[0].type == "NONTERMINAL") : #left nonterminal
+				#print ('nonterminal ' + transition[0].val )
+				#(x, word) = self.wordinlanguage (word, transition[0].val)
+
+			#if (x and len(transition) > 1 and word != []) : #right operand if any
+				#print ('len sup 2 ' + transition[1].val )
+				#(x, word) = self.wordinlanguage (word, transition[1].val)
+
+			#if x and word == [] :
+				#return True, []
+
+		#return False, word
+		
+	def _transit_1 (self, word, transition) :
+		if transition.type == "TERMINAL" :
+			if transition.val == word[0].val :
+				return True, word[1:]
+			else :
+				return False, word
+		else :
+			return self.wordinlanguage(word, transition.val)
+		
+		
  
 	def checkToken (self, symb, tokentype) :
 		cond = symb[0].val == tokentype
