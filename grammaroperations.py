@@ -45,7 +45,7 @@ def checkproductionrules (production_rules) :
 
 def checkaxiom (production_rules, i, grammar, j, tokens, current_rule, axiomflag) :
 	if not i < len(grammar) :
-		return (i, j, current_rule)
+		return (production_rules, i, j, current_rule)
 	if grammar[i].type == "AXIOM" and axiomflag :
 		production_rules["AXIOM"] = [[tokens[j+2]]]
 		axiomflag = False
@@ -55,7 +55,7 @@ def checkaxiom (production_rules, i, grammar, j, tokens, current_rule, axiomflag
 
 def checkleftside (production_rules, i, grammar, j, tokens, current_rule) :
 	if not i < len(grammar) :
-		return (i, j, current_rule)
+		return (production_rules, i, j, current_rule)
 	if grammar[i].type == "LSIDE" :
 		current_rule = tokens[j].val
 		if not current_rule in production_rules.keys() :
@@ -66,7 +66,7 @@ def checkleftside (production_rules, i, grammar, j, tokens, current_rule) :
 
 def checkoperators (production_rules, i, grammar, j, tokens, current_rule) :
 	if not i < len(grammar) :
-		return (i, j, current_rule)
+		return (production_rules, i, j, current_rule)
 	if (grammar[i].type == "OR" and tokens[j].type == "OR") :
 		production_rules[current_rule].append([])
 		j += 1
@@ -78,14 +78,26 @@ def checkoperators (production_rules, i, grammar, j, tokens, current_rule) :
 
 def checkrightside (production_rules, i, grammar, j, tokens, current_rule) :
 	if not i < len(grammar) :
-		return (i, j, current_rule)
+		return (production_rules, i, j, current_rule)
 	if grammar[i].type == "RSIDE" :
 		if tokens[j].type == "TERMINAL" :
-			tokens[j].val = tokens[j].val[:-4] if tokens[j].val[-4:] == '.tok' else tokens[j].val[:-1] #eliminate .tok
+			tokens[j].val = tokens[j].val[:-1] #eliminate .tok
 		production_rules[current_rule][-1].append(tokens[j])			
 		i += 1
 		j += 1
 	return (production_rules, i, j, current_rule)
+
+def checkfortoken (langtokens, i, grammar, j, tokens, current_rule) :
+	if not i < len(grammar) :
+		return (langtokens, i, j, current_rule)
+	if grammar[i].type == "TOKEN" :
+		if tokens[j] == "TERMINAL" :
+			tokens[j].val = tokens[j].val[:-1] #eliminate .tok
+		langtokens[tokens[j].val.strip(".")] = tokens[j+2].val[1:-1]
+		i += 1
+		j += 3
+	return langtokens, i, j, current_rule 
+		
 
 def transformtosource (tokenizedgrammar) :
 	source = ""
