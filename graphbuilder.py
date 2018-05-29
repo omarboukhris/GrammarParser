@@ -58,7 +58,12 @@ class LanguageGraph :
 		return True
 
 	def dooperand (self, word, operand) :
+		curs = int(self.cursor)
 		if operand.type == "NONTERMINAL" :
-			return self.checkNode (word, operand.val) 
+			if not self.checkNode (word, operand.val) :
+				self.cursor = int(curs)
+				return False
+			else :
+				return True
 		else :
 			return self.checkToken(word, operand.val) 

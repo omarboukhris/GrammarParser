@@ -30,8 +30,6 @@ langtokens = [
 
 source = """
 aaa
-cc
-dd
 bbb
 """
 
@@ -66,4 +64,3 @@ if __name__ == '__main__':
 		print ('errors n stuff @ ' + str (langraph.cursor) + 'th token in ' + str(word[langraph.cursor]))
 	else :
 		print ('allzgud')
-	
