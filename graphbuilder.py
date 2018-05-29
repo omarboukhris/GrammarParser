@@ -7,7 +7,7 @@ def dotgraph (gram, filename) :
 		for rule in rules :
 			r = [op.val for op in rule]
 			r = [i.replace ("-", "") for i in r]
-			r = [i.replace (".", "_tok") for i in r]
+			r = [i.replace (".", "") for i in r]
 			r = [i.replace ("\'\'", "eps") for i in r]
 			r = [i.replace ("\"\"", "eps") for i in r]
 			k = key.replace ("-", "")
@@ -28,18 +28,25 @@ class LanguageGraph :
 	def __init__ (self, grammar) :
 		self.production_rules = grammar.production_rules
 		self.cursor = None
+		self.err_pos = None
+		self.path = None
 
 	def wordinlanguage (self, word) :
 		if len(word) == 0 :
 			return True
 		self.cursor = 0
+		self.path = []
 		x = self.checkNode (word, 'AXIOM') 
+		self.path.reverse()
 		return x and self.cursor == len(word)
 
 	def checkNode (self, word, rulename) :
 		for rule in self.production_rules[rulename] :
 			if self.dorule (word, rule) :
+				ss = rulename + " -> " + "+".join([op.val for op in rule])
+				self.path.append (ss)
 				return True
+		self.err_pos = self.cursor
 		return False
 
 	def checkToken (self, word, tokentype) :

@@ -4,17 +4,11 @@ from ChomskyNormalizer 	import *
 
 txtgrammar = """
 
-AXIOM := S
+AXIOM -> S
 
-S := 
-	a. + B + b. | 
-	c. + S + d. |
+S -> 
+	a.  S  b. |
 	''
-B := 
-	a. + S + b. | 
-	c. + B + d. |
-	''
-
 """
 
 #integrate "tokens" in grammar definition
@@ -24,8 +18,8 @@ B :=
 langtokens = [
 	('a',		'a'),
 	('b',		'b'),
-	('c',		'c'),
-	('d',		'd'),
+	#('c',		'c'),
+	#('d',		'd'),
 ]
 
 source = """
@@ -37,14 +31,14 @@ if __name__ == '__main__':
 	#parsing
 	gramparser = GenericGrammarParser ()
 	grammar = gramparser.parse (txtgrammar)
-	
-	#print (grammar)
+
+	print (grammar)
 	#dotgraph (grammar, "before_CNF")
 
 	#normalization
 	grammar = getnormalform (grammar)
 
-	print (grammar)
+	#print (grammar)
 	#dotgraph (grammar, "after_CNF")
 
 	grammar.save ("lang.pkl") #grammar contains everything we want
@@ -58,9 +52,10 @@ if __name__ == '__main__':
 	langraph = LanguageGraph (grammar)
 
 	word = TokCode.tokenized
-	
+
 	x = langraph.wordinlanguage (word)
 	if not x :
-		print ('errors n stuff @ ' + str (langraph.cursor) + 'th token in ' + str(word[langraph.cursor]))
+		print ('errors n stuff @ ' + str (langraph.err_pos) + 'th token : ' + str(word[langraph.err_pos]))
 	else :
 		print ('allzgud')
+		print (langraph.path)

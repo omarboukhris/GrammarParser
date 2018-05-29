@@ -51,7 +51,7 @@ class GenericGrammarParser :
 			('AXIOM',					'AXIOM'),
 			('[a-zA-Z_]\w*\.(tok|gen)?',	'TERMINAL'),
 			('[a-zA-Z_]\w*',			'NONTERMINAL'),
-			('\:=',						'EQUAL'),
+			('\->',						'EQUAL'),
 			('\+',						'PLUS'),
 			('\|',						'OR'),
 			('\'\'|\"\"',				'EMPTY'),
