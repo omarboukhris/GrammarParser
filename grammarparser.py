@@ -40,7 +40,7 @@ class Grammar :
 			text_rule += "\nRULE " + key + " = [\n\t"
 			rule_in_a_line = []
 			for rule in rules :
-				rule_in_a_line.append(" + ".join([r.val+"."+r.type+"."+str(r.pos) for r in rule]))
+				rule_in_a_line.append(" + ".join([r.val+"("+r.type+")" for r in rule]))
 			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
 
 		return text_rule
@@ -49,7 +49,7 @@ class GenericGrammarParser :
 	def __init__ (self) :
 		self.grammartokens = [
 			('AXIOM',					'AXIOM'),
-			('[a-zA-Z_]\w*\.(tok|gen)',	'TERMINAL'),
+			('[a-zA-Z_]\w*\.(tok|gen)?',	'TERMINAL'),
 			('[a-zA-Z_]\w*',			'NONTERMINAL'),
 			('\:=',						'EQUAL'),
 			('\+',						'PLUS'),

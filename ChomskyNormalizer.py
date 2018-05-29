@@ -40,7 +40,7 @@ class TERM :
 		for i in range (0, len(rule)) :
 			operand = rule[i]
 			if operand.type == "TERMINAL" :
-				newKey = operand.val + "_TOK_NT_"
+				newKey = operand.val + "."
 				if not (newKey in self.normalForm.keys()) :
 					normalForm[newKey] = []
 				normalForm[newKey].append([operand])
@@ -82,8 +82,8 @@ class BIN :
 		if len (rule) <= 2 :
 			normalForm[key].append(rule)
 		else :
-			#newKey = "-".join ([r.val for r in rule[1:]])
-			newKey = key + "-".join ([r.val for r in rule[1:]])
+			newKey = "-".join ([r.val.strip('.') for r in rule[1:]])
+			#newKey = key + "-".join ([r.val for r in rule[1:]])
 			if not (newKey in normalForm.keys()) :
 				normalForm[newKey] = []
 			newProdRule = rule[1:]
@@ -310,14 +310,14 @@ class UNIT :
 			rules = self.production_rules[key]
 			if len(rules) == 1 :
 				rule = rules[0]
-				if len(rule) == 1 and rule[0].type == "NONTERMINAL" and rule[0].val[-8:] != '_TOK_NT_' :
+				if len(rule) == 1 and rule[0].type == "NONTERMINAL" and (rule[0].val[-8:] != '_TOK_NT_' or rule[0].val[-1:] != '.') :
 					unitkeys[key] = rule[0].val
 				else :
 					node = rules
 			else :
 				keyslist = []
 				for rule in rules :
-					if len(rule) == 1 and rule[0].type == "NONTERMINAL"  and rule[0].val[-8:] != '_TOK_NT_' :
+					if len(rule) == 1 and rule[0].type == "NONTERMINAL" and (rule[0].val[-8:] != '_TOK_NT_' or rule[0].val[-1:] != '.') :
 						if rule[0].val != key :
 							keyslist.append(rule[0].val)
 					else :

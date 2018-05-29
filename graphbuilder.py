@@ -7,9 +7,11 @@ def dotgraph (gram, filename) :
 		for rule in rules :
 			r = [op.val for op in rule]
 			r = [i.replace ("-", "") for i in r]
+			r = [i.replace (".", "_tok") for i in r]
 			r = [i.replace ("\'\'", "eps") for i in r]
 			r = [i.replace ("\"\"", "eps") for i in r]
 			k = key.replace ("-", "")
+			k = k.replace (".", "_tok")
 			ss += "\t" + k + " -- " 
 			ss += " -- ".join (r)
 			ss += " ;\n"
@@ -25,66 +27,56 @@ def dotgraph (gram, filename) :
 class LanguageGraph :
 	def __init__ (self, grammar) :
 		self.production_rules = grammar.production_rules
+		self.cursor = None
 
 	def wordinlanguage (self, word, rulename="AXIOM") :
-		print ("rulename : " + rulename + " : " + " ".join ([
-			w.val for w in word
-		]))
+		if rulename == 'AXIOM' : 
+			self.cursor = 0
+
 		if len(word) == 0 :
-			return True, []
+			return True
+
 		for transition in self.production_rules[rulename] :
-			if self.dotransition (word, transion) :
-				return True, []
-		return False, word
+			print (
+				str(self.cursor) + ' ' + rulename + ':' + 
+				' '.join([tr.val for tr in transition]) + '|' + 
+				' '.join ([w.val for w in word])
+			)
 
+			x = self.dotransition (word, transition)
+			if x :
+				return True
 
-			x = False
-			ex_word = word.copy()
-			if len(transition) == 1 :
-				x, word = self._transit_1 (word, transition[0])
-			else : #len == 2
-				x, word = self._transit_1 (word, transition[0])
-				if x and len(word) != 0 : 
-					x, word = self._transit_1 (word, transition[1])
-				else :
-					x = False
-			if x and len(word) == 0 :
-				return True, []
+			#input()
+
+		return False
+		
+	def dotransition (self, word, transition) :
+		for operand in transition :
+			success = self.dooperand (word, operand)
+			if not success :
+				return False 
+		return True
+
+	def dooperand (self, word, operand) :
+		curs = int(self.cursor)
+
+		if operand.type == "TERMINAL" :
+			return self.checkToken(word, operand.val) 
+		
+		if operand.type == "NONTERMINAL" :
+			success = self.wordinlanguage (word, operand.val)
+			if not success :
+				self.cursor = int(curs)
+				return False
 			else :
-				word = ex_word.copy()
-			
-		return False, word
+				return True
 
-			#if transition[0].type == "TERMINAL" : #left terminal
-				#print ('terminal ' + transition[0].val)
-				##(x, word) = self.checkToken (word, transition[0].val)
-				#return self.checkToken (word, transition[0].val)
-			
-			#elif (transition[0].type == "NONTERMINAL") : #left nonterminal
-				#print ('nonterminal ' + transition[0].val )
-				#(x, word) = self.wordinlanguage (word, transition[0].val)
-
-			#if (x and len(transition) > 1 and word != []) : #right operand if any
-				#print ('len sup 2 ' + transition[1].val )
-				#(x, word) = self.wordinlanguage (word, transition[1].val)
-
-			#if x and word == [] :
-				#return True, []
-
-		#return False, word
-		
-	def _transit_1 (self, word, transition) :
-		if transition.type == "TERMINAL" :
-			if transition.val == word[0].val :
-				return True, word[1:]
-			else :
-				return False, word
-		else :
-			return self.wordinlanguage(word, transition.val)
-		
-		
- 
-	def checkToken (self, symb, tokentype) :
-		cond = symb[0].val == tokentype
-		symb = symb[1:] if cond else symb
-		return cond, symb
+	def checkToken (self, word, tokentype) :
+		if self.cursor >= len(word) :
+			return False
+		if word[self.cursor].type == tokentype :
+			self.cursor += 1
+			#del symb[0]
+			return True
+		return False #, symb
