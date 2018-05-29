@@ -7,7 +7,8 @@ txtgrammar = """
 AXIOM := S
 
 S := 
-	a. + S + d. | 
+	a. + S + b. | 
+	c. + S + d. |
 	''
 
 """
@@ -18,11 +19,17 @@ S :=
 #terminals' regex
 langtokens = [
 	('a',		'a'),
+	('b',		'b'),
+	('c',		'c'),
 	('d',		'd'),
-	#('class',	'CLASS_DECL'),
 ]
 
-source = "aaaddd"
+source = """
+aaa
+cc
+dd
+bbb
+"""
 
 if __name__ == '__main__':
 	#parsing
@@ -47,15 +54,11 @@ if __name__ == '__main__':
 	#graph generator goes here
 	langraph = LanguageGraph (grammar)
 
-	for letter in TokCode.tokenized :
-		print (letter)
-
-	x = langraph.wordinlanguage (TokCode.tokenized)
+	word = TokCode.tokenized
+	
+	x = langraph.wordinlanguage (word)
 	if not x :
-		#for letter in w :
-			#print (letter)
-		print ('errors n stuff')
+		print ('errors n stuff @ ' + str (langraph.cursor) + ' in ' + str(word[langraph.cursor]))
 	else :
-		print (x)
 		print ('allzgoud')
 	

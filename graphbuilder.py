@@ -29,34 +29,39 @@ class LanguageGraph :
 		self.production_rules = grammar.production_rules
 		self.cursor = None
 
-	def wordinlanguage (self, word, rulename="AXIOM") :
-		if rulename == 'AXIOM' : 
-			self.cursor = 0
-
+	def wordinlanguage (self, word) :
 		if len(word) == 0 :
 			return True
+		self.cursor = 0
+		x = self.doproductionrule (word, 'AXIOM') 
+		return x and self.cursor == len(word)
+
+	def doproductionrule (self, word, rulename) :
 
 		for transition in self.production_rules[rulename] :
-			print (
-				str(self.cursor) + ' ' + rulename + ':' + 
-				' '.join([tr.val for tr in transition]) + '|' + 
-				' '.join ([w.val for w in word])
-			)
+			#print (
+				#str(self.cursor) + ' ' + rulename + ':' + 
+				#' '.join([tr.val for tr in transition]) + '|' + 
+				#' '.join ([w.val for w in word])
+			#)
 
 			x = self.dotransition (word, transition)
+
 			if x :
 				return True
-
-			#input()
 
 		return False
 		
 	def dotransition (self, word, transition) :
 		for operand in transition :
-			success = self.dooperand (word, operand)
+			#success = self.dooperand (word, operand)
+			success = self.dooperand_debug (word, operand)
 			if not success :
 				return False 
 		return True
+
+	def dooperand_debug (self, word, operand) :
+		return self.doproductionrule (word, operand.val) if operand.type == "NONTERMINAL" else self.checkToken(word, operand.val) 
 
 	def dooperand (self, word, operand) :
 		curs = int(self.cursor)
@@ -65,7 +70,7 @@ class LanguageGraph :
 			return self.checkToken(word, operand.val) 
 		
 		if operand.type == "NONTERMINAL" :
-			success = self.wordinlanguage (word, operand.val)
+			success = self.doproductionrule (word, operand.val)
 			if not success :
 				self.cursor = int(curs)
 				return False
@@ -77,6 +82,5 @@ class LanguageGraph :
 			return False
 		if word[self.cursor].type == tokentype :
 			self.cursor += 1
-			#del symb[0]
 			return True
-		return False #, symb
+		return False
