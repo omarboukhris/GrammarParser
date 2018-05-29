@@ -7,8 +7,12 @@ txtgrammar = """
 AXIOM := S
 
 S := 
-	a. + S + b. | 
+	a. + B + b. | 
 	c. + S + d. |
+	''
+B := 
+	a. + S + b. | 
+	c. + B + d. |
 	''
 
 """
@@ -48,6 +52,7 @@ if __name__ == '__main__':
 	grammar.save ("lang.pkl") #grammar contains everything we want
 
 	#load source to parse
+	#print ("source = ", source)
 	TokCode = Tokenizer(langtokens)
 	TokCode.parse (source)
 
@@ -58,7 +63,7 @@ if __name__ == '__main__':
 	
 	x = langraph.wordinlanguage (word)
 	if not x :
-		print ('errors n stuff @ ' + str (langraph.cursor) + ' in ' + str(word[langraph.cursor]))
+		print ('errors n stuff @ ' + str (langraph.cursor) + 'th token in ' + str(word[langraph.cursor]))
 	else :
-		print ('allzgoud')
+		print ('allzgud')
 	
