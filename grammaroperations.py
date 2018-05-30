@@ -71,7 +71,7 @@ def checkoperators (production_rules, i, grammar, j, tokens, current_rule) :
 		production_rules[current_rule].append([])
 		j += 1
 		i += 1
-	if (grammar[i].type == "PLUS" and tokens[j].type == "PLUS") :
+	if (grammar[i].type == "PLUS" and tokens[j].type == "PLUS") or (grammar[i].type == "LINECOMMENT" and tokens[j].type == "LINECOMMENT"):
 		j += 1
 		i += 1
 	return (production_rules, i, j, current_rule)

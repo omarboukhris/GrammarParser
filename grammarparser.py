@@ -72,14 +72,15 @@ class GenericGrammarParser :
 		LSIDE = r'NONTERMINAL EQUAL'
 		RSIDE = r'(TERMINAL|NONTERMINAL)+|EMPTY'
 		TOKEN = r'TERMINAL EQUAL REGEX'
-		OR, PLUS = r'OR', r'PLUS'
+		OR, PLUS, LINECOMMENT = r'OR', r'PLUS', r'LINECOMMENT'
 		self.genericgrammarprodrules = [
-			(AXIOM,		'AXIOM'),
-			(TOKEN,		'TOKEN'),
-			(LSIDE,		'LSIDE'),
-			(RSIDE,		'RSIDE'),
-			(OR,		'OR'),
-			(PLUS,		'PLUS'),
+			(LINECOMMENT,	'LINECOMMENT'),
+			(AXIOM,			'AXIOM'),
+			(TOKEN,			'TOKEN'),
+			(LSIDE,			'LSIDE'),
+			(RSIDE,			'RSIDE'),
+			(OR,			'OR'),
+			(PLUS,			'PLUS'),
 		]
 
 	def parse (self, txt_grammar="", verbose=False) :

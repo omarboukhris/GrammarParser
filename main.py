@@ -1,23 +1,25 @@
 from grammarparser		import *
 from graphbuilder		import *
+from grammaroperations  import *
 from ChomskyNormalizer 	import *
 
 txtgrammar = """
 
+;production rules
 AXIOM -> S
 
 S -> 
-	a.  S  b. |
+	a. S |
+	b. S |
 	''
 
+;tokens
 a. -> "a"
 b. -> 'b'
+
 """
 
-source = """
-aaa
-bbb
-"""
+source = "aaaabbbb"
 
 if __name__ == '__main__':
 	#parsing
