@@ -24,7 +24,7 @@ def dotgraph (gram, filename) :
 	cmd = 'rm ' + filename + '.dot'
 	os.system (cmd)
 
-class LanguageGraph :
+class LLParser :
 	def __init__ (self, grammar) :
 		self.production_rules = grammar.production_rules
 		self.cursor = None
@@ -74,3 +74,115 @@ class LanguageGraph :
 				return True
 		else :
 			return self.checkToken(word, operand.val) 
+
+
+class CYKParser :
+	def __init__ (self, grammar) :
+		self.production_rules = grammar.production_rules
+		self.err_pos = -1
+		
+	def wordinlanguage (self, word, verbose=False) :
+		n = len(word)
+		P = [
+			[[] for i in range (n)] for j in range(n)
+		]
+		
+		for i in range (n) :
+			P[0][i] = self.getterminal (word[i])
+			#P[0][i] = ["0", str(i)]
+		for i in range (n-1) :
+			AB = self.cartesianprod (P[0][i], P[0][i+1])
+			if AB == [] :
+				continue
+			rulenames = self.getbinproductions (AB)
+			if rulenames == [] :
+				continue
+			P[1][i] += rulenames 
+			#P[1][i] += ['1', str(i)]
+
+		for l in range (2, n) :
+
+			for i in range (0, n-l) :
+				
+				for k in range (0, l) :
+					#print ("P[" + 
+						#str(l) + ", " + str(i) + "] = P[" + 
+						#str(l-k-1) + "," + str(k+i+1) + "] ## P[" + 
+						#str(k) + "," + str(i) + "]")
+					
+					B, A = P[l-k-1][k+i+1], P[k][i]
+					AB = self.cartesianprod (A, B)
+					if AB == [] :
+						continue
+					#print ("AB", AB)
+					rulenames = self.getbinproductions (AB)
+					if rulenames == [] :
+						continue
+					#print (rulenames)
+					P[l][i] = rulenames 
+			#self.printmatrix(P)
+		
+		if verbose :
+			self.printmatrix(P)
+		
+		if P[n-1][0] == [] :
+			return False
+		#print (P[n-1][0][0], self.production_rules["AXIOM"][0][0].val)
+		return P[n-1][0][0] == self.production_rules["AXIOM"][0][0].val
+		
+	
+	def cartesianprod (self, A, B) :
+		AB = []
+		if A == [] :
+			return []
+		if B ==  [] :
+			return []
+		for a in A :
+			for b in B :
+				AB.append ([a, b])
+		return AB
+	
+	def getbinproductions (self, AB) :
+		keys = list(self.production_rules.keys ()) 
+		bins = []
+		for line in AB :
+			rulenames = self.getrulenames (line)
+			for rulename in rulenames :
+				bins.append (rulename)
+		return list (set(bins))
+	
+	def getrulenames (self, line) :
+		rulenames = []
+		if len(line) == 0 :
+			return []
+		for key, rules in self.production_rules.items() :
+			for rule in rules :
+				if len (rule) == 1 :
+					continue
+				if rule[0].val == line[0] and rule[1].val == line[1] :
+					rulenames.append (key)
+		return list (set(rulenames))
+
+	def getterminal (self, token) :
+		keys = list(self.production_rules.keys ()) 
+		unit_index = []
+		for v in range(len(keys)) :
+			key = keys[v]
+			rules = self.production_rules[key]
+			for i in range (len(rules)) :
+				rule = rules[i]
+				if len(rule) == 1 and rule[0].type == "TERMINAL" and rule[0].val == token.type :
+					unit_index.append (key)
+		return list(set(unit_index))
+	
+	def printmatrix (self, p) :
+		ss = ""
+		for line in p :
+			for el in line :
+				ss += "{:15}".format(str(el))
+			ss += "\n"
+		print (ss)
+	
+	def count_nonterminals (self) :
+		return len(self.production_rules.keys())
+		
