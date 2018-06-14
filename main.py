@@ -3,33 +3,54 @@ from graphbuilder		import *
 from grammaroperations  import *
 from ChomskyNormalizer 	import *
 
+import sys
+
 txtgrammar = """
+AXIOM -> class
 
-;production rules
-AXIOM -> S
+class ->  
+	classdec. identifier. lcrch. classbody rcrch. semic. class |
+;	''
+	''
+;;
 
-S ->  
-	a. S b. |
-;	S b. |
+classbody -> 
+	visibility. identifier. identifier. lpar. listparam rpar. semic. classbody |
+	visibility. identifier. identifier. semic. classbody |
 	''
 
-;tokens
-;a. -> "a"
-;b. -> 'b'
-
+listparam -> 
+	identifier. identifier. |
+	identifier. identifier. comma. listparam |
+	''
 """
 
-source = "aabb"
+identifier = r"[a-zA-Z_]\w*"
 
 langtokens = [
-	('a','a'),
-	('b','b'),
-	#('c', 'c'),
-	#('d','d'),
+	("class"						, "classdec"),
+	("(public|private|protected)"	, "visibility"),
+	("\{"							, "lcrch"),
+	("\}"							, "rcrch"),
+	("\("							, "lpar"),
+	('\)'							, "rpar"),
+	("\;"							, "semic"),
+	(identifier						, "identifier"),
 ]
+	
+source = """
+class myclass {
+	public int c ;
+} ;
+"""
 
 if __name__ == '__main__':
 	#parsing
+	if len(sys.argv) == 2 :
+		source = sys.argv[1]
+	
+	print (source)
+	
 	gramparser = GenericGrammarParser ()
 	grammar = gramparser.parse (txtgrammar)
 	#dotgraph (grammar, "before_CNF")
@@ -44,7 +65,6 @@ if __name__ == '__main__':
 	#grammar.load ("lang.pkl")
 
 	#load source to parse
-	#print ("source = ", source)
 	TokCode = Tokenizer(langtokens)
 	TokCode.parse (source)
 

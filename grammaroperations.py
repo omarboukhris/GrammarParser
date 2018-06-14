@@ -81,7 +81,7 @@ def checkrightside (production_rules, i, grammar, j, tokens, current_rule) :
 		return (production_rules, i, j, current_rule)
 	if grammar[i].type == "RSIDE" :
 		if tokens[j].type == "TERMINAL" :
-			tokens[j].val = tokens[j].val[:-1] #eliminate .tok
+			tokens[j].val = tokens[j].val[:-1] #eliminate . at terminals
 		production_rules[current_rule][-1].append(tokens[j])			
 		i += 1
 		j += 1

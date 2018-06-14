@@ -177,8 +177,11 @@ class CYKParser :
 	
 	def printmatrix (self, p) :
 		ss = ""
-		for line in p :
-			for el in line :
+		n = len(p)
+		for i in range(n) :
+			line = p[i]
+			for j in range(n-i) :
+				el = line[j]
 				ss += "{:15}".format(str(el))
 			ss += "\n"
 		print (ss)

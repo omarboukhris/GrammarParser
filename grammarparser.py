@@ -60,12 +60,12 @@ class GenericGrammarParser :
 			('\;.*\n',						'LINECOMMENT'),
 			('\'\'|\"\"',					'EMPTY'),
 			('AXIOM',						'AXIOM'),
-			('[a-zA-Z_]\w*\.(gen)?',		'TERMINAL'),
+			('[a-zA-Z_]\w*\.?',				'TERMINAL'),
 			('[a-zA-Z_]\w*',				'NONTERMINAL'),
 			('\->',							'EQUAL'),
 			('\+',							'PLUS'),
 			('\|',							'OR'),
-			#('.*',							'REGEX'),
+			('.(.*)',						'REGEX'),
 		]
 		
 		AXIOM = r'AXIOM EQUAL NONTERMINAL'
