@@ -1,0 +1,27 @@
+;urgent : define generator strategies to inject in language
+
+AXIOM -> class
+
+class ->  
+	classdec. identifier. lcrch. classbody rcrch. semic. class |
+	''
+
+classbody ->
+	visibility. identifier. identifier. lpar. listparam rpar. semic. classbody |
+	visibility. identifier. identifier. semic. classbody | ;comment testing
+	''
+
+listparam -> 
+	identifier. identifier. |
+	identifier. identifier. comma. listparam |
+	''
+
+classdec.("class")
+visibility.("(public|private|protected)")
+lcrch.("\{")
+rcrch.("\}")
+semic.("\;")
+comma.("\,")
+lpar.("\(")
+rpar.("\)")
+identifier.("[a-z_A-Z]\w*")

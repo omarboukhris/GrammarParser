@@ -5,39 +5,6 @@ from ChomskyNormalizer 	import *
 
 import sys
 
-txtgrammar = """
-AXIOM -> class
-
-class ->  
-	classdec. identifier. lcrch. classbody rcrch. semic. class |
-;	''
-	''
-;;
-
-classbody -> 
-	visibility. identifier. identifier. lpar. listparam rpar. semic. classbody |
-	visibility. identifier. identifier. semic. classbody |
-	''
-
-listparam -> 
-	identifier. identifier. |
-	identifier. identifier. comma. listparam |
-	''
-"""
-
-identifier = r"[a-zA-Z_]\w*"
-
-langtokens = [
-	("class"						, "classdec"),
-	("(public|private|protected)"	, "visibility"),
-	("\{"							, "lcrch"),
-	("\}"							, "rcrch"),
-	("\("							, "lpar"),
-	('\)'							, "rpar"),
-	("\;"							, "semic"),
-	(identifier						, "identifier"),
-]
-	
 source = """
 class myclass {
 	public int c ;
@@ -45,27 +12,25 @@ class myclass {
 """
 
 if __name__ == '__main__':
-	#parsing
-	if len(sys.argv) == 2 :
-		source = sys.argv[1]
 	
-	print (source)
+	fstream = open ("grammar.grm", "r")
+	txtgrammar = "".join(fstream.readlines())
+	fstream.close ()
 	
 	gramparser = GenericGrammarParser ()
-	grammar = gramparser.parse (txtgrammar)
+	grammar = gramparser.parse (txtgrammar)#, verbose=True)
 	#dotgraph (grammar, "before_CNF")
 
 	#normalization
 	print (grammar)
 	grammar = getnormalform (grammar)
+	##dotgraph (grammar, "after_CNF")
+	grammar.save ("lang.pkl") #grammar contains everything we want
+	grammar.load ("lang.pkl")
 	print (grammar)
-	#dotgraph (grammar, "after_CNF")
-
-	#grammar.save ("lang.pkl") #grammar contains everything we want
-	#grammar.load ("lang.pkl")
-
+	
 	#load source to parse
-	TokCode = Tokenizer(langtokens)
+	TokCode = Tokenizer(grammar.langtokens)
 	TokCode.parse (source)
 
 	#graph generator goes here
@@ -74,10 +39,10 @@ if __name__ == '__main__':
 
 	word = TokCode.tokenized
 
-	print ()
-	for w in word :
-		print (w)
-	print ()
+	#print ()
+	#for w in word :
+		#print (w)
+	#print ()
 
 	x = langraph.wordinlanguage (word, verbose=True)
 

@@ -91,11 +91,11 @@ def checkfortoken (langtokens, i, grammar, j, tokens, current_rule) :
 	if not i < len(grammar) :
 		return (langtokens, i, j, current_rule)
 	if grammar[i].type == "TOKEN" :
-		if tokens[j] == "TERMINAL" :
-			tokens[j].val = tokens[j].val[:-1] #eliminate .tok
-		langtokens[tokens[j].val.strip(".")] = tokens[j+2].val[1:-1]
+		label = tokens[j].val[:-1] #eliminate the dot
+		regex = tokens[j+1].val[2:-2] #eliminate the ("...")
+		langtokens.append((regex, label)) 
 		i += 1
-		j += 3
+		j += 2
 	return langtokens, i, j, current_rule 
 		
 

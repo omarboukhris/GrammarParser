@@ -7,12 +7,12 @@ import pickle, random
 
 class Grammar :
 	def __init__ (self) :
-		self.production_rules = None
-		self.langtokens = None
+		self.production_rules = odict()
+		self.langtokens = list()
 
 	def makegrammar (self, parsedgrammar, lexgrammar) :
 		self.production_rules = odict()
-		self.langtokens = odict()
+		self.langtokens = list()
 		self.axiomflag = True
 		i, j = 0, 0
 		current_rule = ""
@@ -25,7 +25,6 @@ class Grammar :
 			self.production_rules, i, j, current_rule = checkrightside(self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
 			self.langtokens, i, j, current_rule = checkfortoken (self.langtokens, i, parsedgrammar, j, lexgrammar, current_rule)
 		gramtest = checkproductionrules(self.production_rules)
-		self.langtokens = list(self.langtokens.items ())
 		return gramtest
 
 	def save (self, filename) :
@@ -48,21 +47,30 @@ class Grammar :
 			for rule in rules :
 				rule_in_a_line.append(" + ".join([r.val+"("+r.type+")" for r in rule]))
 			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
-
-		for key, rule in self.langtokens :
-			text_rule += "\nRULE " + key + " = [ " + rule[0] + " ]\n"
+		text_rule += "\n"
+		for regex, label in self.langtokens :
+			text_rule += "TOKEN " + label + " = regex('" + regex + "')\n"
 
 		return text_rule
 
 class GenericGrammarParser :
 	def __init__ (self) :
 		self.grammartokens = [
-			('\;.*\n',						'LINECOMMENT'),
+			#KEYWORDS
+			('\;.*',						'LINECOMMENT'),
 			('\'\'|\"\"',					'EMPTY'),
 			('AXIOM',						'AXIOM'),
-			('[a-zA-Z_]\w*\.?',				'TERMINAL'),
+			
+			#OPERANDS
+			#generator operands are prioritarized to avoid eventual mislabeling
+			('[a-zA-Z_]\w*\.g(en)?',		'GENERATOR'),
+			#more tokens to add
+			
+			('[a-zA-Z_]\w*\.',				'TERMINAL'),
 			('[a-zA-Z_]\w*',				'NONTERMINAL'),
-			('\->',							'EQUAL'),
+
+			# OPERATORS
+			('(\->|\=)',					'EQUAL'),
 			('\+',							'PLUS'),
 			('\|',							'OR'),
 			('.(.*)',						'REGEX'),
@@ -71,7 +79,9 @@ class GenericGrammarParser :
 		AXIOM = r'AXIOM EQUAL NONTERMINAL'
 		LSIDE = r'NONTERMINAL EQUAL'
 		RSIDE = r'(TERMINAL|NONTERMINAL)+|EMPTY'
-		TOKEN = r'TERMINAL EQUAL REGEX'
+		TOKEN = r'TERMINAL REGEX'
+		GRAPH = r'GENERATOR EQUAL (TERMINAL|NONTERMINAL)+'
+		
 		OR, PLUS, LINECOMMENT = r'OR', r'PLUS', r'LINECOMMENT'
 		self.genericgrammarprodrules = [
 			(LINECOMMENT,	'LINECOMMENT'),
@@ -92,7 +102,7 @@ class GenericGrammarParser :
 
 		lang.parse (txt_grammar)
 		if verbose : print(lang)
-
+		
 		txtok = transformtosource (lang.tokenized)
 		gram.parse (txtok)
 		if verbose : print(gram)
