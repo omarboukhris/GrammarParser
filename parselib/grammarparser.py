@@ -57,40 +57,69 @@ class GenericGrammarParser :
 	def __init__ (self) :
 		self.grammartokens = [
 			#KEYWORDS
-			('(//|\;).*',						'LINECOMMENT'),
+			('(//|\;).*',					'LINECOMMENT'),
 			('\'\'|\"\"',					'EMPTY'),
 			('AXIOM',						'AXIOM'),
+			('list\([a-zA-Z_]\w*\.g(en)?\)','LIST'),
+			('str\([a-zA-Z_]\w*\)',			'STR'),
 			
+			# OPERATORS
+			#experimental operators
+			('(\=key|key\=)',				'KEYOP'),
+			
+			('\(\".*\"\)',					'REGEX'),
+			('(\->|\=)',					'EQUAL'),
+			('\+',							'PLUS'),
+			('\,',							'COMMA'),
+			('\|',							'OR'),
+			('\(',							'LPAR'),
+			('\)',							'RPAR'),
+			('\[',							'LCRCH'),
+			('\]',							'RCRCH'),
+
 			#OPERANDS
 			#generator operands are prioritarized to avoid eventual mislabeling
 			('[a-zA-Z_]\w*\.g(en)?',		'GENERATOR'),
-			#more tokens to add
-			
+			('[a-zA-Z_]\w*\.l(ab)?',		'LABELATOR'),
+			('\"[a-zA-Z_]\w*\"',			'LABEL'),
+
+			#more tokens to add	
 			('[a-zA-Z_]\w*\.',				'TERMINAL'),
 			('[a-zA-Z_]\w*',				'NONTERMINAL'),
-
-			# OPERATORS
-			('(\->|\=)',					'EQUAL'),
-			('\+',							'PLUS'),
-			('\|',							'OR'),
-			('.(.*)',						'REGEX'),
 		]
 		
-		AXIOM = r'AXIOM EQUAL NONTERMINAL'
-		LSIDE = r'NONTERMINAL EQUAL'
-		RSIDE = r'(TERMINAL|NONTERMINAL)+|EMPTY'
+		AXIOM = r'AXIOM EQUAL (NONTERMINAL|GENERATOR)'
+		LSIDE = r'(GENERATOR|NONTERMINAL) EQUAL'
+		RSIDE = r'TERMINAL|NONTERMINAL|EMPTY'
 		TOKEN = r'TERMINAL REGEX'
-		GRAPH = r'GENERATOR EQUAL (TERMINAL|NONTERMINAL)+'
+		
+		#experimental rules
+		LSGEN = r'GENERATOR (LCRCH KEYOP LABEL RCRCH)? EQUAL'
+		RSGEN = r'NONTERMINAL LPAR (NONTERMINAL|GENERATOR|LIST|STR) RPAR'
+		LSLAB = r'LABELATOR EQUAL'
+		RSLAB = r'LABEL'
+		LABKY = r'LABEL KEYOP'
 		
 		OR, PLUS, LINECOMMENT = r'OR', r'PLUS', r'LINECOMMENT'
 		self.genericgrammarprodrules = [
 			(LINECOMMENT,	'LINECOMMENT'),
 			(AXIOM,			'AXIOM'),
 			(TOKEN,			'TOKEN'),
+
+			(LABKY,			'LABKY'),
+
+			(LSGEN,			'LSGEN'),
+			(RSGEN,			'RSGEN'),
+			(LSLAB,			'LSLAB'),
+			(RSLAB,			'RSLAB'),
 			(LSIDE,			'LSIDE'),
 			(RSIDE,			'RSIDE'),
-			(OR,			'OR'),
-			(PLUS,			'PLUS'),
+
+			('OR',			'OR'),
+			('PLUS',		'PLUS'),
+			('COMMA',		'COMMA'),
+			('LCRCH',		'LCRCH'),
+			('RCRCH',		'RCRCH'),
 		]
 
 	def parse (self, txt_grammar="", verbose=False) :
@@ -107,16 +136,16 @@ class GenericGrammarParser :
 		gram.parse (txtok)
 		if verbose : print(gram)
 
-		#make production rules
+		##make production rules
 		grammar = Grammar ()
-		result = grammar.makegrammar (
-			gram.tokenized,
-			lang.tokenized,
-		)
+		#result = grammar.makegrammar (
+			#gram.tokenized,
+			#lang.tokenized,
+		#)
 
-		if (result == (True,[])) :
-			if verbose : print (grammar)
-		else :
-			if verbose : print (result)
+		#if (result == (True,[])) :
+			#if verbose : print (grammar)
+		#else :
+			#if verbose : print (result)
 		return grammar
 	

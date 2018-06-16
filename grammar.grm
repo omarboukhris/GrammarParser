@@ -1,4 +1,4 @@
-;urgent : define generator strategies to inject in language
+//urgent : define generator strategies to inject in language
 
 AXIOM -> class
 
@@ -8,7 +8,7 @@ class ->
 
 classbody ->
 	visibility. identifier. identifier. lpar. listparam rpar. semic. classbody |
-	visibility. identifier. identifier. semic. classbody | ;comment testing
+	visibility. identifier. identifier. semic. classbody | //comment testing
 	''
 
 listparam -> 

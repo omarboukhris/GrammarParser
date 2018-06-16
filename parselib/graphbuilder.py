@@ -10,9 +10,13 @@ class Node :
 	
 	def unfold(self):
 		if self.left == None and self.right == None:
-			return self.val+"_"+self.nodetype+'\n'
+			return "{}_{}\n".format(self.val, self.nodetype)
 
-		return "[\n\t"+self.left.unfold()+"\t"+self.right.unfold()+"\n]_"+self.nodetype+'\n'
+		return "[\n\t{}\t{}\n]_{}\n".format(
+			self.left.unfold(),
+			self.right.unfold(),
+			self.nodetype
+		)
 	
 	def __str__ (self) :
 		return self.nodetype
