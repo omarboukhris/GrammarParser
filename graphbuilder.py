@@ -1,6 +1,22 @@
 from collections import OrderedDict as odict
 import os
 
+class Node :
+	def __init__ (self, left, right, nodetype, val) :
+		self.left = left
+		self.right = right
+		self.nodetype = nodetype
+		self.val = val
+	
+	def unfold(self):
+		if self.left == None and self.right == None:
+			return self.val+"_"+self.nodetype+'\n'
+
+		return "[\n\t"+self.left.unfold()+"\t"+self.right.unfold()+"\n]_"+self.nodetype+'\n'
+	
+	def __str__ (self) :
+		return self.nodetype
+
 def dotgraph (gram, filename) :
 	ss = "graph {\n"
 	for key, rules in gram.production_rules.items() :
@@ -81,7 +97,7 @@ class CYKParser :
 		self.production_rules = grammar.production_rules
 		self.err_pos = -1
 		
-	def wordinlanguage (self, word, verbose=False) :
+	def wordinlanguage (self, word) :
 		n = len(word)
 		P = [
 			[[] for i in range (n)] for j in range(n)
@@ -89,7 +105,6 @@ class CYKParser :
 		
 		for i in range (n) :
 			P[0][i] = self.getterminal (word[i])
-			#P[0][i] = ["0", str(i)]
 		for i in range (n-1) :
 			AB = self.cartesianprod (P[0][i], P[0][i+1])
 			if AB == [] :
@@ -98,38 +113,28 @@ class CYKParser :
 			if rulenames == [] :
 				continue
 			P[1][i] += rulenames 
-			#P[1][i] += ['1', str(i)]
 
 		for l in range (2, n) :
 
 			for i in range (0, n-l) :
 				
 				for k in range (0, l) :
-					#print ("P[" + 
-						#str(l) + ", " + str(i) + "] = P[" + 
-						#str(l-k-1) + "," + str(k+i+1) + "] ## P[" + 
-						#str(k) + "," + str(i) + "]")
 					
 					B, A = P[l-k-1][k+i+1], P[k][i]
 					AB = self.cartesianprod (A, B)
 					if AB == [] :
 						continue
-					#print ("AB", AB)
+
 					rulenames = self.getbinproductions (AB)
 					if rulenames == [] :
 						continue
-					#print (rulenames)
 					P[l][i] = rulenames 
-			#self.printmatrix(P)
-		
-		if verbose :
-			self.printmatrix(P)
-		
+
 		if P[n-1][0] == [] :
-			return False
-		#print (P[n-1][0][0], self.production_rules["AXIOM"][0][0].val)
-		return P[n-1][0][0] == self.production_rules["AXIOM"][0][0].val
-		
+			return False # try retruning the broken nodes
+		#print (P[n-1][0][0].nodetype, self.production_rules["AXIOM"][0][0].val)
+		#return P[n-1][0][0].nodetype == self.production_rules["AXIOM"][0][0].val
+		return P[n-1][0][0]
 	
 	def cartesianprod (self, A, B) :
 		AB = []
@@ -148,8 +153,10 @@ class CYKParser :
 		for line in AB :
 			rulenames = self.getrulenames (line)
 			for rulename in rulenames :
+				#add node for parse tree here
 				bins.append (rulename)
-		return list (set(bins))
+		#return list (set(bins))
+		return bins
 	
 	def getrulenames (self, line) :
 		rulenames = []
@@ -159,9 +166,14 @@ class CYKParser :
 			for rule in rules :
 				if len (rule) == 1 :
 					continue
-				if rule[0].val == line[0] and rule[1].val == line[1] :
-					rulenames.append (key)
-		return list (set(rulenames))
+				#if rule[0].val == line[0] and rule[1].val == line[1] :
+				#print( rule[0].val, line[0].nodetype, rule[1].val, line[1].val)
+				if rule[0].val == line[0].nodetype and rule[1].val == line[1].nodetype :
+					node = Node (line[0], line[1], key, None)
+					rulenames.append (node)
+					#rulenames.append (key)
+		#return list (set(rulenames))
+		return rulenames
 
 	def getterminal (self, token) :
 		keys = list(self.production_rules.keys ()) 
@@ -172,8 +184,11 @@ class CYKParser :
 			for i in range (len(rules)) :
 				rule = rules[i]
 				if len(rule) == 1 and rule[0].type == "TERMINAL" and rule[0].val == token.type :
-					unit_index.append (key)
-		return list(set(unit_index))
+					node = Node (None, None, key, token.val)
+					unit_index.append (node)
+					#unit_index.append (key)
+		#return list(set(unit_index))
+		return unit_index
 	
 	def printmatrix (self, p) :
 		ss = ""
@@ -182,7 +197,7 @@ class CYKParser :
 			line = p[i]
 			for j in range(n-i) :
 				el = line[j]
-				ss += "{:15}".format(str(el))
+				ss += "{:15}".format(", ".join([e.__str__() for e in el ]))
 			ss += "\n"
 		print (ss)
 	

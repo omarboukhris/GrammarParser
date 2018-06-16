@@ -27,7 +27,7 @@ if __name__ == '__main__':
 	##dotgraph (grammar, "after_CNF")
 	grammar.save ("lang.pkl") #grammar contains everything we want
 	grammar.load ("lang.pkl")
-	print (grammar)
+	#print (grammar)
 	
 	#load source to parse
 	TokCode = Tokenizer(grammar.langtokens)
@@ -44,11 +44,10 @@ if __name__ == '__main__':
 		#print (w)
 	#print ()
 
-	x = langraph.wordinlanguage (word, verbose=True)
+	x = langraph.wordinlanguage (word)
 
 	if not x :
 		print ('errors n stuff @ ' + str (langraph.err_pos) + 'th token : ' + str(word[langraph.err_pos]))
 	else :
 		print ('allzgud')
-		print ("no derivation tree yet")
-		#print (langraph.path)
+		#print (x.unfold())
