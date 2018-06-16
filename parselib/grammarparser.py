@@ -57,7 +57,7 @@ class GenericGrammarParser :
 	def __init__ (self) :
 		self.grammartokens = [
 			#KEYWORDS
-			('\;.*',						'LINECOMMENT'),
+			('(//|\;).*',						'LINECOMMENT'),
 			('\'\'|\"\"',					'EMPTY'),
 			('AXIOM',						'AXIOM'),
 			
