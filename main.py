@@ -1,7 +1,7 @@
-from grammarparser		import *
-from graphbuilder		import *
-from grammaroperations  import *
-from ChomskyNormalizer 	import *
+from parselib.grammarparser		import *
+from parselib.graphbuilder		import *
+from parselib.grammaroperations import *
+from parselib.ChomskyNormalizer import *
 
 import sys
 
@@ -38,11 +38,6 @@ if __name__ == '__main__':
 	langraph = CYKParser (grammar)
 
 	word = TokCode.tokenized
-
-	#print ()
-	#for w in word :
-		#print (w)
-	#print ()
 
 	x = langraph.wordinlanguage (word)
 

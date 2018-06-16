@@ -1,5 +1,5 @@
-from lexlib import Token
-from grammaroperations import eliminatedoubles
+from parselib.lexlib import Token
+from parselib.grammaroperations import eliminatedoubles
 from collections import OrderedDict as odict
 from copy import deepcopy
 

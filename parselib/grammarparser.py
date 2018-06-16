@@ -1,6 +1,6 @@
-from lexlib import Tokenizer
-from ChomskyNormalizer import *
-from grammaroperations import *
+from parselib.lexlib import Tokenizer
+from parselib.ChomskyNormalizer import *
+from parselib.grammaroperations import *
 
 from collections import OrderedDict as odict
 import pickle, random
