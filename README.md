@@ -1,9 +1,11 @@
 # GrammarParser
 Algebraic (type 2) Grammar parser 
+
 No dependencies required (yet?)
 
 # V 0.1 :
- * graph encoder for generic textual context-free grammars (CFG) G = (NT, T, Pr, AXIOM) with :
+## graph encoder for generic textual context-free grammars (CFG) 
+Let G be a CFG, such as G = (NT, T, Pr, AXIOM) with :
     - NT    : Set of non terminals
     - T     : Set of terminals (alphabet)
     - Pr    : Set of production rules NTx(NT U T)*, U being the union operator and * the Kleen star operator
