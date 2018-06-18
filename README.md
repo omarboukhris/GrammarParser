@@ -9,10 +9,14 @@ No dependencies required (yet?)
 Let G be a CFG, such as G = (NT, T, Pr, AXIOM) with
 	* NT    : Set of non terminals
 	* T     : Set of terminals (alphabet)
-	* Pr    : Set of production rules NTx(NT U T)*, U being the union operator and * the Kleen star operator
+	* Pr    : Set of production rules NT×(NT ∪ T)*, ∪ being the union operator and * the Kleen star operator
 	* AXIOM : The start symbol
 
 example :
+
+Let G = ({S}, {a,b}, {R1}, AXIOM) be a CFG such as :
+
+R1 : S → a S b | ε
 
 dummygrammar.grm
 ```javascript
@@ -27,7 +31,7 @@ b.("b") //{a., b.} are terminals
 testencoder.py
 ```python
 #import important stuff
-from parselib.grammarparser	import GenericGrammarParser
+from parselib.grammarparser import GenericGrammarParser
 
 #load grammar file
 fstream = open ("dummygrammar.grm", "r")
@@ -53,13 +57,15 @@ RULE S = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-* Operators for grammar transformation to Chomsky Normal Form (or any other less restricted normalized form)
+* Operators for grammar transformation to Chomsky Normal Form (or any other less restricted normal form, like 2NF)
 	- TERM : creates production rule pointing to a specific terminal for each terminal in a production rule
 	- BIN  : binarize all rules
 	- DEL  : eliminates epsilone rules (grammar must be binned)
 	- UNIT : eliminates unit rules (grammar must be binned)
+
 Note : START operator is forced by the language by the AXIOM keyword
-For more, start with the wikipedia page : https://en.wikipedia.org/wiki/Chomsky_normal_form
+
+For more, the wikipedia page is a nice starting point : https://en.wikipedia.org/wiki/Chomsky_normal_form
 
 example :
 
@@ -128,12 +134,16 @@ x is false if *word* is not contained in the language, otherwise can unfold an *
 
 # V 0.2 :
 
-TODO : 
-	* write doc
-	* adapt CYK parser to 2NF normal form for more speed/efficiency and less memory consomption
-DONE : 
-	* Encode "generator" syntax in dictionaries. The new syntax subsumes the old one, where generator rules are optional to define a language
+* TODO : 
+	- write doc
+	- adapt CYK parser to 2NF normal form for more speed/efficiency and less memory consomption
+	- find a way to generate data format on the fly while unfolding parse tree
+
+* DONE : 
+	- Encode "generator" syntax in dictionaries. The new syntax subsumes the old one, where generator rules are optional to define a language
+
 example :
+
 dummyCpp.grm
 ```javascript
 // example of unambiguous grammar that should be read by the generator
