@@ -8,22 +8,31 @@ import pickle, random
 class Grammar :
 	def __init__ (self) :
 		self.production_rules = odict()
+		self.generator_rules = odict()
+		self.generator_labels = odict()
 		self.langtokens = list()
 
 	def makegrammar (self, parsedgrammar, lexgrammar) :
-		self.production_rules = odict()
-		self.langtokens = list()
-		self.axiomflag = True
-		i, j = 0, 0
-		current_rule = ""
-		while i < len(parsedgrammar) :
-			self.production_rules, i, j, current_rule, self.axiomflag = checkaxiom (
-				self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule, self.axiomflag
-			)
-			self.production_rules, i, j, current_rule = checkleftside (self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
-			self.production_rules, i, j, current_rule = checkoperators(self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
-			self.production_rules, i, j, current_rule = checkrightside(self.production_rules, i, parsedgrammar, j, lexgrammar, current_rule)
-			self.langtokens, i, j, current_rule = checkfortoken (self.langtokens, i, parsedgrammar, j, lexgrammar, current_rule)
+		ngp = NaiveParser (parsedgrammar, lexgrammar) #ngp for naive grammar parser
+
+		while ngp.stillparsing() :
+			ngp.checkaxiom ()
+			ngp.checkleftside()
+			ngp.checkrightside()
+			
+			ngp.checkleftsidelab()
+			ngp.checkrightsidelab()
+			ngp.checkleftsidegen()
+			ngp.checkrightsidegen()
+			
+			ngp.checkoperators ()
+			ngp.checkfortoken()
+			
+		self.production_rules = ngp.production_rules
+		self.generator_rules = ngp.generator_rules
+		self.generator_labels = ngp.generator_labels
+		self.langtokens = ngp.langtokens
+
 		gramtest = checkproductionrules(self.production_rules)
 		return gramtest
 
@@ -47,7 +56,19 @@ class Grammar :
 			for rule in rules :
 				rule_in_a_line.append(" + ".join([r.val+"("+r.type+")" for r in rule]))
 			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
+		text_rule += "\n\n"
+		
+		for key, labels in self.generator_labels.items() :
+			text_rule += "GENLABELS " + key + " = " + ", ".join(labels) + "\n"
 		text_rule += "\n"
+		
+		for key, rules in self.generator_rules.items() :
+			text_rule += "GENERATOR " + key + " = [\n" 
+			for lilkey, rule in rules.items() :
+				text_rule += "\t'" + lilkey + "' : " + " + ".join([r.val+"("+r.type+")" for r in rule]) + "\n"
+			text_rule += "]\n"
+		text_rule += "\n"
+		
 		for regex, label in self.langtokens :
 			text_rule += "TOKEN " + label + " = regex('" + regex + "')\n"
 
@@ -60,64 +81,60 @@ class GenericGrammarParser :
 			('(//|\;).*',					'LINECOMMENT'),
 			('\'\'|\"\"',					'EMPTY'),
 			('AXIOM',						'AXIOM'),
-			('list\([a-zA-Z_]\w*\.g(en)?\)','LIST'),
-			('str\([a-zA-Z_]\w*\)',			'STR'),
 			
 			# OPERATORS
 			#experimental operators
-			('(\=key|key\=)',				'KEYOP'),
+			('\[\"[a-zA-Z_]\w*\"\]',		'KEYOP'),
+			('list\([a-zA-Z_]\w*\.g(en)?\)','LIST'),
+			('str\([a-zA-Z_]\w*\)',			'STR'),
 			
 			('\(\".*\"\)',					'REGEX'),
 			('(\->|\=)',					'EQUAL'),
-			('\+',							'PLUS'),
-			('\,',							'COMMA'),
+			#('\,',							'COMMA'),
 			('\|',							'OR'),
 			('\(',							'LPAR'),
 			('\)',							'RPAR'),
-			('\[',							'LCRCH'),
-			('\]',							'RCRCH'),
+			#('\[',							'LCRCH'),
+			#('\]',							'RCRCH'),
 
 			#OPERANDS
 			#generator operands are prioritarized to avoid eventual mislabeling
 			('[a-zA-Z_]\w*\.g(en)?',		'GENERATOR'),
 			('[a-zA-Z_]\w*\.l(ab)?',		'LABELATOR'),
-			('\"[a-zA-Z_]\w*\"',			'LABEL'),
+			('\"[a-zA-Z_]\w*\"(\,)?',		'LABEL'),
 
-			#more tokens to add	
 			('[a-zA-Z_]\w*\.',				'TERMINAL'),
 			('[a-zA-Z_]\w*',				'NONTERMINAL'),
 		]
 		
 		AXIOM = r'AXIOM EQUAL (NONTERMINAL|GENERATOR)'
-		LSIDE = r'(GENERATOR|NONTERMINAL) EQUAL'
+		LSIDE = r'NONTERMINAL EQUAL'
 		RSIDE = r'TERMINAL|NONTERMINAL|EMPTY'
 		TOKEN = r'TERMINAL REGEX'
 		
 		#experimental rules
-		LSGEN = r'GENERATOR (LCRCH KEYOP LABEL RCRCH)? EQUAL'
+		LSGEN = r'GENERATOR EQUAL |GENERATOR KEYOP EQUAL'
 		RSGEN = r'NONTERMINAL LPAR (NONTERMINAL|GENERATOR|LIST|STR) RPAR'
+		
 		LSLAB = r'LABELATOR EQUAL'
 		RSLAB = r'LABEL'
-		LABKY = r'LABEL KEYOP'
 		
-		OR, PLUS, LINECOMMENT = r'OR', r'PLUS', r'LINECOMMENT'
 		self.genericgrammarprodrules = [
-			(LINECOMMENT,	'LINECOMMENT'),
+			('LINECOMMENT',	'LINECOMMENT'),
 			(AXIOM,			'AXIOM'),
 			(TOKEN,			'TOKEN'),
 
-			(LABKY,			'LABKY'),
-
 			(LSGEN,			'LSGEN'),
 			(RSGEN,			'RSGEN'),
+
 			(LSLAB,			'LSLAB'),
 			(RSLAB,			'RSLAB'),
+
 			(LSIDE,			'LSIDE'),
 			(RSIDE,			'RSIDE'),
 
 			('OR',			'OR'),
-			('PLUS',		'PLUS'),
-			('COMMA',		'COMMA'),
+			#('COMMA',		'COMMA'),
 			('LCRCH',		'LCRCH'),
 			('RCRCH',		'RCRCH'),
 		]
@@ -138,14 +155,166 @@ class GenericGrammarParser :
 
 		##make production rules
 		grammar = Grammar ()
-		#result = grammar.makegrammar (
-			#gram.tokenized,
-			#lang.tokenized,
-		#)
+		result = grammar.makegrammar (
+			gram.tokenized,
+			lang.tokenized,
+		)
 
-		#if (result == (True,[])) :
-			#if verbose : print (grammar)
-		#else :
-			#if verbose : print (result)
+		if (result == (True,[])) :
+			if verbose : print (grammar)
+		else :
+			if verbose : print (result)
 		return grammar
 	
+
+
+class NaiveParser :
+	def __init__ (self, grammar, tokens) :
+		self.production_rules = odict()
+		self.generator_rules = odict()
+		self.generator_labels = odict()
+		self.langtokens = list()
+
+		self.grammar = grammar
+		self.tokens = tokens
+		
+		self.axiomflag = True
+		
+		self.keyop = ""
+		
+		self.i, self.j, self.current_rule = 0, 0, ""
+	
+	def stillparsing (self) :
+		return self.i < len(self.grammar)
+	
+	def checkaxiom (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		if self.grammar[i].type == "AXIOM" and self.axiomflag :
+			self.production_rules["AXIOM"] = [[self.tokens[j+2]]]
+			self.axiomflag = False
+			i += 1
+			j += 3
+		self.i, self.j = i, j
+
+	def checkleftside (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		if self.grammar[i].type == "LSIDE" :
+			self.current_rule = self.tokens[j].val
+			if not self.current_rule in self.production_rules.keys() :
+				self.production_rules[self.current_rule] = [[]]
+			i += 1
+			j += 2
+		self.i, self.j = i, j
+	
+	def checkoperators (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		if (self.grammar[i].type == "OR" and self.tokens[j].type == "OR") :
+			self.production_rules[self.current_rule].append([])
+			j += 1
+			i += 1
+		if self.grammar[i].type == "LINECOMMENT" and self.tokens[j].type == "LINECOMMENT" :
+			j += 1
+			i += 1
+		self.i, self.j = i, j
+
+	def checkrightside (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		while self.grammar[i].type == "RSIDE" :
+			if self.tokens[j].type == "TERMINAL" :
+				self.tokens[j].val = self.tokens[j].val[:-1] #eliminate . at terminals
+			self.production_rules[self.current_rule][-1].append(self.tokens[j])			
+			i += 1
+			j += 1
+		self.i, self.j = i, j
+
+	def checkfortoken (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		if self.grammar[i].type == "TOKEN" :
+			label = self.tokens[j].val[:-1] #eliminate the dot
+			regex = self.tokens[j+1].val[2:-2] #eliminate the ("...")
+			self.langtokens.append((regex, label)) 
+			i += 1
+			j += 2
+		self.i, self.j = i, j
+	
+	def checkleftsidelab  (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		if self.grammar[i].type == "LSLAB" :
+			self.current_rule = self.tokens[j].val.split(".")[0] #remove .lab
+			self.generator_labels[self.current_rule] = []
+			j+= 2
+			i+= 1
+		self.i, self.j = i, j
+
+	def checkrightsidelab (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		while self.grammar[i].type == "RSLAB" :
+			label = self.tokens[j].val.split(',')[0][1:-1] #eliminate comma if any and quotes
+			self.generator_labels[self.current_rule].append (label)
+			#print (label)
+			i += 1
+			j += 1
+		self.i, self.j = i, j
+
+	def checkleftsidegen (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		if self.grammar[i].type == "LSGEN" :
+			self.current_rule = self.tokens[j].val.split(".")[0] #remove .g(en)
+			if not self.current_rule in self.generator_rules.keys() :
+				self.generator_rules[self.current_rule] = odict()
+
+			if self.tokens[j+1].type == "KEYOP" : #if bifurcated rule
+				self.keyop = self.tokens[j+1].val[2:-2]
+				j += 3
+			else : #if unique rule
+				self.keyop = "all"
+				j+= 2
+
+			self.generator_rules[self.current_rule][self.keyop] = []
+			i+= 1
+		self.i, self.j = i, j
+
+	def checkrightsidegen (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		while self.grammar[i].type in ["RSGEN", "RSIDE"] :
+			if self.grammar[i].type == "RSGEN" :
+				label = self.tokens[j].val
+				#print (label, self.current_rule)
+				#print (self.generator_labels)
+				if label in self.generator_labels[self.current_rule] :
+					#rule is Token(val, type, pos)
+					rule = self.tokens[j+2]
+					#RSGEN catches a NONTERMINAL even if it represents a TOKEN
+					#add a data type to recognize them, ex : LABELED_DATA or smth
+					rule.type = "LABELED_DATA"
+					#if self.keyop == "all" :
+						#self.generator_rules[self.current_rule]['all'].append ( rule ) 
+					#else :
+					self.generator_rules[self.current_rule][self.keyop].append ( rule )
+					j += 4
+				#print (self.generator_rules)
+			else :
+				self.generator_rules[self.current_rule]['all'].append( self.tokens[j] ) 
+				j += 1
+			i += 1
+		self.i, self.j = i, j
+
+

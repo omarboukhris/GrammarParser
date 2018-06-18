@@ -7,7 +7,7 @@ class ->
 	''
 
 classbody ->
-	visibility. identifier. identifier. lpar. listparam rpar. semic. classbody |
+	visibility. identifier. identifier. lpar.  listparam rpar. semic. classbody |
 	visibility. identifier. identifier. semic. classbody | //comment testing
 	''
 
