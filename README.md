@@ -3,10 +3,16 @@ Algebraic (type 2) Grammar parser
 
 No dependencies required (yet?)
 
-# V 0.1 :
+## References :
 
-* graph encoder for generic textual context-free grammars (CFG).
+[1] Lange, Martin; Leiß, Hans (2009). "To CNF or not to CNF? An Efficient Yet Presentable Version of the CYK Algorithm". 
+
+## V 0.1 :
+
+* graph encoder for generic textual context-free grammars (CFG) 
+
 Let G be a CFG, such as G = (NT, T, Pr, AXIOM) with
+
 	* NT    : Set of non terminals
 	* T     : Set of terminals (alphabet)
 	* Pr    : Set of production rules NT×(NT ∪ T)*, ∪ being the union operator and * the Kleen star operator
@@ -17,6 +23,8 @@ example :
 Let G = ({S}, {a,b}, {R1}, AXIOM) be a CFG such as :
 
 R1 : S → a S b | ε
+
+The language described by the grammar is L(G) = { a<sup>n</sup>b<sup>n</sup> }.
 
 dummygrammar.grm
 ```javascript
@@ -64,8 +72,6 @@ TOKEN b = regex('b')
 	- UNIT : eliminates unit rules (grammar must be binned)
 
 Note : START operator is forced by the language by the AXIOM keyword
-
-For more, the wikipedia page is a nice starting point : https://en.wikipedia.org/wiki/Chomsky_normal_form
 
 example :
 
@@ -132,7 +138,7 @@ x = langraph.wordinlanguage (word)
 ```
 x is false if *word* is not contained in the language, otherwise can unfold an *experimental* parse tree (that has yet to be improved).
 
-# V 0.2 : (in progress)
+## V 0.2 : (in progress)
 
 Dummy example for language use to parse a subset of C++
 ```javascript
