@@ -71,7 +71,7 @@ example :
 
 testcnf.py 
 ```python
-from ChomskyNormalizer import TERM, BIN, DEL, UNIT
+from parselib.normoperators import TERM, BIN, DEL, UNIT
 
 def getnormalform (grammar) :
 	production_rules = grammar.production_rules
@@ -115,7 +115,7 @@ TOKEN b = regex('b')
 
 ```python
 #import the good stuff
-from parselib.graphbuilder import LLParser as LL, CYKParser as CYK
+from parselib.parsers import LLParser as LL, CYKParser as CYK
 
 # ... load, parse and normalize grammar
 
@@ -132,19 +132,9 @@ x = langraph.wordinlanguage (word)
 ```
 x is false if *word* is not contained in the language, otherwise can unfold an *experimental* parse tree (that has yet to be improved).
 
-# V 0.2 :
+# V 0.2 : (in progress)
 
-* TODO : 
-	- write doc
-	- adapt CYK parser to 2NF normal form for more speed/efficiency and less memory consomption
-	- find a way to generate data format on the fly while unfolding parse tree
-
-* DONE : 
-	- Encode "generator" syntax in dictionaries. The new syntax subsumes the old one, where generator rules are optional to define a language
-
-example :
-
-dummyCpp.grm
+Dummy example for language use to parse a subset of C++
 ```javascript
 // example of unambiguous grammar that should be read by the generator
 
