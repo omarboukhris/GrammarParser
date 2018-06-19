@@ -10,12 +10,12 @@ class Node :
 	
 	def unfold(self):
 		if self.left == None and self.right == None:
-			return "{}_{}\n".format(self.val, self.nodetype)
+			return "{} = '{}'\n".format(self.nodetype, self.val)
 
-		return "[\n\t{}\t{}\n]_{}\n".format(
+		return "{} = [ \n{}{}]\n".format(
+			self.nodetype,
 			self.left.unfold(),
 			self.right.unfold(),
-			self.nodetype
 		)
 	
 	def __str__ (self) :
@@ -133,6 +133,7 @@ class CYKParser :
 					if rulenames == [] :
 						continue
 					P[l][i] = rulenames 
+			self.printmatrix (P)
 
 		if P[n-1][0] == [] :
 			return False # try retruning the broken nodes

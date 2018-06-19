@@ -3,7 +3,7 @@ from parselib.generaloperators import eliminatedoubles
 from collections import OrderedDict as odict
 from copy import deepcopy
 
-def getnormalform (grammar) :
+def getcnf (grammar) :
 	production_rules = grammar.production_rules
 	term = TERM (production_rules)
 	term.apply ()
@@ -14,6 +14,15 @@ def getnormalform (grammar) :
 	unit = UNIT (dels.production_rules)
 	unit.apply ()
 	grammar.production_rules = unit.production_rules
+	return grammar
+
+def get2nf (grammar) :
+	production_rules = grammar.production_rules
+	term = TERM (production_rules)
+	term.apply ()
+	bins = BIN (term.production_rules)
+	bins.apply ()
+	grammar.production_rules = bins.production_rules
 	return grammar
 
 class TERM :

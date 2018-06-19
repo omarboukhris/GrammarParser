@@ -24,11 +24,12 @@ if __name__ == '__main__':
 
 	#normalization
 	print (grammar)
-	#grammar = getnormalform (grammar)
+	#grammar = getcnf (grammar)
+	grammar = get2nf (grammar)
 	###dotgraph (grammar, "after_CNF")
 	#grammar.save ("lang.pkl") #grammar contains everything we want
 	#grammar.load ("lang.pkl")
-	##print (grammar)
+	print (grammar)
 	
 	##load source to parse
 	#TokCode = Tokenizer(grammar.langtokens)
