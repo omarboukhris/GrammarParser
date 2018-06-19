@@ -24,7 +24,7 @@ AXIOM -> S //this is a comment
 S -> //S is a non terminal.
     a. S b. | // This is a production rule, '|' is the OR operator
     '' // epsilone/empty production rule
-a.("a") //terminals/tokens are regex for efficiency purposes 
+a.("a") //terminals/tokens are regex for efficiency/convenience purposes 
 b.("b") //{a., b.} are terminals
 ```
 
