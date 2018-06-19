@@ -1,6 +1,6 @@
 from parselib.lexlib import Tokenizer
-from parselib.ChomskyNormalizer import *
-from parselib.grammaroperations import *
+from parselib.normoperators import *
+from parselib.generaloperators import *
 
 from collections import OrderedDict as odict
 import pickle, random
@@ -58,15 +58,11 @@ class Grammar :
 			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
 		text_rule += "\n\n"
 		
-		for key, labels in self.generator_labels.items() :
-			text_rule += "GENLABELS " + key + " = " + ", ".join(labels) + "\n"
-		text_rule += "\n"
-		
-		for key, rules in self.generator_rules.items() :
-			text_rule += "GENERATOR " + key + " = [\n" 
+		for (key, rules), (key, labels) in zip(self.generator_rules.items(), self.generator_labels.items()) :
+			text_rule += "GENERATOR " + key + " ( " + ", ".join(labels) + " ) {\n" 
 			for lilkey, rule in rules.items() :
 				text_rule += "\t'" + lilkey + "' : " + " + ".join([r.val+"("+r.type+")" for r in rule]) + "\n"
-			text_rule += "]\n"
+			text_rule += "}\n"
 		text_rule += "\n"
 		
 		for regex, label in self.langtokens :
@@ -167,6 +163,10 @@ class GenericGrammarParser :
 		return grammar
 	
 
+"""
+TODO : 
+	parse list() operator in a production rule
+"""
 
 class NaiveParser :
 	def __init__ (self, grammar, tokens) :
@@ -279,16 +279,40 @@ class NaiveParser :
 			if not self.current_rule in self.generator_rules.keys() :
 				self.generator_rules[self.current_rule] = odict()
 
+			if not self.current_rule in self.production_rules.keys() :
+				self.production_rules[self.current_rule] = [[]]
+
 			if self.tokens[j+1].type == "KEYOP" : #if bifurcated rule
 				self.keyop = self.tokens[j+1].val[2:-2]
+				if self.production_rules[self.current_rule] == [[]] :
+					self.production_rules[self.current_rule] = []
+				self.production_rules[self.current_rule].append([])
 				j += 3
 			else : #if unique rule
 				self.keyop = "all"
 				j+= 2
 
 			self.generator_rules[self.current_rule][self.keyop] = []
+
 			i+= 1
 		self.i, self.j = i, j
+		
+	def makelistrule (self, rule) :
+		iterated = rule.val.split ("(")[1][:-1]
+		iterated = iterated.split(".")[0]
+		
+		genname = "list:" + iterated
+		rule.val = genname
+		# genname -> iterated genname | iterated 
+		
+		looper = Token ("LIST", genname, "0")
+		statement = Token ("GENERATOR", iterated, "0")
+		
+		newrule = [
+			[statement, looper],
+			[statement]
+		]
+		return genname, newrule, rule
 
 	def checkrightsidegen (self) :
 		i, j = self.i, self.j
@@ -305,14 +329,21 @@ class NaiveParser :
 					#RSGEN catches a NONTERMINAL even if it represents a TOKEN
 					#add a data type to recognize them, ex : LABELED_DATA or smth
 					rule.type = "LABELED_DATA"
-					#if self.keyop == "all" :
-						#self.generator_rules[self.current_rule]['all'].append ( rule ) 
-					#else :
+					unrolledlist = rule
+					genname = None
+					if rule.val[:4] == "list" :
+						genname, unrolledlist, rule = self.makelistrule(rule)
+					print (rule, self.current_rule)
+					self.production_rules[self.current_rule][-1].append ( rule )
 					self.generator_rules[self.current_rule][self.keyop].append ( rule )
+					if genname != None :
+						self.production_rules[genname] = unrolledlist
 					j += 4
 				#print (self.generator_rules)
 			else :
-				self.generator_rules[self.current_rule]['all'].append( self.tokens[j] ) 
+				self.tokens[j].val = self.tokens[j].val.split(".")[0]
+				#self.generator_rules[self.current_rule]['all'].append( self.tokens[j] ) 
+				self.production_rules[self.current_rule][-1].append( self.tokens[j] )
 				j += 1
 			i += 1
 		self.i, self.j = i, j

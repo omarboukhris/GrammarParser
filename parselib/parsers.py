@@ -169,9 +169,15 @@ class CYKParser :
 		for key, rules in self.production_rules.items() :
 			for rule in rules :
 				if len (rule) == 1 :
+					#unit handling goes here (maybe ?)
+					#not sure yet
+					#do a case study or two to get an idea about methodology
 					continue
+				#wtf is up with eps rules
+				
 				#if rule[0].val == line[0] and rule[1].val == line[1] :
 				#print( rule[0].val, line[0].nodetype, rule[1].val, line[1].val)
+
 				if rule[0].val == line[0].nodetype and rule[1].val == line[1].nodetype :
 					node = Node (line[0], line[1], key, None)
 					rulenames.append (node)

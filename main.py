@@ -1,7 +1,7 @@
 from parselib.grammarparser		import *
-from parselib.graphbuilder		import *
-from parselib.grammaroperations import *
-from parselib.ChomskyNormalizer import *
+from parselib.parsers			import *
+from parselib.generaloperators	import *
+from parselib.normoperators		import *
 
 import sys
 
