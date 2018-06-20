@@ -272,7 +272,7 @@ class NaiveParser :
 		while self.grammar[i].type == "RSLAB" :
 			label = self.tokens[j].val.split(',')[0][1:-1] #eliminate comma if any and quotes
 			self.generator_labels[self.current_rule].append (label)
-			#print (label)
+			print (label)
 			i += 1
 			j += 1
 		self.i, self.j = i, j

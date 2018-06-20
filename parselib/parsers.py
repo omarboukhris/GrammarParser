@@ -208,7 +208,7 @@ class CYKParser :
 			line = p[i]
 			for j in range(n-i) :
 				el = line[j]
-				ss += "{:15}".format(", ".join([e.__str__() for e in el ]))
+				ss += "{:15}||".format(", ".join([e.__str__() for e in el ]))
 			ss += "\n"
 		print (ss)
 	
