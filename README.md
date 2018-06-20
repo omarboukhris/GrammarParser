@@ -9,14 +9,14 @@ No dependencies required (yet?)
 
 ## V 0.1 :
 
-* graph encoder for generic textual context-free grammars (CFG) 
+- **graph encoder for generic textual context-free grammars (CFG)**
 
 Let G be a CFG, such as G = (NT, T, Pr, AXIOM) with
 
-	* NT    : Set of non terminals
-	* T     : Set of terminals (alphabet)
-	* Pr    : Set of production rules NT×(NT ∪ T)*, ∪ being the union operator and * the Kleen star operator
-	* AXIOM : The start symbol
+* NT    : Set of non terminals
+* T     : Set of terminals (alphabet)
+* Pr    : Set of production rules NT×(NT ∪ T)*, ∪ being the union operator and * the Kleen star operator
+* AXIOM : The start symbol
 
 example :
 
@@ -65,7 +65,8 @@ RULE S = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-* Operators for grammar transformation to Chomsky Normal Form (or any other less restricted normal form, like 2NF)
+- **Operators for grammar transformation ...**
+...to Chomsky Normal Form (or any other less restricted normal form, like 2NF)
 	- TERM : creates production rule pointing to a specific terminal for each terminal in a production rule
 	- BIN  : binarize all rules
 	- DEL  : eliminates epsilone rules (grammar must be binned)
@@ -117,7 +118,7 @@ RULE b. = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-* LL(deprecated) and CYK parsers for grammars in CNF 
+- **LL(deprecated) and CYK parsers for grammars in CNF**
 
 ```python
 #import the good stuff
