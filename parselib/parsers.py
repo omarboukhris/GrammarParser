@@ -1,25 +1,6 @@
 from collections import OrderedDict as odict
+from parselib.parsetree import TokenNode, BinNode, UnitNode
 import os
-
-class Node :
-	def __init__ (self, left, right, nodetype, val) :
-		self.left = left
-		self.right = right
-		self.nodetype = nodetype
-		self.val = val
-	
-	def unfold(self):
-		if self.left == None and self.right == None:
-			return "{} = '{}'\n".format(self.nodetype, self.val)
-
-		return "{} = [ \n{}{}]\n".format(
-			self.nodetype,
-			self.left.unfold(),
-			self.right.unfold(),
-		)
-	
-	def __str__ (self) :
-		return self.nodetype
 
 def dotgraph (gram, filename) :
 	ss = "graph {\n"
@@ -101,7 +82,7 @@ class CYKParser :
 		self.production_rules = grammar.production_rules
 		self.err_pos = -1
 		
-	def membership (self, word) :
+	def membership (self, word, ug=odict()) :
 		n = len(word)
 		P = [
 			[[] for i in range (n)] for j in range(n)
@@ -109,38 +90,7 @@ class CYKParser :
 		
 		for i in range (n) :
 			P[0][i] = self.getterminal (word[i])
-
-		for l in range (1, n) :
-
-			for i in range (0, n-l) :
-				
-				for k in range (0, l) :
-					
-					B, A = P[l-k-1][k+i+1], P[k][i]
-					AB = self.cartesianprod (A, B)
-					if AB == [] :
-						continue
-
-					rulenames = self.getbinproductions (AB)
-					if rulenames == [] :
-						continue
-					P[l][i] = rulenames 
-			self.printmatrix (P)
-
-		if P[n-1][0] == [] :
-			return False # try retruning the broken nodes
-		#print (P[n-1][0][0].nodetype, self.production_rules["AXIOM"][0][0].val)
-		#return P[n-1][0][0].nodetype == self.production_rules["AXIOM"][0][0].val
-		return P[n-1][0][0]
-
-	def membership2nf (self, word, ug=odict()) :
-		n = len(word)
-		P = [
-			[[] for i in range (n)] for j in range(n)
-		]
-		
-		for i in range (n) :
-			P[0][i] = self.getterminal (word[i])
+			P[0][i] = P[0][i] + self.invUg (ug, P[0][i])
 
 		for l in range (1, n) :
 
@@ -159,7 +109,6 @@ class CYKParser :
 					
 					#add inv unit relation processing in cyk table
 					#HERE !!
-
 					P[l][i] = rulenames 
 					P[l][i] = P[l][i] + self.invUg (ug, rulenames)					
 					
@@ -176,11 +125,9 @@ class CYKParser :
 		for i in range(len(M)) :
 			for key, units in ug.items() :
 				if M[i].nodetype in units :
-					node = Node (M[i], None, key, None)
+					node = UnitNode (M[i], key)
 					rulenames.append (node)
 		return rulenames
-
-		
 	
 	def cartesianprod (self, A, B) :
 		AB = []
@@ -217,7 +164,7 @@ class CYKParser :
 					continue
 				
 				if rule[0].val == line[0].nodetype and rule[1].val == line[1].nodetype :
-					node = Node (line[0], line[1], key, None)
+					node = BinNode (line[0], line[1], key)
 					rulenames.append (node)
 					#rulenames.append (key)
 		#return list (set(rulenames))
@@ -232,10 +179,8 @@ class CYKParser :
 			for i in range (len(rules)) :
 				rule = rules[i]
 				if len(rule) == 1 and rule[0].type == "TERMINAL" and rule[0].val == token.type :
-					node = Node (None, None, key, token.val)
+					node = TokenNode (key, token.val)
 					unit_index.append (node)
-					#unit_index.append (key)
-		#return list(set(unit_index))
 		return unit_index
 	
 	def printmatrix (self, p) :

@@ -87,6 +87,8 @@ def getunitrelation (grammar) :
 	unitrelation = odict()
 	
 	for key, rules in production_rules.items() :
+		if key == "AXIOM" :
+			continue
 		for rule in rules :
 			isruleunit = (len(rule) == 1 and (not rule[0].type in ['EMPTY', 'TERMINAL']))
 			if isruleunit :
@@ -96,6 +98,8 @@ def getunitrelation (grammar) :
 					unitrelation[key] = [rule[0].val]
 
 	for key, rules in production_rules.items() :
+		if key == "AXIOM" :
+			continue
 		for rule in rules :
 			if len(rule) != 2 :
 				continue
