@@ -7,17 +7,12 @@ class ->
 	''
 
 classbody ->
-	visibility. identifier. identifier. lpar.  listparam rpar. semic. classbody |
-	visibility. identifier. identifier. semic. classbody | //comment testing
-	''
-
-listparam -> 
-	identifier. identifier. |
-	identifier. identifier. comma. listparam |
+	visibility. type. identifier. semic. classbody | //comment testing
 	''
 
 classdec.("class")
 visibility.("(public|private|protected)")
+type.("int")
 lcrch.("\{")
 rcrch.("\}")
 semic.("\;")

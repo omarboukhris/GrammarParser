@@ -133,7 +133,7 @@ class CYKParser :
 		#return P[n-1][0][0].nodetype == self.production_rules["AXIOM"][0][0].val
 		return P[n-1][0][0]
 
-	def membership2nf (self, word, ug=[]) :
+	def membership2nf (self, word, ug=odict()) :
 		n = len(word)
 		P = [
 			[[] for i in range (n)] for j in range(n)
@@ -145,7 +145,7 @@ class CYKParser :
 		for l in range (1, n) :
 
 			for i in range (0, n-l) :
-				
+
 				for k in range (0, l) :
 					
 					B, A = P[l-k-1][k+i+1], P[k][i]
@@ -156,10 +156,12 @@ class CYKParser :
 					rulenames = self.getbinproductions (AB)
 					if rulenames == [] :
 						continue
-					P[l][i] = rulenames 
 					
 					#add inv unit relation processing in cyk table
 					#HERE !!
+
+					P[l][i] = rulenames 
+					P[l][i] = P[l][i] + self.invUg (ug, rulenames)					
 					
 			self.printmatrix (P)
 
@@ -168,6 +170,17 @@ class CYKParser :
 		#print (P[n-1][0][0].nodetype, self.production_rules["AXIOM"][0][0].val)
 		#return P[n-1][0][0].nodetype == self.production_rules["AXIOM"][0][0].val
 		return P[n-1][0][0]
+	
+	def invUg (self, ug, M) :
+		rulenames = []
+		for i in range(len(M)) :
+			for key, units in ug.items() :
+				if M[i].nodetype in units :
+					node = Node (M[i], None, key, None)
+					rulenames.append (node)
+		return rulenames
+
+		
 	
 	def cartesianprod (self, A, B) :
 		AB = []
@@ -202,11 +215,7 @@ class CYKParser :
 					#not sure yet
 					#do a case study or two to get an idea about methodology
 					continue
-				#wtf is up with eps rules
 				
-				#if rule[0].val == line[0] and rule[1].val == line[1] :
-				#print( rule[0].val, line[0].nodetype, rule[1].val, line[1].val)
-
 				if rule[0].val == line[0].nodetype and rule[1].val == line[1].nodetype :
 					node = Node (line[0], line[1], key, None)
 					rulenames.append (node)
