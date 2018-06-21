@@ -50,3 +50,55 @@ def transformtosource (tokenizedgrammar) :
 	return source
 
 
+def getnullables (grammar) : #only if binned (less of a headache)
+	production_rules = grammar.production_rules
+	
+	nullables = []
+	lenG = 0
+	for key, rules in production_rules.items() :
+		if rules == [] :
+			nullables.append(key)
+			continue
+		for rule in rules :
+			lenG += 1
+			
+			isruleempty = (len(rule) == 1 and rule[0].type == 'EMPTY')
+			if isruleempty :
+				nullables.append (key)
+
+	for i in range (lenG) :
+		for key, rules in production_rules.items() :
+
+			for rule in rules :
+				if len(rule) != 2 :
+					continue
+				isruleempty = (rule[0].val in nullables and rule[1].val in nullables)
+				if isruleempty :
+					nullables.append (key)
+
+	return nullables
+
+def getinvunitrelation (grammar) :
+	epsG = getnullables (grammar)
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

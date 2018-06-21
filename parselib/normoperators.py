@@ -31,20 +31,20 @@ class TERM :
 		self.normalForm = odict()
 		
 	def apply (self) :
-		self._term () 
+		self.term () 
 
-	def _term (self) :
+	def term (self) :
 		normalForm = odict ()
 		production_rules = deepcopy(self.production_rules)
 		for key, rules in production_rules.items () :
 			if not (key in normalForm.keys()) :
 				normalForm[key] = []
 			for rule in rules :
-				normalForm = self.__checkruleforterminals (normalForm, key, rule) 
+				normalForm = self.checkruleforterminals (normalForm, key, rule) 
 		self.normalForm = normalForm
 		self.production_rules = normalForm
 
-	def __checkruleforterminals (self, normalForm, key, rule) :
+	def checkruleforterminals (self, normalForm, key, rule) :
 		newRule = []
 		for i in range (0, len(rule)) :
 			operand = rule[i]
@@ -65,15 +65,15 @@ class BIN :
 		self.normalForm = odict()
 
 	def apply (self) :
-		self._bin ()
+		self.binarize ()
 		return self.normalForm
 	
-	def _bin (self) :
+	def binarize (self) :
 		changed = True
 		while changed :
-			self.normalForm, changed = self._binonce ()
+			self.normalForm, changed = self.binonce ()
 
-	def _binonce (self) :
+	def binonce (self) :
 		normalForm = odict ()
 		production_rules = deepcopy(self.production_rules)
 		changed = False
@@ -81,13 +81,13 @@ class BIN :
 			if not (key in normalForm.keys ()) :
 				normalForm[key] = []
 			for rule in rules :
-				normalForm = self.__binarizerule (normalForm, key, rule)
+				normalForm = self.binarizerule (normalForm, key, rule)
 				if len(rule) > 2 :
 					changed = True
 		self.production_rules = normalForm
 		return normalForm, changed
 
-	def __binarizerule (self, normalForm, key, rule) :
+	def binarizerule (self, normalForm, key, rule) :
 		if len (rule) <= 2 :
 			normalForm[key].append(rule)
 		else :
@@ -107,17 +107,17 @@ class DEL :
 	
 	def apply (self) :
 		#print (self)
-		while self._del () :
+		while self.appdel () :
 			self = eliminatedoubles (self)
 
-	def _del (self) :
+	def appdel (self) :
 		
-		emptykeys = self._getemptykeys ()
-		doubleemptykeys = self._getdoubleemptykeys () 
+		emptykeys = self.getemptykeys ()
+		superemptykeys = self.getsuperemptykeys () 
 
 		#print (emptykeys, doubleemptykeys)
 		
-		if emptykeys == [] and doubleemptykeys == [] :
+		if emptykeys == [] and superemptykeys == [] :
 			return False
 		
 		
@@ -133,12 +133,12 @@ class DEL :
 
 			for rule in rules :
 
-				exploded, explosion = self._explode1 (rule, emptykeys)
+				exploded, explosion = self.explode_unit_rules (rule, emptykeys)
 				if exploded :
 					for r in explosion :
 						node.append (r)
 
-				exploded, explosion = self._explode2 (rule, emptykeys, doubleemptykeys)
+				exploded, explosion = self.explode_bin_rules (rule, emptykeys, superemptykeys)
 				if exploded :
 					for r in explosion :
 						node.append(r)
@@ -149,7 +149,7 @@ class DEL :
 		return True
 		
 		
-	def _explode1 (self, rule, emptykeys) :
+	def explode_unit_rules (self, rule, emptykeys) :
 		if len(rule) != 1 :
 			return False, []
 
@@ -162,7 +162,7 @@ class DEL :
 			fixedrules = [rule]
 		return True, fixedrules
 		
-	def _explode2 (self, rule, emptykeys, doubleemptykeys) :
+	def explode_bin_rules (self, rule, emptykeys, superemptykeys) :
 		if len(rule) != 2 :
 			return False, []
 		
@@ -170,7 +170,7 @@ class DEL :
 		op1, op2 = rule[0], rule[1]
 		
 		op1_erasable, op2_erasable = (op1.val in emptykeys), (op2.val in emptykeys)
-		op1_nullable, op2_nullable = (op1.val in doubleemptykeys), (op2.val in doubleemptykeys)
+		op1_nullable, op2_nullable = (op1.val in superemptykeys), (op2.val in superemptykeys)
 		op1_allcool, op2_allcool = (not op1_erasable and not op1_nullable), (not op2_erasable and not op2_nullable)
 		
 		if op1_erasable and op2_erasable :
@@ -234,7 +234,7 @@ class DEL :
 
 
 	
-	def _getemptykeys (self) :
+	def getemptykeys (self) :
 		production_rules = odict ()
 		keys = []
 		for key, rules in self.production_rules.items() :
@@ -253,8 +253,8 @@ class DEL :
 					production_rules[key].append(rule)
 		self.production_rules = production_rules
 		return list(set(keys))
-	
-	def _getdoubleemptykeys (self) :
+
+	def getsuperemptykeys (self) :
 		production_rules = odict ()
 		keys = []
 		for key, rules in self.production_rules.items() :
@@ -285,32 +285,32 @@ class UNIT :
 		self.production_rules = production_rules
 	
 	def apply (self) :
-		while self._unit () :
+		while self.unit () :
 			self = eliminatedoubles (self)
 	
-	def _unit (self) :
-		unitkeys, doubleunitkeys = self._getunitkeys ()
+	def unit (self) :
+		unitkeys, superunitkeys = self.getunitkeys ()
 
 		
-		if unitkeys == {} and doubleunitkeys == {} :
+		if unitkeys == {} and superunitkeys == {} :
 			return False
 		
 		production_rules = odict()
 
 		for key, rules in self.production_rules.items() :
 			production_rules[key] = rules
-			if key in doubleunitkeys.keys () :
-				for repl in doubleunitkeys[key] :
-					if repl in doubleunitkeys.keys() or repl in unitkeys.keys() :
+			if key in superunitkeys.keys () :
+				for repl in superunitkeys[key] :
+					if repl in superunitkeys.keys() or repl in unitkeys.keys() :
 						continue
 					production_rules[key] += self.production_rules[repl]
 
 		self.production_rules = production_rules
 		return True
 
-	def _getunitkeys (self) :
+	def getunitkeys (self) :
 		production_rules = odict()
-		unitkeys, doubleunitkeys = {}, {}
+		unitkeys, superunitkeys = {}, {}
 		for key, rules in self.production_rules.items () :
 			if key == 'AXIOM' :
 				production_rules["AXIOM"] = self.production_rules["AXIOM"]
@@ -319,21 +319,21 @@ class UNIT :
 			rules = self.production_rules[key]
 			if len(rules) == 1 :
 				rule = rules[0]
-				if len(rule) == 1 and rule[0].type == "NONTERMINAL" and (rule[0].val[-8:] != '_TOK_NT_' or rule[0].val[-1:] != '.') :
+				if len(rule) == 1 and rule[0].type == "NONTERMINAL" :#and (rule[0].val[-8:] != '_TOK_NT_' or rule[0].val[-1:] != '.') :
 					unitkeys[key] = rule[0].val
 				else :
 					node = rules
 			else :
 				keyslist = []
 				for rule in rules :
-					if len(rule) == 1 and rule[0].type == "NONTERMINAL" and (rule[0].val[-8:] != '_TOK_NT_' or rule[0].val[-1:] != '.') :
+					if len(rule) == 1 and rule[0].type == "NONTERMINAL" :# and (rule[0].val[-8:] != '_TOK_NT_' or rule[0].val[-1:] != '.') :
 						if rule[0].val != key :
 							keyslist.append(rule[0].val)
 					else :
 						node.append(rule)
 				if keyslist != [] : 
-					doubleunitkeys[key] = keyslist
+					superunitkeys[key] = keyslist
 			if node != [] :
 				production_rules[key] = node
 		self.production_rules = production_rules
-		return unitkeys, doubleunitkeys
+		return unitkeys, superunitkeys
