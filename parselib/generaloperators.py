@@ -36,8 +36,9 @@ def checkproductionrules (production_rules) :
 	for key, rules in production_rules.items() :
 		for rule in rules :
 			for operand in rule :
-				if (not operand.val in keys) and (operand.type == "NONTERMINAL") :
+				if (not operand.val in keys) and (operand.type in ["NONTERMINAL", "GENERATOR", "LIST"]) :
 					keys.append(operand.val)
+	print (production_rules.keys(), "\n",  keys)
 	if set(production_rules.keys()) == set(keys) :
 		return True, list()
 	else :
@@ -76,11 +77,42 @@ def getnullables (grammar) : #only if binned (less of a headache)
 				if isruleempty :
 					nullables.append (key)
 
-	return nullables
+	return list(set(nullables))
 
 def getinvunitrelation (grammar) :
-	epsG = getnullables (grammar)
+	nullables = getnullables (grammar)
 	
+	production_rules = grammar.production_rules
+	
+	unitrelation = odict()
+	
+	for key, rules in production_rules.items() :
+		for rule in rules :
+			isruleunit = (len(rule) == 1 and (not rule[0].type in ['EMPTY', 'TERMINAL']))
+			if isruleunit :
+				if key in unitrelation.keys() :
+					unitrelation[key].append (rule[0].val)
+				else :
+					unitrelation[key] = [rule[0].val]
+
+	for key, rules in production_rules.items() :
+		for rule in rules :
+			if len(rule) != 2 :
+				continue
+			isruleunit = (rule[0].val in nullables)
+			if isruleunit :
+				if key in unitrelation.keys() :
+					unitrelation[key].append (rule[1].val)
+				else :
+					unitrelation[key] = [rule[1].val]
+			
+			isruleunit = (rule[1].val in nullables)
+			if isruleunit :
+				if key in unitrelation.keys() :
+					unitrelation[key].append (rule[0].val)
+				else :
+					unitrelation[key] = [rule[0].val]
+	return unitrelation
 	
 
 

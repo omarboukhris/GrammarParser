@@ -10,10 +10,10 @@ class Grammar :
 		self.production_rules = odict()
 		self.generator_rules = odict()
 		self.generator_labels = odict()
-		self.langtokens = list()
+		self.tokens = list()
 
-	def makegrammar (self, parsedgrammar, lexgrammar) :
-		ngp = NaiveParser (parsedgrammar, lexgrammar) #ngp for naive grammar parser
+	def makegrammar (self, tokenizedgrammar, grammartokens) :
+		ngp = NaiveParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
 
 		while ngp.stillparsing() :
 			ngp.checkaxiom ()
@@ -31,7 +31,7 @@ class Grammar :
 		self.production_rules = ngp.production_rules
 		self.generator_rules = ngp.generator_rules
 		self.generator_labels = ngp.generator_labels
-		self.langtokens = ngp.langtokens
+		self.tokens = ngp.tokens
 
 		self = eliminatedoubles (self)
 
@@ -41,12 +41,12 @@ class Grammar :
 	def save (self, filename) :
 		serialFile = open (filename, "wb")
 		pickle.dump (self.production_rules, serialFile)
-		pickle.dump (self.langtokens, serialFile)
+		pickle.dump (self.tokens, serialFile)
 		serialFile.close()
 	def load (self, filename) :
 		serialFile = open (filename, "rb")
 		self.production_rules = pickle.load (serialFile)
-		self.langtokens = pickle.load (serialFile)
+		self.tokens = pickle.load (serialFile)
 		serialFile.close()
 
 	def __str__ (self) :
@@ -67,7 +67,7 @@ class Grammar :
 			text_rule += "}\n"
 		text_rule += "\n"
 		
-		for regex, label in self.langtokens :
+		for regex, label in self.tokens :
 			text_rule += "TOKEN " + label + " = regex('" + regex + "')\n"
 
 		return text_rule
@@ -83,8 +83,8 @@ class GenericGrammarParser :
 			# OPERATORS
 			#experimental operators
 			('\[\"[a-zA-Z_]\w*\"\]',		'KEYOP'),
-			('list\([a-zA-Z_]\w*\.g(en)?\)','LIST'),
-			('str\([a-zA-Z_]\w*\)',			'STR'),
+			('list\:[a-zA-Z_]\w*\.g(en)?',	'LIST'),
+			#('str\([a-zA-Z_]\w*\)',			'STR'),
 			
 			('\(\".*\"\)',					'REGEX'),
 			('(\->|\=)',					'EQUAL'),
@@ -171,14 +171,14 @@ TODO :
 """
 
 class NaiveParser :
-	def __init__ (self, grammar, tokens) :
+	def __init__ (self, grammar, parsedtokens) :
 		self.production_rules = odict()
 		self.generator_rules = odict()
 		self.generator_labels = odict()
-		self.langtokens = list()
+		self.tokens = list()
 
 		self.grammar = grammar
-		self.tokens = tokens
+		self.parsedtokens = parsedtokens
 		
 		self.axiomflag = True
 		
@@ -194,7 +194,7 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		if self.grammar[i].type == "AXIOM" and self.axiomflag :
-			axiom = self.tokens[j+2]
+			axiom = self.parsedtokens[j+2]
 			#reactivate if needed for test purposes
 			#if axiom.type == "GENERATOR" :
 				#axiom.type = "NONTERMINAL"
@@ -209,7 +209,7 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		if self.grammar[i].type == "LSIDE" :
-			self.current_rule = self.tokens[j].val
+			self.current_rule = self.parsedtokens[j].val
 			if not self.current_rule in self.production_rules.keys() :
 				self.production_rules[self.current_rule] = [[]]
 			i += 1
@@ -220,11 +220,11 @@ class NaiveParser :
 		i, j = self.i, self.j
 		if not i < len(self.grammar) :
 			return
-		if (self.grammar[i].type == "OR" and self.tokens[j].type == "OR") :
+		if (self.grammar[i].type == "OR" and self.parsedtokens[j].type == "OR") :
 			self.production_rules[self.current_rule].append([])
 			j += 1
 			i += 1
-		if self.grammar[i].type == "LINECOMMENT" and self.tokens[j].type == "LINECOMMENT" :
+		if self.grammar[i].type == "LINECOMMENT" and self.parsedtokens[j].type == "LINECOMMENT" :
 			j += 1
 			i += 1
 		self.i, self.j = i, j
@@ -234,9 +234,9 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		while self.grammar[i].type == "RSIDE" :
-			if self.tokens[j].type == "TERMINAL" :
-				self.tokens[j].val = self.tokens[j].val[:-1] #eliminate . at terminals
-			self.production_rules[self.current_rule][-1].append(self.tokens[j])			
+			if self.parsedtokens[j].type == "TERMINAL" :
+				self.parsedtokens[j].val = self.parsedtokens[j].val[:-1] #eliminate . at terminals
+			self.production_rules[self.current_rule][-1].append(self.parsedtokens[j])			
 			i += 1
 			j += 1
 		self.i, self.j = i, j
@@ -246,9 +246,9 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		if self.grammar[i].type == "TOKEN" :
-			label = self.tokens[j].val[:-1] #eliminate the dot
-			regex = self.tokens[j+1].val[2:-2] #eliminate the ("...")
-			self.langtokens.append((regex, label)) 
+			label = self.parsedtokens[j].val[:-1] #eliminate the dot
+			regex = self.parsedtokens[j+1].val[2:-2] #eliminate the ("...")
+			self.tokens.append((regex, label)) 
 			i += 1
 			j += 2
 		self.i, self.j = i, j
@@ -259,7 +259,7 @@ class NaiveParser :
 			return
 		if self.grammar[i].type == "LSLAB" :
 			#self.current_rule = self.tokens[j].val.split(".")[0] #remove .lab 
-			self.current_rule = self.tokens[j].val.replace (".lab", ".gen") #transf lab -> gen
+			self.current_rule = self.parsedtokens[j].val.replace (".lab", ".gen") #transf lab -> gen
 			self.generator_labels[self.current_rule] = []
 			j+= 2
 			i+= 1
@@ -270,9 +270,8 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		while self.grammar[i].type == "RSLAB" :
-			label = self.tokens[j].val.split(',')[0][1:-1] #eliminate comma if any and quotes
+			label = self.parsedtokens[j].val.split(',')[0][1:-1] #eliminate comma if any and quotes
 			self.generator_labels[self.current_rule].append (label)
-			print (label)
 			i += 1
 			j += 1
 		self.i, self.j = i, j
@@ -282,15 +281,16 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		if self.grammar[i].type == "LSGEN" :
-			self.current_rule = self.tokens[j].val#.split(".")[0] #remove .g(en)
+			self.current_rule = self.parsedtokens[j].val.split(".")[0] #remove .g to add .gen
+			self.current_rule += ".gen"
 			if not self.current_rule in self.generator_rules.keys() :
 				self.generator_rules[self.current_rule] = odict()
 
 			if not self.current_rule in self.production_rules.keys() :
 				self.production_rules[self.current_rule] = [[]]
 
-			if self.tokens[j+1].type == "KEYOP" : #if bifurcated rule
-				self.keyop = self.tokens[j+1].val[2:-2]
+			if self.parsedtokens[j+1].type == "KEYOP" : #if bifurcated rule
+				self.keyop = self.parsedtokens[j+1].val[2:-2]
 				if self.production_rules[self.current_rule] == [[]] :
 					self.production_rules[self.current_rule] = []
 				self.production_rules[self.current_rule].append([])
@@ -305,11 +305,11 @@ class NaiveParser :
 		self.i, self.j = i, j
 		
 	def makelistrule (self, rule) :
-		iterated = rule.val.split ("(")[1][:-1]
-		iterated = iterated.split(".")[0]
+		iterated = rule.val.split (":")[1]
 		
 		genname = "list:" + iterated
-		rule.val = genname
+		genname = rule.val
+		#rule.val = genname
 		# genname -> iterated genname | eps 
 		
 		looper = Token ("LIST", genname, "0")
@@ -331,24 +331,23 @@ class NaiveParser :
 		while self.grammar[i].type in ["RSGEN", "RSIDE"] :
 			check = True
 			if self.grammar[i].type == "RSGEN" :
-				label = self.tokens[j].val
+				label = self.parsedtokens[j].val
 				if label in self.generator_labels[self.current_rule] :
 					#operand is Token(val, type, pos)
-					operand = self.tokens[j+2]
+					operand = self.parsedtokens[j+2]
 
 					#RSGEN catches a NONTERMINAL even if it represents a TOKEN
 					#add a data type to recognize them, ex : LABELED_DATA or smth
 					#rule.type = "LABELED_DATA"
 					unrolledlist = operand
 					genname = None
-					if operand.val[:4] == "list" :
+					if operand.val[:5] == "list:" :
 						genname, unrolledlist, operand = self.makelistrule(operand)
 					elif operand.type == "TERMINAL" :
 						operand.val = operand.val[:-1]
 					#reactivate if needed for tests 
 					#else :
 						#operand.type = "NONTERMINAL"
-					print (operand, self.current_rule)
 					self.production_rules[self.current_rule][-1].append ( operand )
 					self.generator_rules[self.current_rule][self.keyop].append ( operand )
 					if genname != None :
@@ -356,10 +355,9 @@ class NaiveParser :
 					j += 4
 				#print (self.generator_rules)
 			else :
-				if self.tokens[j].type == "TERMINAL" :
-					self.tokens[j].val = self.tokens[j].val[:-1] #eliminate . at terminals
-				#self.generator_rules[self.current_rule]['all'].append( self.tokens[j] ) 
-				self.production_rules[self.current_rule][-1].append( self.tokens[j] )
+				if self.parsedtokens[j].type == "TERMINAL" :
+					self.parsedtokens[j].val = self.parsedtokens[j].val[:-1] #eliminate . at terminals
+				self.production_rules[self.current_rule][-1].append( self.parsedtokens[j] )
 				j += 1
 			i += 1
 		if check : #add empty rules for generators, makes rule nullable

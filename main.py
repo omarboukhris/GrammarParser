@@ -26,13 +26,17 @@ if __name__ == '__main__':
 	print (grammar)
 	#grammar = getcnf (grammar)
 	grammar = get2nf (grammar)
+
+	epsilonG = getnullables(grammar)
+	invUG	 = getinvunitrelation(grammar)
+
 	###dotgraph (grammar, "after_CNF")
 	#grammar.save ("lang.pkl") #grammar contains everything we want
 	#grammar.load ("lang.pkl")
 	print (grammar)
 	
 	##load source to parse
-	#TokCode = Tokenizer(grammar.langtokens)
+	#TokCode = Tokenizer(grammar.tokens)
 	#TokCode.parse (source)
 
 	##graph generator goes here
