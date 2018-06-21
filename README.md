@@ -15,7 +15,7 @@ Let G be a CFG, such as G = (NT, T, Pr, AXIOM) with
 
 * NT    : Set of non terminals
 * T     : Set of terminals (alphabet)
-* Pr    : Set of production rules NT×(NT ∪ T)*, ∪ being the union operator and * the Kleen star operator
+* Pr    : Set of production rules ⊆ NT×(NT ∪ T)*, ∪ being the union operator and * the Kleen star operator
 * AXIOM : The start symbol
 
 example :
