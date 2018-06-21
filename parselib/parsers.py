@@ -2,6 +2,10 @@ from collections import OrderedDict as odict
 from parselib.parsetree import TokenNode, BinNode, UnitNode
 import os
 
+"""
+generates dot graph from a grammar and stores it in filename.png
+this should be updated .. and moved
+"""
 def dotgraph (gram, filename) :
 	ss = "graph {\n"
 	for key, rules in gram.production_rules.items() :
@@ -25,6 +29,10 @@ def dotgraph (gram, filename) :
 	cmd = 'rm ' + filename + '.dot'
 	os.system (cmd)
 
+"""
+deprecated parser because is too old, 
+but thanks anyway, twas cool to hang out LL
+"""
 class LLParser :
 	def __init__ (self, grammar) :
 		self.production_rules = grammar.production_rules
@@ -82,6 +90,10 @@ class CYKParser :
 		self.production_rules = grammar.production_rules
 		self.err_pos = -1
 		
+	"""
+	test membership of a word in a grammar
+	ug is the unit relations set of the grammar
+	"""
 	def membership (self, word, ug=odict()) :
 		n = len(word)
 		P = [
@@ -107,19 +119,22 @@ class CYKParser :
 					if rulenames == [] :
 						continue
 					
+					P[l][i] = rulenames 
 					#add inv unit relation processing in cyk table
 					#HERE !!
-					P[l][i] = rulenames 
 					P[l][i] = P[l][i] + self.invUg (ug, rulenames)					
 					
-			self.printmatrix (P)
+			#self.printmatrix (P)
 
 		if P[n-1][0] == [] :
 			return False # try retruning the broken nodes
 		#print (P[n-1][0][0].nodetype, self.production_rules["AXIOM"][0][0].val)
 		#return P[n-1][0][0].nodetype == self.production_rules["AXIOM"][0][0].val
 		return P[n-1][0][0]
-	
+
+	"""
+	get inverse unit relation for the parse tree
+	"""
 	def invUg (self, ug, M) :
 		rulenames = []
 		for i in range(len(M)) :
@@ -129,6 +144,10 @@ class CYKParser :
 					rulenames.append (node)
 		return rulenames
 	
+	"""
+	cartesian product between activated production rules in matrix
+	to see if their combination yields a registred production rule
+	"""
 	def cartesianprod (self, A, B) :
 		AB = []
 		if A == [] :
@@ -140,6 +159,9 @@ class CYKParser :
 				AB.append ([a, b])
 		return AB
 	
+	"""
+	get a list of binarized production rules
+	"""
 	def getbinproductions (self, AB) :
 		keys = list(self.production_rules.keys ()) 
 		bins = []
@@ -151,6 +173,11 @@ class CYKParser :
 		#return list (set(bins))
 		return bins
 	
+	"""
+	names suffix is misleading and should be changed
+	returns a list of valid nodes corresponding 
+	to the rules being inspected
+	"""
 	def getrulenames (self, line) :
 		rulenames = []
 		if len(line) == 0 :
@@ -170,6 +197,9 @@ class CYKParser :
 		#return list (set(rulenames))
 		return rulenames
 
+	"""
+	get terminal nodes for the cyk table + parse tree
+	"""
 	def getterminal (self, token) :
 		keys = list(self.production_rules.keys ()) 
 		unit_index = []
@@ -182,7 +212,10 @@ class CYKParser :
 					node = TokenNode (key, token.val)
 					unit_index.append (node)
 		return unit_index
-	
+
+	"""
+	print cyk table for test purposes
+	"""	
 	def printmatrix (self, p) :
 		ss = ""
 		n = len(p)
@@ -194,6 +227,9 @@ class CYKParser :
 			ss += "\n"
 		print (ss)
 	
+	"""
+	name is self explanatory
+	"""
 	def count_nonterminals (self) :
 		return len(self.production_rules.keys())
 		

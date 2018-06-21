@@ -20,37 +20,24 @@ if __name__ == '__main__':
 	
 	gramparser = GenericGrammarParser ()
 	grammar = gramparser.parse (txtgrammar)#, verbose=True)
-	#dotgraph (grammar, "before_CNF")
 
 	#normalization
-	#print (grammar)
 	#grammar = getcnf (grammar)
 	grammar = get2nf (grammar)
 
-	epsilonG = getnullables(grammar)
-	invUg	 = getunitrelation(grammar)
+	invUg = odict()
+	invUg = getunitrelation(grammar)
 
-	###dotgraph (grammar, "after_CNF")
-	#grammar.save ("lang.pkl") #grammar contains everything we want
-	#grammar.load ("lang.pkl")
-	#print (grammar)
-	
 	#load source to parse
 	
 	TokCode = Tokenizer(grammar.tokens)
 	TokCode.parse (source)
 
-	print (source)
-
-
-	#graph generator goes here
-	#langraph = LLParser (grammar)
+	#language parser goes here
 	langraph = CYKParser (grammar)
 
 	word = TokCode.tokenized
-
-	x = langraph.membership2nf (word, invUg)
-	#x = langraph.membership (word)
+	x = langraph.membership (word, invUg)
 
 	if not x :
 		print ('errors n stuff @ ' + str (langraph.err_pos) + 'th token : ' + str(word[langraph.err_pos]))
