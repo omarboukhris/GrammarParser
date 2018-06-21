@@ -23,7 +23,8 @@ def get2nf (grammar) :
 	bins = BIN (term.production_rules)
 	bins.apply ()
 	grammar.production_rules = bins.production_rules
-	return grammar
+	
+	return eliminatedoubles(grammar)
 
 class TERM :
 	def __init__ (self, production_rules) :
@@ -91,7 +92,7 @@ class BIN :
 		if len (rule) <= 2 :
 			normalForm[key].append(rule)
 		else :
-			newKey = "-".join ([r.val.strip('.') for r in rule[1:]])
+			newKey = "/".join ([r.val.strip('.') for r in rule[1:]])
 			#newKey = key + "-".join ([r.val for r in rule[1:]])
 			if not (newKey in normalForm.keys()) :
 				normalForm[newKey] = []

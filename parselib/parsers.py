@@ -101,7 +101,7 @@ class CYKParser :
 		self.production_rules = grammar.production_rules
 		self.err_pos = -1
 		
-	def wordinlanguage (self, word) :
+	def membership (self, word) :
 		n = len(word)
 		P = [
 			[[] for i in range (n)] for j in range(n)
@@ -109,16 +109,8 @@ class CYKParser :
 		
 		for i in range (n) :
 			P[0][i] = self.getterminal (word[i])
-		for i in range (n-1) :
-			AB = self.cartesianprod (P[0][i], P[0][i+1])
-			if AB == [] :
-				continue
-			rulenames = self.getbinproductions (AB)
-			if rulenames == [] :
-				continue
-			P[1][i] += rulenames 
 
-		for l in range (2, n) :
+		for l in range (1, n) :
 
 			for i in range (0, n-l) :
 				
@@ -133,6 +125,42 @@ class CYKParser :
 					if rulenames == [] :
 						continue
 					P[l][i] = rulenames 
+			self.printmatrix (P)
+
+		if P[n-1][0] == [] :
+			return False # try retruning the broken nodes
+		#print (P[n-1][0][0].nodetype, self.production_rules["AXIOM"][0][0].val)
+		#return P[n-1][0][0].nodetype == self.production_rules["AXIOM"][0][0].val
+		return P[n-1][0][0]
+
+	def membership2nf (self, word, ug=[]) :
+		n = len(word)
+		P = [
+			[[] for i in range (n)] for j in range(n)
+		]
+		
+		for i in range (n) :
+			P[0][i] = self.getterminal (word[i])
+
+		for l in range (1, n) :
+
+			for i in range (0, n-l) :
+				
+				for k in range (0, l) :
+					
+					B, A = P[l-k-1][k+i+1], P[k][i]
+					AB = self.cartesianprod (A, B)
+					if AB == [] :
+						continue
+
+					rulenames = self.getbinproductions (AB)
+					if rulenames == [] :
+						continue
+					P[l][i] = rulenames 
+					
+					#add inv unit relation processing in cyk table
+					#HERE !!
+					
 			self.printmatrix (P)
 
 		if P[n-1][0] == [] :

@@ -31,14 +31,14 @@ def samerule (rulea, ruleb) :
 	else :
 		return False
 
+#check is semi-proper grammar (if all non terminals used got defined
 def checkproductionrules (production_rules) :
 	keys = ["AXIOM"]
 	for key, rules in production_rules.items() :
 		for rule in rules :
 			for operand in rule :
-				if (not operand.val in keys) and (operand.type in ["NONTERMINAL", "GENERATOR", "LIST"]) :
+				if (not operand.val in keys) and (not operand.type in ["TERMINAL", "LABEL", "LABELATOR", "EMPTY"]) :
 					keys.append(operand.val)
-	print (production_rules.keys(), "\n",  keys)
 	if set(production_rules.keys()) == set(keys) :
 		return True, list()
 	else :
@@ -79,7 +79,7 @@ def getnullables (grammar) : #only if binned (less of a headache)
 
 	return list(set(nullables))
 
-def getinvunitrelation (grammar) :
+def getunitrelation (grammar) :
 	nullables = getnullables (grammar)
 	
 	production_rules = grammar.production_rules
