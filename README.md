@@ -1,5 +1,8 @@
-# GrammarParser
-Algebraic (type 2) Grammar parser 
+# Grammar parselib
+
+This is intended to be a simple yet "efficient" (as efficient as Python can be) framework for context free grammar (CFG) parsing.
+
+Can be used to code a symbolic mathematical kernel, a source-to-source transcompiler or whatever.. The sky is the limit (along with the established expressive power of type 2 grammars)
 
 No dependencies required (yet?)
 
@@ -7,9 +10,7 @@ No dependencies required (yet?)
 
 [1] Lange, Martin; Leiß, Hans (2009). "To CNF or not to CNF? An Efficient Yet Presentable Version of the CYK Algorithm". 
 
-## V 0.1 :
-
-- **graph encoder for generic textual context-free grammars (CFG)**
+## Grammar definition syntax :
 
 Let G be a CFG, such as G = (NT, T, Pr, AXIOM) with
 
@@ -26,7 +27,7 @@ R1 : S → a S b | ε
 
 The language described by the grammar is L(G) = { a<sup>n</sup>b<sup>n</sup> }.
 
-dummygrammar.grm
+* Grammar Syntax V 0.1 : dummygrammar.grm
 ```javascript
 AXIOM -> S //this is a comment
 S -> //S is a non terminal.
@@ -35,8 +36,8 @@ S -> //S is a non terminal.
 a.("a") //terminals/tokens are regex for efficiency/convenience purposes 
 b.("b") //{a., b.} are terminals
 ```
+## graph encoder for generic textual CFG
 
-testencoder.py
 ```python
 #import important stuff
 from parselib.grammarparser import GenericGrammarParser
@@ -65,12 +66,14 @@ RULE S = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-- **Operators for grammar transformation ...**
-...to Chomsky Normal Form (or any other less restricted normal form, like 2NF)
-	- TERM : creates production rule pointing to a specific terminal for each terminal in a production rule
-	- BIN  : binarize all rules
-	- DEL  : eliminates epsilone rules (grammar must be binned)
-	- UNIT : eliminates unit rules (grammar must be binned)
+## Operators for grammar transformation ...
+
+...to Chomsky Normal Form (or any other less restricted normal form, like 2NF<sup>[1]</sup>)
+
+- TERM : creates production rule pointing to a specific terminal for each terminal in a production rule
+- BIN  : binarize all rules
+- DEL  : eliminates epsilone rules (grammar must be binned)
+- UNIT : eliminates unit rules (grammar must be binned)
 
 Note : START operator is forced by the language by the AXIOM keyword
 
@@ -80,7 +83,7 @@ testcnf.py
 ```python
 from parselib.normoperators import TERM, BIN, DEL, UNIT
 
-def getnormalform (grammar) :
+def getcnf (grammar) :
 	production_rules = grammar.production_rules
 	term = TERM (production_rules) # creates operator
 	term.apply () # process the rules
@@ -93,7 +96,7 @@ def getnormalform (grammar) :
 	grammar.production_rules = unit.production_rules
 	return grammar
 	
-grammar = getnormalform (grammar)
+grammar = getcnf (grammar)
 print (grammar)
 ```
 Result on display :
@@ -118,7 +121,7 @@ RULE b. = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-- **LL(deprecated) and CYK parsers for grammars in CNF**
+- **LL(deprecated) and CYK parsers for grammars in CNF and 2NF<sup>[1]</sup>**
 
 ```python
 #import the good stuff
@@ -129,15 +132,22 @@ from parselib.parsers import LLParser as LL, CYKParser as CYK
 langraph = CYKParser (grammar) # or ...
 #langraph = LLParser (grammar)
 
+#tokenizer to transform source code to tokens
+TokCode = Tokenizer(grammar.tokens) 
+#grammar.tokens are language tokens parsed from the file (the regex'es)
+
 #load source to parse
-TokCode = Tokenizer(grammar.langtokens) #langtokens are language tokens parsed from the file (the regex'es)
+litterature = "some word for membership checking in full text"
 TokCode.parse (litterature) # tokenize source code
 word = TokCode.tokenized
 
 # this is where the magic happens
-x = langraph.wordinlanguage (word) 
+# in CNF, 2NF example to come
+x = langraph.membership (word) 
 ```
 x is false if *word* is not contained in the language, otherwise can unfold an *experimental* parse tree (that has yet to be improved).
+
+## To come : pipeline for language processing
 
 ## V 0.2 : (in progress)
 
