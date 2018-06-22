@@ -28,6 +28,7 @@ R1 : S → a S b | ε
 The language described by the grammar is L(G) = { a<sup>n</sup>b<sup>n</sup> }.
 
 * Grammar Syntax V 0.1 : dummygrammar.grm
+
 ```javascript
 AXIOM -> S //this is a comment
 S -> //S is a non terminal.
@@ -38,6 +39,7 @@ b.("b") //{a., b.} are terminals
 ```
 
 * Grammar Syntax V 0.2 :
+
 ```javascript
 AXIOM -> S.gen 
 
