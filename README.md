@@ -38,7 +38,7 @@ a.("a") //terminals/tokens are regex for efficiency/convenience purposes
 b.("b") //{a., b.} are terminals
 ```
 
-* Grammar Syntax V 0.2 :
+* Grammar Syntax V 0.2 : dummyAugmentedGrammar.grm
 
 ```javascript
 AXIOM -> S.gen 
