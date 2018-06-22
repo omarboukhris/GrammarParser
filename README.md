@@ -36,6 +36,7 @@ S -> //S is a non terminal.
 a.("a") //terminals/tokens are regex for efficiency/convenience purposes 
 b.("b") //{a., b.} are terminals
 ```
+
 * Grammar Syntax V 0.2 :
 ```javascript
 AXIOM -> S.gen 
