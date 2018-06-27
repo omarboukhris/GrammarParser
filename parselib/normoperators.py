@@ -1,5 +1,5 @@
 from parselib.lexlib import Token
-from parselib.generaloperators import eliminatedoubles
+from parselib.generaloperators import eliminatedoubles, getunitrelation, removenullables
 from collections import OrderedDict as odict
 from copy import deepcopy
 
@@ -24,7 +24,10 @@ def get2nf (grammar) :
 	bins.apply ()
 	grammar.production_rules = bins.production_rules
 	
-	return eliminatedoubles(grammar)
+	grammar = eliminatedoubles(grammar)
+	grammar = getunitrelation (grammar)
+	grammar = removenullables (grammar)
+	return grammar
 
 class TERM :
 	def __init__ (self, production_rules) :
@@ -35,30 +38,28 @@ class TERM :
 		self.term () 
 
 	def term (self) :
-		normalForm = odict ()
-		production_rules = deepcopy(self.production_rules)
-		for key, rules in production_rules.items () :
-			if not (key in normalForm.keys()) :
-				normalForm[key] = []
+		for key, rules in self.production_rules.items () :
+			if not (key in self.normalForm.keys()) :
+				self.normalForm[key] = []
 			for rule in rules :
-				normalForm = self.checkruleforterminals (normalForm, key, rule) 
-		self.normalForm = normalForm
-		self.production_rules = normalForm
+				self.checkruleforterminals (key, rule) 
+		self.production_rules = self.normalForm
 
-	def checkruleforterminals (self, normalForm, key, rule) :
+	def checkruleforterminals (self, key, rule) :
 		newRule = []
 		for i in range (0, len(rule)) :
 			operand = rule[i]
 			if operand.type == "TERMINAL" :
 				newKey = operand.val + "."
 				if not (newKey in self.normalForm.keys()) :
-					normalForm[newKey] = []
-				normalForm[newKey].append([operand])
-				newRule.append(Token ("NONTERMINAL", newKey, operand.pos))
+					self.normalForm[newKey] = []
+				newRule.append(Token ("NONTERMINAL", newKey, 0, operand.label))
+				operand.label = ""
+				self.normalForm[newKey].append([operand])
 			else :
 				newRule.append(operand)
-		normalForm[key].append(newRule)
-		return normalForm
+		self.normalForm[key].append(newRule)
+		#return normalForm
 
 class BIN :
 	def __init__ (self, production_rules) :
@@ -97,7 +98,7 @@ class BIN :
 			if not (newKey in normalForm.keys()) :
 				normalForm[newKey] = []
 			newProdRule = rule[1:]
-			normalForm[key].append([rule[0], Token ("NONTERMINAL", newKey, rule[1].pos)])
+			normalForm[key].append([rule[0], Token ("NONTERMINAL", newKey, 0)])
 			normalForm[newKey].append(newProdRule)
 		return normalForm
 
@@ -320,14 +321,14 @@ class UNIT :
 			rules = self.production_rules[key]
 			if len(rules) == 1 :
 				rule = rules[0]
-				if len(rule) == 1 and rule[0].type == "NONTERMINAL" :#and (rule[0].val[-8:] != '_TOK_NT_' or rule[0].val[-1:] != '.') :
+				if len(rule) == 1 and rule[0].type == "NONTERMINAL" :
 					unitkeys[key] = rule[0].val
 				else :
 					node = rules
 			else :
 				keyslist = []
 				for rule in rules :
-					if len(rule) == 1 and rule[0].type == "NONTERMINAL" :# and (rule[0].val[-8:] != '_TOK_NT_' or rule[0].val[-1:] != '.') :
+					if len(rule) == 1 and rule[0].type == "NONTERMINAL" :
 						if rule[0].val != key :
 							keyslist.append(rule[0].val)
 					else :

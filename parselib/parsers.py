@@ -1,4 +1,5 @@
 from collections import OrderedDict as odict
+from parselib.generaloperators import cartesianprod
 from parselib.parsetree import TokenNode, BinNode, UnitNode
 import os
 
@@ -88,13 +89,13 @@ class LLParser :
 class CYKParser :
 	def __init__ (self, grammar) :
 		self.production_rules = grammar.production_rules
+		self.unitrelation = grammar.unitrelation
 		self.err_pos = -1
-		
+
 	"""
 	test membership of a word in a grammar
-	ug is the unit relations set of the grammar
 	"""
-	def membership (self, word, ug=odict()) :
+	def membership (self, word) :
 		n = len(word)
 		P = [
 			[[] for i in range (n)] for j in range(n)
@@ -102,7 +103,7 @@ class CYKParser :
 		
 		for i in range (n) :
 			P[0][i] = self.getterminal (word[i])
-			P[0][i] = P[0][i] + self.invUg (ug, P[0][i])
+			P[0][i] = P[0][i] + self.invUnitRelation (P[0][i])
 
 		for l in range (1, n) :
 
@@ -111,7 +112,7 @@ class CYKParser :
 				for k in range (0, l) :
 					
 					B, A = P[l-k-1][k+i+1], P[k][i]
-					AB = self.cartesianprod (A, B)
+					AB = cartesianprod (A, B)
 					if AB == [] :
 						continue
 
@@ -120,44 +121,33 @@ class CYKParser :
 						continue
 					
 					P[l][i] = rulenames 
-					#add inv unit relation processing in cyk table
-					#HERE !!
-					P[l][i] = P[l][i] + self.invUg (ug, rulenames)					
+					P[l][i] = P[l][i] + self.invUnitRelation (rulenames)					
 					
-			#self.printmatrix (P)
+		#self.printmatrix (P)
 
 		if P[n-1][0] == [] :
-			return False # try retruning the broken nodes
-		#print (P[n-1][0][0].nodetype, self.production_rules["AXIOM"][0][0].val)
-		#return P[n-1][0][0].nodetype == self.production_rules["AXIOM"][0][0].val
-		return P[n-1][0][0]
+			return False # try returning the broken nodes
+
+		return self.getAxiomNodes (P[n-1][0])
+
+	def getAxiomNodes (self, nodes) :
+		axiomnodes = []
+		for node in nodes :
+			if node.nodetype == self.production_rules["AXIOM"][0][0].val :
+				axiomnodes.append (node)
+		return axiomnodes
 
 	"""
 	get inverse unit relation for the parse tree
 	"""
-	def invUg (self, ug, M) :
+	def invUnitRelation (self, M) :
 		rulenames = []
 		for i in range(len(M)) :
-			for key, units in ug.items() :
+			for key, units in self.unitrelation.items() :
 				if M[i].nodetype in units :
 					node = UnitNode (M[i], key)
 					rulenames.append (node)
 		return rulenames
-	
-	"""
-	cartesian product between activated production rules in matrix
-	to see if their combination yields a registred production rule
-	"""
-	def cartesianprod (self, A, B) :
-		AB = []
-		if A == [] :
-			return []
-		if B ==  [] :
-			return []
-		for a in A :
-			for b in B :
-				AB.append ([a, b])
-		return AB
 	
 	"""
 	get a list of binarized production rules
@@ -179,22 +169,18 @@ class CYKParser :
 	to the rules being inspected
 	"""
 	def getrulenames (self, line) :
-		rulenames = []
 		if len(line) == 0 :
 			return []
+		rulenames = []
 		for key, rules in self.production_rules.items() :
 			for rule in rules :
 				if len (rule) == 1 :
-					#unit handling goes here (maybe ?)
-					#not sure yet
-					#do a case study or two to get an idea about methodology
 					continue
-				
+
 				if rule[0].val == line[0].nodetype and rule[1].val == line[1].nodetype :
 					node = BinNode (line[0], line[1], key)
 					rulenames.append (node)
-					#rulenames.append (key)
-		#return list (set(rulenames))
+
 		return rulenames
 
 	"""
@@ -202,7 +188,7 @@ class CYKParser :
 	"""
 	def getterminal (self, token) :
 		keys = list(self.production_rules.keys ()) 
-		unit_index = []
+		terminals = []
 		for v in range(len(keys)) :
 			key = keys[v]
 			rules = self.production_rules[key]
@@ -210,8 +196,8 @@ class CYKParser :
 				rule = rules[i]
 				if len(rule) == 1 and rule[0].type == "TERMINAL" and rule[0].val == token.type :
 					node = TokenNode (key, token.val)
-					unit_index.append (node)
-		return unit_index
+					terminals.append (node)
+		return terminals
 
 	"""
 	print cyk table for test purposes
@@ -226,10 +212,4 @@ class CYKParser :
 				ss += "{:15}||".format(", ".join([e.__str__() for e in el ]))
 			ss += "\n"
 		print (ss)
-	
-	"""
-	name is self explanatory
-	"""
-	def count_nonterminals (self) :
-		return len(self.production_rules.keys())
 		

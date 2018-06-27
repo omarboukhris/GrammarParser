@@ -7,7 +7,7 @@ class UnitNode :
 	
 	def unfold(self):
 
-		return "[{} -> {}]".format(
+		return "[ {} -> {} ]".format(
 			self.nodetype,
 			self.unit.unfold(),
 		)
@@ -46,3 +46,5 @@ class BinNode :
 	
 	def __str__ (self) :
 		return self.nodetype
+
+

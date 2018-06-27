@@ -31,7 +31,7 @@ def samerule (rulea, ruleb) :
 	else :
 		return False
 
-#check is semi-proper grammar (if all non terminals used got defined
+#check if semi-proper grammar (if all non terminals used got defined)
 def checkproductionrules (production_rules) :
 	keys = ["AXIOM"]
 	for key, rules in production_rules.items() :
@@ -49,7 +49,6 @@ def transformtosource (tokenizedgrammar) :
 	for token in tokenizedgrammar :
 		source += token.type + " "
 	return source
-
 
 def getnullables (grammar) : #only if binned (less of a headache)
 	production_rules = grammar.production_rules
@@ -78,6 +77,17 @@ def getnullables (grammar) : #only if binned (less of a headache)
 					nullables.append (key)
 
 	return list(set(nullables))
+
+def removenullables (grammar) :
+	production_rules = odict()
+	for key, rules in grammar.production_rules.items() :
+		production_rules[key] = []
+		for rule in rules :
+			if len(rule) == 1 and rule[0].type == "EMPTY" :
+				continue
+			production_rules[key].append(rule)
+	grammar.production_rules = production_rules
+	return grammar
 
 def getunitrelation (grammar) :
 	nullables = getnullables (grammar)
@@ -116,25 +126,21 @@ def getunitrelation (grammar) :
 					unitrelation[key].append (rule[0].val)
 				else :
 					unitrelation[key] = [rule[0].val]
-	return unitrelation
-	
+	grammar.unitrelation = unitrelation
+	return grammar
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+"""
+cartesian product between activated production rules in matrix
+to see if their combination yields a registred production rule
+"""
+def cartesianprod (A, B) :
+	AB = []
+	if A == [] :
+		return []
+	if B ==  [] :
+		return []
+	for a in A :
+		for b in B :
+			AB.append ([a, b])
+	return AB
 

@@ -10,6 +10,7 @@ class Grammar :
 		self.production_rules = odict()
 		self.generator_rules = odict()
 		self.generator_labels = odict()
+		self.unitrelation = odict()
 		self.tokens = list()
 
 	def makegrammar (self, tokenizedgrammar, grammartokens) :
@@ -41,11 +42,17 @@ class Grammar :
 	def save (self, filename) :
 		serialFile = open (filename, "wb")
 		pickle.dump (self.production_rules, serialFile)
+		pickle.dump (self.generator_rules, serialFile)
+		pickle.dump (self.generator_labels, serialFile)
+		pickle.dump (self.unitrelation, serialFile)
 		pickle.dump (self.tokens, serialFile)
 		serialFile.close()
 	def load (self, filename) :
 		serialFile = open (filename, "rb")
 		self.production_rules = pickle.load (serialFile)
+		self.generator_rules = pickle.load (serialFile)
+		self.generator_labels = pickle.load (serialFile)
+		self.unitrelation = pickle.load (serialFile)
 		self.tokens = pickle.load (serialFile)
 		serialFile.close()
 
@@ -56,14 +63,15 @@ class Grammar :
 			text_rule += "\nRULE " + key + " = [\n\t"
 			rule_in_a_line = []
 			for rule in rules :
-				rule_in_a_line.append(" + ".join([r.val+"("+r.type+")" for r in rule]))
+				#rule_in_a_line.append(" + ".join([r.val+"("+r.type+")" for r in rule]))
+				rule_in_a_line.append(" + ".join([r.__str__() for r in rule]))
 			text_rule += "\n\t".join(rule_in_a_line) + "\n]"
 		text_rule += "\n\n"
 		
 		for (key, rules), (key, labels) in zip(self.generator_rules.items(), self.generator_labels.items()) :
 			text_rule += "GENERATOR " + key + " ( " + ", ".join(labels) + " ) {\n" 
 			for lilkey, rule in rules.items() :
-				text_rule += "\t'" + lilkey + "' : " + " + ".join([r.val+"("+r.type+")" for r in rule]) + "\n"
+				text_rule += "\t'" + lilkey + "' : " + " + ".join([r.__str__() for r in rule]) + "\n"
 			text_rule += "}\n"
 		text_rule += "\n"
 		
@@ -111,6 +119,7 @@ class GenericGrammarParser :
 		TOKEN = r'TERMINAL REGEX'
 		
 		#experimental rules
+		##..not anymore :p
 		LSGEN = r'GENERATOR EQUAL |GENERATOR KEYOP EQUAL'
 		RSGEN = r'NONTERMINAL LPAR (TERMINAL|NONTERMINAL|GENERATOR|LIST) RPAR'
 		
@@ -335,6 +344,9 @@ class NaiveParser :
 				if label in self.generator_labels[self.current_rule] :
 					#operand is Token(val, type, pos)
 					operand = self.parsedtokens[j+2]
+
+					#not it yet
+					operand.label = label
 
 					#RSGEN catches a NONTERMINAL even if it represents a TOKEN
 					#add a data type to recognize them, ex : LABELED_DATA or smth
