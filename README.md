@@ -28,6 +28,7 @@ R1 : S → a S b | ε
 The language described by the grammar is L(G) = { a<sup>n</sup>b<sup>n</sup> }.
 
 * Grammar Syntax V 0.1 : dummygrammar.grm
+
 ```javascript
 AXIOM -> S //this is a comment
 S -> //S is a non terminal.
@@ -36,7 +37,25 @@ S -> //S is a non terminal.
 a.("a") //terminals/tokens are regex for efficiency/convenience purposes 
 b.("b") //{a., b.} are terminals
 ```
-## graph encoder for generic textual CFG
+
+* Grammar Syntax V 0.2 : dummyAugmentedGrammar.grm
+
+```javascript
+AXIOM -> S.gen 
+
+S.lab = "label_a", "label_S", "label_b" // define labels to store in dataformat (storing not implemented yet)
+S.gen = label_a(a.) label_S(S) label_b(b.) // the symbols you want to keep should be written : label(symbol)
+//symbol being a terminal, non terminal, generator or a list 
+// this is similar to
+// S -> a. S b. | "" but with token labeling
+//the former syntax can still be used in case you just need an unlabeled language analysis
+
+a.("a") 
+b.("b") 
+```
+
+
+## Graph encoder for generic textual CFG
 
 ```python
 #import important stuff
