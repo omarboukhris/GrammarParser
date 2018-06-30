@@ -23,7 +23,6 @@ def get2nf (grammar) :
 	bins = BIN (term.production_rules)
 	bins.apply ()
 	grammar.production_rules = bins.production_rules
-	
 	grammar = eliminatedoubles(grammar)
 	grammar = getunitrelation (grammar)
 	grammar = removenullables (grammar)

@@ -126,8 +126,29 @@ def getunitrelation (grammar) :
 					unitrelation[key].append (rule[0].val)
 				else :
 					unitrelation[key] = [rule[0].val]
+					
+	changed = True
+	while changed :
+		ur = unitrelation.copy()
+		#changed = False
+		for key, units in unitrelation.items() :
+			for unitlabel in units :
+				if unitlabel in unitrelation.keys() :
+					ur[key] += unitrelation[unitlabel]
+					ur[key] = list(set(ur[key]))
+		if cmpstrdict (ur, unitrelation) :
+			changed = False
+		unitrelation = ur
 	grammar.unitrelation = unitrelation
 	return grammar
+
+def cmpstrdict (d1, d2) :
+	for k1, l1 in d1.items() :
+		if not k1 in d2.keys() :
+			return False
+		if len(list(set(l1) - set(d2[k1]))) != 0 :
+			return False
+	return True
 
 """
 cartesian product between activated production rules in matrix

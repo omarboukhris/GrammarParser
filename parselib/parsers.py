@@ -122,9 +122,9 @@ class CYKParser :
 					
 					P[l][i] = rulenames 
 					P[l][i] = P[l][i] + self.invUnitRelation (rulenames)					
-					
+		
 		#self.printmatrix (P)
-
+		
 		if P[n-1][0] == [] :
 			return False # try returning the broken nodes
 
