@@ -87,15 +87,17 @@ class LLParser :
 
 
 class CYKParser :
-	def __init__ (self, grammar) :
+	def __init__ (self, grammar, unit_lookahead=2) :
 		self.production_rules = grammar.production_rules
 		self.unitrelation = grammar.unitrelation
+		self.ula = unit_lookahead
 		self.err_pos = -1
 
 	"""
 	test membership of a word in a grammar
 	"""
 	def membership (self, word) :
+		unit_lookahead = self.ula
 		n = len(word)
 		P = [
 			[[] for i in range (n)] for j in range(n)
@@ -103,7 +105,7 @@ class CYKParser :
 		
 		for i in range (n) :
 			P[0][i] = self.getterminal (word[i])
-			P[0][i] = P[0][i] + self.invUnitRelation (P[0][i])
+			P[0][i] = P[0][i] + self.invUnitRelation (P[0][i], unit_lookahead)
 
 		for l in range (1, n) :
 
@@ -117,11 +119,8 @@ class CYKParser :
 						continue
 
 					rulenames = self.getbinproductions (AB)
-					if rulenames == [] :
-						continue
-					
 					P[l][i] = rulenames 
-					P[l][i] = P[l][i] + self.invUnitRelation (rulenames)					
+					P[l][i] = P[l][i] + self.invUnitRelation (rulenames, unit_lookahead)					
 		
 		#self.printmatrix (P)
 		
@@ -140,13 +139,15 @@ class CYKParser :
 	"""
 	get inverse unit relation for the parse tree
 	"""
-	def invUnitRelation (self, M) :
+	def invUnitRelation (self, M, unit_lookahead) :
 		rulenames = []
-		for i in range(len(M)) :
-			for key, units in self.unitrelation.items() :
-				if M[i].nodetype in units :
-					node = UnitNode (M[i], key)
-					rulenames.append (node)
+		for k in range (unit_lookahead) :
+			for i in range(len(M)) :
+				for key, units in self.unitrelation.items() :
+					if M[i].nodetype in units :
+						node = UnitNode (M[i], key)
+						rulenames.append (node)
+			M = rulenames
 		return rulenames
 	
 	"""
