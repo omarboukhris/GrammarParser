@@ -39,9 +39,10 @@ def checkproductionrules (production_rules) :
 			for operand in rule :
 				if (not operand.val in keys) and (not operand.type in ["TERMINAL", "LABEL", "LABELATOR", "EMPTY"]) :
 					keys.append(operand.val)
-	if set(production_rules.keys()) == set(keys) :
+	if set(production_rules.keys())-set(keys) == set() :
 		return True, list()
 	else :
+		
 		return False, list(set(production_rules.keys())-set(keys))
 
 def transformtosource (tokenizedgrammar) :

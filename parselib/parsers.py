@@ -1,6 +1,6 @@
 from collections import OrderedDict as odict
 from parselib.generaloperators import cartesianprod
-from parselib.parsetree import TokenNode, BinNode, UnitNode
+from parselib.parsetree import * #TokenNode, BinNode, UnitNode
 import os
 
 """
@@ -89,6 +89,7 @@ class LLParser :
 class CYKParser :
 	def __init__ (self, grammar, unit_lookahead=2) :
 		self.production_rules = grammar.production_rules
+		self.generator_labels = grammar.generator_labels
 		self.unitrelation = grammar.unitrelation
 		self.ula = unit_lookahead
 		self.err_pos = -1
@@ -122,7 +123,7 @@ class CYKParser :
 					P[l][i] = rulenames 
 					P[l][i] = P[l][i] + self.invUnitRelation (rulenames, unit_lookahead)					
 		
-		#self.printmatrix (P)
+		#self.printmatrix (P) #activate for debug purposes
 		
 		if P[n-1][0] == [] :
 			return False # try returning the broken nodes
@@ -132,6 +133,9 @@ class CYKParser :
 	def getAxiomNodes (self, nodes) :
 		axiomnodes = []
 		for node in nodes :
+			#print (node.nodetype, self.production_rules["AXIOM"][0][0].val)
+			#print (node.unfold())
+
 			if node.nodetype == self.production_rules["AXIOM"][0][0].val :
 				axiomnodes.append (node)
 		return axiomnodes
@@ -145,7 +149,12 @@ class CYKParser :
 			for i in range(len(M)) :
 				for key, units in self.unitrelation.items() :
 					if M[i].nodetype in units :
-						node = UnitNode (M[i], key)
+						#here will be injected the labeledunitnode class instantiation
+						node = None
+						if key in self.generator_labels.keys() :
+							node = LabeledUnit (self.generator_labels[key], M[i], key)
+						else :
+							node = UnitNode (M[i], key) 
 						rulenames.append (node)
 			M = rulenames
 		return rulenames
@@ -179,7 +188,17 @@ class CYKParser :
 					continue
 
 				if rule[0].val == line[0].nodetype and rule[1].val == line[1].nodetype :
-					node = BinNode (line[0], line[1], key)
+					#adapt to labeled node here
+					l0, l1 = line[0], line[1]
+					
+					# also depending on the rule type, use appropriate node class for on the fly gen
+					if rule[0].label != "" : 
+						l0 = LabeledToken (rule[0].label, line[0].unfold())
+					if rule[1].label != "" :
+						l1 = LabeledToken (rule[1].label, line[1].unfold())
+					
+
+					node = BinNode (l0, l1, key)
 					rulenames.append (node)
 
 		return rulenames
@@ -213,4 +232,4 @@ class CYKParser :
 				ss += "{:15}||".format(", ".join([e.__str__() for e in el ]))
 			ss += "\n"
 		print (ss)
-		
+	

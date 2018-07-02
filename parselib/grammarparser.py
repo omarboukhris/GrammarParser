@@ -174,11 +174,6 @@ class GenericGrammarParser :
 		return grammar
 	
 
-"""
-TODO : 
-	parse list() operator in a production rule
-"""
-
 class NaiveParser :
 	def __init__ (self, grammar, parsedtokens) :
 		self.production_rules = odict()
