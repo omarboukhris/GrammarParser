@@ -1,15 +1,20 @@
 //urgent : define generator strategies to inject in language
 
 AXIOM -> class
-
+// struct class {
+// 	classname, members
+// }
 class ->  
-	classdec. identifier. lcrch. classbody rcrch. semic. class |
-	''
+	classdec. identifier. lcrch. classbody rcrch. semic. |
+	class class | ''
 
-classbody ->
-	visibility. type. identifier. semic. classbody | //comment testing
-	visibility. type. identifier. lpar. rpar. lcrch. rcrch. semic. classbody | //comment testing
-	''
+classbody -> 
+	method | 
+	attribute | 
+	classbody classbody | '' //list
+
+attribute -> visibility. type. identifier. semic.  //comment testing
+method -> visibility. type. identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
 
 classdec.("class")
 visibility.("(public|private|protected)")

@@ -94,6 +94,7 @@ class CYKParser :
 
 	"""
 	test membership of a word in a grammar
+	STABLE AF, DON'T TOUCH
 	"""
 	def membership (self, word) :
 		n = len(word)

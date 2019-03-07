@@ -4,12 +4,16 @@ class UnitNode :
 	def __init__ (self, unit, nodetype) :
 		self.unit = unit
 		self.nodetype = nodetype
-	
-	def unfold(self):
 
+	def iscompacted (self) :
+		return self.nodetype.find("/") != -1
+
+	def unfold(self, parent=None):
+		if self.iscompacted() or parent == self.nodetype :
+			return self.unit.unfold(self.nodetype)
 		return "( {} -> {} )".format(
 			self.nodetype,
-			self.unit.unfold(),
+			self.unit.unfold(self.nodetype),
 		)
 
 	def __str__ (self) :
@@ -20,7 +24,7 @@ class TokenNode :
 		self.nodetype = nodetype
 		self.val = val
 
-	def unfold(self):
+	def unfold(self, parent=None):
 
 		return "{}({})".format(
 			self.nodetype,
@@ -39,20 +43,20 @@ class BinNode :
 	def iscompacted (self) :
 		return self.nodetype.find("/") != -1
 	
-	def unfold(self):
-		if self.iscompacted() :
+	def unfold(self, parent=None):
+		if self.iscompacted() or parent == self.nodetype :
 			return "{} + {}".format(
-			self.left.unfold(),
-			self.right.unfold(),
+			self.left.unfold(self.nodetype),
+			self.right.unfold(self.nodetype),
 		)
 			
 		return "{} = [ {} + {} ]".format(
 			self.nodetype,
-			self.left.unfold(),
-			self.right.unfold(),
+			self.left.unfold(self.nodetype),
+			self.right.unfold(self.nodetype),
 		)
 	
 	def __str__ (self) :
-		return self.nodetype
+		return self.unfold() #self.nodetype
 
 

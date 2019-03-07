@@ -10,7 +10,10 @@ class myclass {
  public int c ;
  public int c () {} ;
 } ;
-"""
+class myclass {
+ public int c ;
+ public int c () {} ;
+} ;"""
 
 if __name__ == '__main__':
 	
@@ -37,7 +40,10 @@ if __name__ == '__main__':
 	x = langraph.membership (word)
 
 	if not x :
-		print ('errors n stuff @ ' + str (langraph.err_pos) + 'th token : ' + str(word[langraph.err_pos]))
+		print (
+			'errors n stuff @ ' + str (langraph.err_pos) + 
+			'th token : ' + str(word[langraph.err_pos])
+		)
 	else :
 		print ('allzgud')
-		print (x[0].unfold())
+		print (x[0])
