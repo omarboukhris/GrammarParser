@@ -36,8 +36,16 @@ class BinNode :
 		self.right = right
 		self.nodetype = nodetype
 	
+	def iscompacted (self) :
+		return self.nodetype.find("/") != -1
+	
 	def unfold(self):
-
+		if self.iscompacted() :
+			return "{} + {}".format(
+			self.left.unfold(),
+			self.right.unfold(),
+		)
+			
 		return "{} = [ {} + {} ]".format(
 			self.nodetype,
 			self.left.unfold(),

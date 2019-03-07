@@ -8,6 +8,7 @@ import sys
 source = """
 class myclass {
  public int c ;
+ public int c () {} ;
 } ;
 """
 
@@ -25,11 +26,7 @@ if __name__ == '__main__':
 	#grammar = getcnf (grammar)
 	grammar = get2nf (grammar)
 
-	invUg = odict()
-	invUg = getunitrelation(grammar)
-
-	#load source to parse
-	
+	#parse source code
 	TokCode = Tokenizer(grammar.tokens)
 	TokCode.parse (source)
 
@@ -37,10 +34,10 @@ if __name__ == '__main__':
 	langraph = CYKParser (grammar)
 
 	word = TokCode.tokenized
-	x = langraph.membership (word, invUg)
+	x = langraph.membership (word)
 
 	if not x :
 		print ('errors n stuff @ ' + str (langraph.err_pos) + 'th token : ' + str(word[langraph.err_pos]))
 	else :
 		print ('allzgud')
-		print (x.unfold())
+		print (x[0].unfold())

@@ -8,6 +8,7 @@ class ->
 
 classbody ->
 	visibility. type. identifier. semic. classbody | //comment testing
+	visibility. type. identifier. lpar. rpar. lcrch. rcrch. semic. classbody | //comment testing
 	''
 
 classdec.("class")
