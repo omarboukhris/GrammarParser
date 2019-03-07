@@ -90,9 +90,7 @@ class GenericGrammarParser :
 			
 			# OPERATORS
 			#experimental operators
-			('\[\"[a-zA-Z_]\w*\"\]',		'KEYOP'),
-			('list\:[a-zA-Z_]\w*\.g(en)?',	'LIST'),
-			#('str\([a-zA-Z_]\w*\)',			'STR'),
+			('list',						'LIST'),
 			
 			('\(\".*\"\)',					'REGEX'),
 			('(\->|\=)',					'EQUAL'),
@@ -104,10 +102,7 @@ class GenericGrammarParser :
 			#('\]',							'RCRCH'),
 
 			#OPERANDS
-			#generator operands are prioritarized to avoid eventual mislabeling
-			('[a-zA-Z_]\w*\.g(en)?',		'GENERATOR'),
-			('[a-zA-Z_]\w*\.l(ab)?',		'LABELATOR'),
-			('\"[a-zA-Z_]\w*\"(\,)?',		'LABEL'),
+			('[a-zA-Z_]\w*\=',				'LABELED'),
 
 			('[a-zA-Z_]\w*\.',				'TERMINAL'),
 			('[a-zA-Z_]\w*',				'NONTERMINAL'),

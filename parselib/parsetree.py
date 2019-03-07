@@ -25,11 +25,11 @@ class TokenNode :
 		self.val = val
 
 	def unfold(self, parent=None):
-
-		return "{}({})".format(
-			self.nodetype,
-			self.val
-		)
+		return {self.nodetype : self.val}
+		#return "{}({})".format(
+			#self.nodetype,
+			#self.val
+		#)
 	
 	def __str__ (self) :
 		return self.nodetype
@@ -39,7 +39,8 @@ class BinNode :
 		self.left = left
 		self.right = right
 		self.nodetype = nodetype
-	
+
+	#forcefully binarized rule
 	def iscompacted (self) :
 		return self.nodetype.find("/") != -1
 	
@@ -58,5 +59,3 @@ class BinNode :
 	
 	def __str__ (self) :
 		return self.unfold() #self.nodetype
-
-
