@@ -3,17 +3,19 @@ from parselib.parsers			import *
 from parselib.generaloperators	import *
 from parselib.normoperators		import *
 
-import sys
+import sys, json
 
 source = """
 class myclass {
- public int c ;
- public int c () {} ;
+ public int a ;
+ public int b () {} ;
+ public int b2 () {} ;
+ public int b3 () {} ;
 } ;
-class myclass {
+class myclass2 {
  public int c ;
- public int c () {} ;
- public int c () {} ;
+ public int d () {} ;
+ public int e () {} ;
 } ;"""
 
 if __name__ == '__main__':
@@ -28,7 +30,11 @@ if __name__ == '__main__':
 	#normalization
 	#grammar = getcnf (grammar)
 	grammar = get2nf (grammar)
-
+	print (grammar)
+	
+	grammar.save("somewhere.pkl")
+	grammar.load("somewhere.pkl")
+	
 	#get tokens from source code
 	TokCode = Tokenizer(grammar.tokens)
 	TokCode.parse (source)
@@ -43,4 +49,7 @@ if __name__ == '__main__':
 		print (x) # x should point errors out if parsing failed
 	else :
 		print (len(x)) #possible parse trees
-		print (x[0]) #x[0] most pertinent solution
+		#x[0].setuplabels(grammar.labels)
+		parsedrawdict = x[0].unfold()
+		print (json.dumps(parsedrawdict, indent=3)) #x[0] most pertinent solution
+

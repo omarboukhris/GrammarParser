@@ -130,7 +130,7 @@ class CYKParser :
 	def getAxiomNodes (self, nodes) :
 		axiomnodes = []
 		for node in nodes :
-			if node.nodetype == self.production_rules["AXIOM"][0][0].val :
+			if node.nodetype == 'AXIOM': #self.production_rules["AXIOM"][0][0].val :
 				axiomnodes.append (node)
 		return axiomnodes
 
