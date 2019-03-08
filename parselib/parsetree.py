@@ -13,7 +13,7 @@ class UnitNode :
 			return self.unit.unfold(self.nodetype)
 		else :
 			return {
-				self.nodetype : self.unit.unfold()
+				self.unit.nodetype : self.unit.unfold()
 			}
 
 		return "( {} -> {} )".format(

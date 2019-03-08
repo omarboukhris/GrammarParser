@@ -25,12 +25,12 @@ if __name__ == '__main__':
 	fstream.close ()
 	
 	gramparser = GenericGrammarParser ()
-	grammar = gramparser.parse (txtgrammar, verbose=True)
+	grammar = gramparser.parse (txtgrammar)#, verbose=True)
 
 	#normalization
 	#grammar = getcnf (grammar)
 	grammar = get2nf (grammar)
-	print (grammar)
+	#print (grammar)
 	
 	grammar.save("somewhere.pkl")
 	grammar.load("somewhere.pkl")
@@ -48,7 +48,7 @@ if __name__ == '__main__':
 	if not x :
 		print (x) # x should point errors out if parsing failed
 	else :
-		print (len(x)) #possible parse trees
+		print ('number of possible parse trees : ', len(x)) #possible parse trees
 		#x[0].setuplabels(grammar.labels)
 		parsedrawdict = x[0].unfold()
 		print (json.dumps(parsedrawdict, indent=3)) #x[0] most pertinent solution
