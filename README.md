@@ -38,23 +38,6 @@ a.("a") //terminals/tokens are regex for efficiency/convenience purposes
 b.("b") //{a., b.} are terminals
 ```
 
-* Grammar Syntax V 0.2 : dummyAugmentedGrammar.grm
-
-```javascript
-AXIOM -> S.gen 
-
-S.lab = "label_a", "label_S", "label_b" // define labels to store in dataformat (storing not implemented yet)
-S.gen = label_a(a.) label_S(S) label_b(b.) // the symbols you want to keep should be written : label(symbol)
-//symbol being a terminal, non terminal, generator or a list 
-// this is similar to
-// S -> a. S b. | "" but with token labeling
-//the former syntax can still be used in case you just need an unlabeled language analysis
-
-a.("a") 
-b.("b") 
-```
-
-
 ## Graph encoder for generic textual CFG
 
 ```python
@@ -169,80 +152,3 @@ x is false if *word* is not contained in the language, otherwise can unfold an *
 ## To come : pipeline for language processing
 
 ## V 0.2 : (in progress)
-
-Dummy example for language use to parse a subset of C++
-```javascript
-// example of unambiguous grammar that should be read by the generator
-
-AXIOM -> classes.gen
-
-//list is a primitive function
-//we save a list of dataclass 
-//.gen or .g means the saved entity will be used by the generator
-classes.lab = "classes"
-classes.gen = classes(list(dataclass.gen)) 
-// similar to : classes -> dataclass.gen classes | '' but in generator syntax
-
-//.lab refers to label
-dataclass.lab = "classname", "members" // every label have to be used in the rule
-dataclass.g = classdecl. classname(identifier) lcrch. members(list(member.gen)) rcrch. semic.
-
-//["..."] operator is used for "bifurcated" rules like here
-// a class is a list of methods and attributes, but each of them has a specific set of parameters
-// similar to : member -> attrib | method
-member.lab = "content"
-member.g["attrib"] = content(attrib.gen)
-member.g["method"] = content(method.gen)
-
-//str is a primitive function, like list
-//it concatenates in a string whatever the rule between () parses
-attrib.lab = "typename", "attribname"
-attrib.g = typename(str(attrtype)) attribname(identifier) semic.
-
-method.lab = "typename", "methodname", "params"
-method.g = typename(str(methtype)) methodname(identifier) lpar. params(str(listparams)) rpar. semic.
-
-//production rules written in régular grammar
-attrtype -> 
-	isconst. type. ispointer |
-	isconst. identifier. rchev. listtemplatetype lchev. ispointer
-
-methtype ->
-	type. ispointer |
-	template. rchev. listtemplatedecl lchev. type. ispointer 
-
-listtemplatetype -> 
-	identifier. |
-	identifier. comma. listtemplatetype
-
-listtemplatedecl ->
-	tempdecl. identifier. |
-	tempdecl. identifier. comma. listtemplatedecl
-
-ispointer -> 
-	pointer. ispointer |
-	''
-
-// tokens
-//keywords
-pointer.("\*")
-isconst.("(const)?")
-type.("(char|int|float|double)")
-visib.("(public|private|protected)")
-template.("template")
-classdecl.("class")
-
-//operators
-lcrch.("\{")
-rcrch.("\}")
-semic.("\;")
-comma.("\,")
-lpar.("\(")
-rpar.("\)")
-lchev.("\<")
-rchev.("\>")
-
-//variables and whatever
-identifier.("[a-z_A-Z]\w*")
-```
-
