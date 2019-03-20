@@ -21,10 +21,13 @@ class UnitNode :
 					self.unit.nodetype : self.unit.unfold()
 				}
 		else :
-			return "( {} -> {} )".format(
-				self.nodetype,
-				self.unit.unfold(self.nodetype),
-			)
+			if self.iscompacted() or parent == self.nodetype :
+				return self.unit.unfold(self.nodetype)
+			else :#if parent != None :
+				return " {} = [\n {} \n]".format(
+					self.nodetype,
+					self.unit.unfold(self.nodetype),
+				)
 
 	def __str__ (self) :
 		return self.nodetype
@@ -96,7 +99,7 @@ class BinNode :
 				return self.makelist ()
 			
 			if self.iscompacted() or parent == self.nodetype : 
-				return self.mergedicts(
+ 				return self.mergedicts(
 				#return "{} + {}".format( # make it merge two dicts
 					self.left.unfold(self.nodetype),
 					self.right.unfold(self.nodetype),
@@ -109,11 +112,17 @@ class BinNode :
 					self.right.unfold(self.nodetype),
 				)
 		else :
-			return "{} = [ {} + {} ]".format(
-				self.nodetype,
-				self.left.unfold(self.nodetype),
-				self.right.unfold(self.nodetype),
-			)
+			if self.iscompacted() or parent == self.nodetype : 
+				return "{} \n {}".format( # make it merge two dicts
+					self.left.unfold(self.nodetype),
+					self.right.unfold(self.nodetype),
+				)
+			else :
+				return "{} = [\n {} \n {} \n]".format(
+					self.nodetype,
+					self.left.unfold(self.nodetype),
+					self.right.unfold(self.nodetype),
+				)
 	
 	def mergedicts (self, dl, dr):
 		dl.update(dr)

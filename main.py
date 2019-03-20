@@ -5,28 +5,29 @@ from parselib.normoperators		import *
 
 import sys, json
 
-source = """
-class myclass {
- class tmp { } ;
- public int a ;
- public int b () {} ;
- public int b2 () {} ;
- public int b3 () {} ;
-} ;
-class myclass2 {
- public int c ;
- public int d () {} ;
- public int e () {} ;
-} ;"""
+def streamResults (x) :
+	if not x :
+		print (x) # x should point errors out if parsing failed
+	else :
+		print ('number of possible parse trees : ', len(x))
+		parsedrawdict = x[0].unfold()
+		print (parsedrawdict)
+		#print (json.dumps(parsedrawdict, indent=3)) #x[0] most pertinent solution
+		#print (cleanparsed(grammar, parsedrawdict))
+
+
+def loadAsText (filename) :
+	fs = open(filename, "r")
+	source = "".join(fs.readlines())
+	fs.close()
+	return source
 
 if __name__ == '__main__':
 	
-	fstream = open ("grammar.grm", "r")
-	txtgrammar = "".join(fstream.readlines())
-	fstream.close ()
+	#================ BEGIN : Grammar parsing
 	
 	gramparser = GenericGrammarParser ()
-	grammar = gramparser.parse (txtgrammar, verbose=True)
+	grammar = gramparser.parse (loadAsText("grammar.grm"), verbose=True)
 
 	#normalization
 	#grammar = getcnf (grammar)
@@ -34,24 +35,22 @@ if __name__ == '__main__':
 	print (grammar)
 	
 	grammar.save("somewhere.pkl")
+	#================ END : Grammar parsing
+
+	#================ BEGIN : membership test
 	grammar.load("somewhere.pkl")
 	
 	#get tokens from source code
 	TokCode = Tokenizer(grammar.tokens)
-	TokCode.parse (source)
+	TokCode.parse (
+		loadAsText ("test.java")
+	)
 
 	#language parser instanciated here
 	langraph = CYKParser (grammar)
 
 	word = TokCode.tokenized
 	x = langraph.membership (word)
-
-	if not x :
-		print (x) # x should point errors out if parsing failed
-	else :
-		print ('number of possible parse trees : ', len(x)) #possible parse trees
-		#x[0].setuplabels(grammar.labels)
-		parsedrawdict = x[0].unfold()
-		print (json.dumps(parsedrawdict, indent=3)) #x[0] most pertinent solution
-		#print (cleanparsed(grammar, parsedrawdict))
+	streamResults (x)
+	#================ END : membership test
 
