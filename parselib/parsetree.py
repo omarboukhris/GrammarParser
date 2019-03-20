@@ -1,4 +1,4 @@
-
+DEBUG=False
 
 class UnitNode :
 	def __init__ (self, unit, nodetype) :
@@ -9,17 +9,22 @@ class UnitNode :
 		return self.nodetype.find("/") != -1
 
 	def unfold(self, parent=None):
-		if self.iscompacted() or parent == self.nodetype :
-			return self.unit.unfold(self.nodetype)
+		if DEBUG :
+			if self.iscompacted() or parent == self.nodetype :
+				return self.unit.unfold(self.nodetype)
+			elif parent != None :
+				return {
+					parent.split("/")[0] : self.unit.unfold()
+				}
+			else :
+				return {
+					self.unit.nodetype : self.unit.unfold()
+				}
 		else :
-			return {
-				self.unit.nodetype : self.unit.unfold()
-			}
-
-		return "( {} -> {} )".format(
-			self.nodetype,
-			self.unit.unfold(self.nodetype),
-		)
+			return "( {} -> {} )".format(
+				self.nodetype,
+				self.unit.unfold(self.nodetype),
+			)
 
 	def __str__ (self) :
 		return self.nodetype
@@ -30,11 +35,13 @@ class TokenNode :
 		self.val = val
 
 	def unfold(self, parent=None):
-		return {self.nodetype : self.val}
-		#return "{}({})".format(
-			#self.nodetype,
-			#self.val
-		#)
+		if DEBUG :
+			return {self.nodetype : [self.val]}
+		else :
+			return "{}({})".format(
+				self.nodetype,
+				self.val
+			)
 	
 	def __str__ (self) :
 		return self.nodetype
@@ -75,7 +82,7 @@ class BinNode :
 			if self.nodetype in l.keys() :
 				l = l[self.nodetype]
 
-			r.update(l)
+			l.update(r)
 			result = {self.nodetype:r}
 			
 		#print ('<<<<<<<<<<\n',result, '\n')
@@ -84,18 +91,25 @@ class BinNode :
 
 
 	def unfold(self, parent=None):
-		if self.islistnode() : #we have a list
-			return self.makelist ()
-		
-		if self.iscompacted() or parent == self.nodetype : 
-			return self.mergedicts(
-			#return "{} + {}".format( # make it merge two dicts
-				self.left.unfold(self.nodetype),
-				self.right.unfold(self.nodetype),
-			)
+		if DEBUG :
+			if self.islistnode() : #we have a list
+				return self.makelist ()
+			
+			if self.iscompacted() or parent == self.nodetype : 
+				return self.mergedicts(
+				#return "{} + {}".format( # make it merge two dicts
+					self.left.unfold(self.nodetype),
+					self.right.unfold(self.nodetype),
+				)
+			else :
+				return self.makedict (
+				#return "{} = [ {} + {} ]".format(
+					self.nodetype,
+					self.left.unfold(self.nodetype),
+					self.right.unfold(self.nodetype),
+				)
 		else :
-			return self.makedict (
-			#return "{} = [ {} + {} ]".format(
+			return "{} = [ {} + {} ]".format(
 				self.nodetype,
 				self.left.unfold(self.nodetype),
 				self.right.unfold(self.nodetype),

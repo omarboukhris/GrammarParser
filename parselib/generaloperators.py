@@ -1,5 +1,31 @@
 from collections import OrderedDict as odict
 
+def cleanparsed (grammar, parsed) :
+	labels = grammar.labels
+	newdict = {}
+	for k, v in parsed.items() :
+		if k in labels.keys() :
+			print (k)
+			if type(v) == dict :
+				cleanparsed (grammar, v)
+			if type(v) == list :
+				for vi in v :
+					cleanparsed (grammar, vi)
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+
 def eliminatedoubles (grammar) :
 	production_rules = odict()
 	for key in grammar.production_rules.keys() :

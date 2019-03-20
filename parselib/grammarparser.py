@@ -78,6 +78,8 @@ class GenericGrammarParser :
 			# OPERATORS
 			#experimental operators
 			('list',						'LIST'),
+			('!',							'EXCL'),
+			
 			
 			('\(\".*\"\)',					'REGEX'),
 			('(\->|\=)',					'EQUAL'),
@@ -95,7 +97,7 @@ class GenericGrammarParser :
 		
 		AXIOM = r'AXIOM EQUAL (NONTERMINAL|GENERATOR)'
 		LSIDE = r'NONTERMINAL EQUAL'
-		RSIDE = r'TERMINAL|NONTERMINAL|EMPTY'
+		RSIDE = r'!|TERMINAL|NONTERMINAL|EMPTY'
 		TOKEN = r'TERMINAL REGEX'
 		
 		self.genericgrammarprodrules = [

@@ -7,6 +7,7 @@ import sys, json
 
 source = """
 class myclass {
+ class tmp { } ;
  public int a ;
  public int b () {} ;
  public int b2 () {} ;
@@ -25,12 +26,12 @@ if __name__ == '__main__':
 	fstream.close ()
 	
 	gramparser = GenericGrammarParser ()
-	grammar = gramparser.parse (txtgrammar)#, verbose=True)
+	grammar = gramparser.parse (txtgrammar, verbose=True)
 
 	#normalization
 	#grammar = getcnf (grammar)
 	grammar = get2nf (grammar)
-	#print (grammar)
+	print (grammar)
 	
 	grammar.save("somewhere.pkl")
 	grammar.load("somewhere.pkl")
@@ -52,4 +53,5 @@ if __name__ == '__main__':
 		#x[0].setuplabels(grammar.labels)
 		parsedrawdict = x[0].unfold()
 		print (json.dumps(parsedrawdict, indent=3)) #x[0] most pertinent solution
+		#print (cleanparsed(grammar, parsedrawdict))
 
