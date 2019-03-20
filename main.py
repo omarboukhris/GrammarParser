@@ -13,8 +13,6 @@ def streamResults (x) :
 		parsedrawdict = x[0].unfold()
 		print (parsedrawdict)
 		#print (json.dumps(parsedrawdict, indent=3)) #x[0] most pertinent solution
-		#print (cleanparsed(grammar, parsedrawdict))
-
 
 def loadAsText (filename) :
 	fs = open(filename, "r")
@@ -27,7 +25,10 @@ if __name__ == '__main__':
 	#================ BEGIN : Grammar parsing
 	
 	gramparser = GenericGrammarParser ()
-	grammar = gramparser.parse (loadAsText("grammar.grm"), verbose=True)
+	grammar = gramparser.parse (
+		loadAsText("grammar.grm"),
+		verbose=True
+	)
 
 	#normalization
 	#grammar = getcnf (grammar)
