@@ -1,31 +1,5 @@
 from collections import OrderedDict as odict
 
-def cleanparsed (grammar, parsed) :
-	labels = grammar.labels
-	newdict = {}
-	for k, v in parsed.items() :
-		if k in labels.keys() :
-			print (k)
-			if type(v) == dict :
-				cleanparsed (grammar, v)
-			if type(v) == list :
-				for vi in v :
-					cleanparsed (grammar, vi)
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-
 def eliminatedoubles (grammar) :
 	production_rules = odict()
 	for key in grammar.production_rules.keys() :
@@ -63,7 +37,7 @@ def checkproductionrules (production_rules) :
 	for key, rules in production_rules.items() :
 		for rule in rules :
 			for operand in rule :
-				if (not operand.val in keys) and (not operand.type in ["TERMINAL", "LABEL", "LABELATOR", "EMPTY"]) :
+				if (not operand.val in keys) and (not operand.type in ["TERMINAL", "EMPTY"]) :
 					keys.append(operand.val)
 	if set(production_rules.keys()) == set(keys) :
 		return True, list()

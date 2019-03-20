@@ -9,27 +9,22 @@ class Grammar :
 	def __init__ (self) :
 		self.production_rules = odict()
 		self.labels = odict()
+		self.keeper = odict()
 		self.unitrelation = odict()
 		self.tokens = list()
 
 	def makegrammar (self, tokenizedgrammar, grammartokens) :
 		ngp = NaiveParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
 
-		while ngp.stillparsing() :
-			ngp.checkaxiom ()
-			ngp.checkleftside()
-			ngp.checkrightside()
-			
-			ngp.checkoperators ()
-			ngp.checkfortoken()
+		ngp.parse () 
 			
 		self.production_rules = ngp.production_rules
 		self.tokens = ngp.tokens
 		self.labels = ngp.labels
-
+		self.keeper = ngp.keeper
 		self = eliminatedoubles (self)
 
-		gramtest = checkproductionrules(self.production_rules)
+		gramtest = checkproductionrules(self.production_rules) #is fuckedup with the excl add
 		return gramtest
 
 	def save (self, filename) :
@@ -37,6 +32,7 @@ class Grammar :
 		pickle.dump (self.production_rules, serialFile)
 		pickle.dump (self.unitrelation, serialFile)
 		pickle.dump (self.labels, serialFile)
+		pickle.dump (self.keeper, serialFile)
 		pickle.dump (self.tokens, serialFile)
 		serialFile.close()
 	def load (self, filename) :
@@ -44,6 +40,7 @@ class Grammar :
 		self.production_rules = pickle.load (serialFile)
 		self.unitrelation = pickle.load (serialFile)
 		self.labels = pickle.load (serialFile)
+		self.keeper = pickle.load (serialFile)
 		self.tokens = pickle.load (serialFile)
 		serialFile.close()
 
@@ -60,6 +57,20 @@ class Grammar :
 		text_rule += "\n\n"
 		
 		text_rule += "LABELS = " + json.dumps (self.labels, indent=2) + '\n\n'
+
+		text_rule += "STRUCT = [\n{}\n]\n\n".format(
+			"".join([
+				"\t{} : {{\n\t\t{}\n\t}}\n".format (
+					key, ", \n\t\t".join(
+						[
+							str(
+								v.val if type(v) != str else v
+							) for v in val
+						]
+					)
+				) for key, val in self.keeper.items()
+			])
+		)
 		
 		for regex, label in self.tokens :
 			text_rule += "TOKEN " + label + " = regex('" + regex + "')\n"
@@ -97,7 +108,7 @@ class GenericGrammarParser :
 		
 		AXIOM = r'AXIOM EQUAL (NONTERMINAL|GENERATOR)'
 		LSIDE = r'NONTERMINAL EQUAL'
-		RSIDE = r'!|TERMINAL|NONTERMINAL|EMPTY'
+		RSIDE = r'EXCL|TERMINAL|NONTERMINAL|EMPTY'
 		TOKEN = r'TERMINAL REGEX'
 		
 		self.genericgrammarprodrules = [
@@ -150,6 +161,7 @@ class NaiveParser :
 	def __init__ (self, grammar, parsedtokens) :
 		self.production_rules = odict()
 		self.labels = odict()
+		self.keeper = odict()
 		self.tokens = list()
 		
 		self.grammar = grammar
@@ -158,6 +170,15 @@ class NaiveParser :
 		self.axiomflag = True
 		
 		self.i, self.j, self.current_rule = 0, 0, ""
+
+	def parse (self) :
+		while self.stillparsing() :
+			self.checkaxiom ()
+			self.checkleftside()
+			self.checkrightside()
+			
+			self.checkoperators ()
+			self.checkfortoken()
 	
 	def stillparsing (self) :
 		return self.i < len(self.grammar)
@@ -204,6 +225,16 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		while self.grammar[i].type == "RSIDE" :
+			#print (self.current_rule, self.parsedtokens[j], "mmm")
+			if self.parsedtokens[j].type == "EXCL" :
+				#print (self.current_rule, self.parsedtokens[j], self.parsedtokens[j+1])
+				if self.current_rule in self.keeper.keys() :
+					self.keeper[self.current_rule].append(self.parsedtokens[j+1])
+				else :
+					self.keeper[self.current_rule] = [self.parsedtokens[j+1]]
+				j += 1
+				i += 1
+				continue
 			if self.parsedtokens[j].type == "TERMINAL" :
 				self.parsedtokens[j].val = self.parsedtokens[j].val[:-1] #eliminate . at terminals
 			if self.parsedtokens[j].val.find('=') != -1 :
@@ -215,6 +246,10 @@ class NaiveParser :
 					self.labels[self.current_rule].append({operand : label})
 				else :
 					self.labels[self.current_rule] = [{operand : label}]
+				if self.current_rule in self.keeper.keys() :
+					self.keeper[self.current_rule].append(label)
+				else :
+					self.keeper[self.current_rule] = [label]
 			self.production_rules[self.current_rule][-1].append(self.parsedtokens[j])			
 			i += 1
 			j += 1
