@@ -165,11 +165,11 @@ class GenericGrammarParser :
 		]
 		
 		self.parsedsourcetokens = [
+			("[a-zA-Z0-9_]\w*\.",    "LABEL"),
+			("\(.*\)",               "TERM"),
+			("[a-zA-Z0-9_]\w*",      "NONTERM"),
 			("\= \[",                "BEGIN"),
 			("\]",                   "END"),
-			("[a-zA-Z0-9_]\w*\.",    "LABEL"),
-			("\(.*\)",               "TERM"),			
-			("[a-zA-Z0-9_]\w*",      "NONTERM"),
 		]
 		
 
