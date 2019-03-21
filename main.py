@@ -9,9 +9,9 @@ import sys, json
 def processResults (x, verbose=True) :
 	""" Unfolds the parse tree and optionnaly prints it
 	
-        Parameters
-        ----------
-        x : UnitNode, TokenNode, BinNode from parselib.parsetree
+		Parameters
+		----------
+		x : UnitNode, TokenNode, BinNode from parselib.parsetree
 			a list of the folded possible parse trees
 		verbose : bool
 			True (by default) to print results, otherwise False
@@ -21,10 +21,10 @@ def processResults (x, verbose=True) :
 		return None
 	else :
 		if verbose : print ('number of possible parse trees : ', len(x))
-		parsedrawdict = x[0].unfold() #all parse tree unfold the same
+		parsedrawdict = x[0].unfold()[0]["AXIOM"][0] #all parse tree unfold the same
 		if verbose : print (parsedrawdict)
 		return parsedrawdict 
-	
+
 def loadAsText (filename) :
 	"""returns raw text read from file
 	
@@ -41,11 +41,10 @@ def loadAsText (filename) :
 if __name__ == '__main__':
 	
 	#================ BEGIN : Grammar parsing
-	
 	gramparser = GenericGrammarParser ()
 	grammar = gramparser.parse (
-		#loadAsText("grammar.grm"),
-		loadAsText("grammarvo2.grm"),
+		loadAsText("grammar.grm"),
+		#loadAsText("grammarvo2.grm"),
 		verbose=True
 	)
 
@@ -58,20 +57,20 @@ if __name__ == '__main__':
 	#================ END : Grammar parsing
 
 	#================ BEGIN : membership test
-	#grammar.load("somewhere.pkl")
+	grammar.load("somewhere.pkl")
 	
-	##get tokens from source code
-	#TokCode = Tokenizer(grammar.tokens)
-	#TokCode.parse (
-		#loadAsText ("test.java")
-	#)
+	#get tokens from source code
+	TokCode = Tokenizer(grammar.tokens)
+	TokCode.parse (
+		loadAsText ("test.java")
+	)
 
-	##language parser instanciated here
-	#langraph = CYKParser (grammar)
+	#language parser instanciated here
+	langraph = CYKParser (grammar)
 
-	#word = TokCode.tokenized
-	#x = langraph.membership (word)
-	#sourced = processResults (x)
+	word = TokCode.tokenized
+	x = langraph.membership (word)
+	sourced = processResults (x)
 	#================ END : membership test
 
 	#================ BEGIN : source code retokenizing
@@ -80,20 +79,4 @@ if __name__ == '__main__':
 		#verbose=True
 	#)
 	#================ END : source code retokenizing
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

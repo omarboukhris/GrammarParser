@@ -127,12 +127,13 @@ TOKEN b = regex('b')
 
 ```python
 #import the good stuff
-from parselib.parsers import LLParser as LL, CYKParser as CYK
-
+from parselib.parsers       import CYKParser as CYK
+from parselib.normoperators	import get2nf
 # ... load, parse and normalize grammar
 
-langraph = CYKParser (grammar) # or ...
-#langraph = LLParser (grammar)
+grammar = get2nf (grammar)
+
+langraph = CYK (grammar) 
 
 #tokenizer to transform source code to tokens
 TokCode = Tokenizer(grammar.tokens) 
@@ -147,8 +148,17 @@ word = TokCode.tokenized
 # in CNF, 2NF example to come
 x = langraph.membership (word) 
 ```
-x is false if *word* is not contained in the language, otherwise can unfold an *experimental* parse tree (that has yet to be improved).
+x is false if *word* is not contained in the language, otherwise can unfold a parse tree.
+Should be linearly reparsed to plug data in the accurate data structure
 
 ## To come : pipeline for language processing
 
-## V 0.2 : (in progress)
+## V 0.2 : 
+
+# Operators :
+
+
+
+
+
+
