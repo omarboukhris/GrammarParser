@@ -39,19 +39,14 @@ class Token(object):
 	""" A simple Token structure.
 		Contains the token type, value and position.
 	"""
-	def __init__(self, type, val, pos, label="", keep=False):
+	def __init__(self, type, val, pos):
 		self.type = type
 		self.val = val
 		self.pos = pos 
-		self.label = label
-		self.keep = keep 
+
 		
 	def __str__(self):
-		ss = ""
-		if self.label != "" :
-			ss = '"%s"={%s(%s)}' % (self.label, self.type, self.val)
-		else :
-			ss = '%s(%s)' % (self.type, self.val)
+		ss = '%s(%s)' % (self.type, self.val)
 		return ss
 
 

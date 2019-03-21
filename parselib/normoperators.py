@@ -52,13 +52,12 @@ class TERM :
 				newKey = operand.val + "."
 				if not (newKey in self.normalForm.keys()) :
 					self.normalForm[newKey] = []
-				newRule.append(Token ("NONTERMINAL", newKey, 0, operand.label))
+				newRule.append(Token ("NONTERMINAL", newKey, 0))
 				operand.label = ""
 				self.normalForm[newKey].append([operand])
 			else :
 				newRule.append(operand)
 		self.normalForm[key].append(newRule)
-		#return normalForm
 
 class BIN :
 	def __init__ (self, production_rules) :

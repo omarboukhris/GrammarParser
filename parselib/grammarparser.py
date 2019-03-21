@@ -314,8 +314,6 @@ class NaiveParser :
 			if self.parsedtokens[j].val.find('=') != -1 :
 				label, operand= self.parsedtokens[j].val.split('=', 1)
 				self.parsedtokens[j].val = operand
-				self.parsedtokens[j].label = label
-				self.parsedtokens[j].keep = True
 				if self.current_rule in self.labels.keys() :
 					self.labels[self.current_rule].append({operand : label})
 				else :
