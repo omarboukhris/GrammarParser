@@ -1,4 +1,4 @@
-DEBUG=False
+DEBUG=True
 
 class UnitNode :
 	def __init__ (self, unit, nodetype) :

@@ -44,8 +44,8 @@ if __name__ == '__main__':
 	
 	gramparser = GenericGrammarParser ()
 	grammar = gramparser.parse (
-		#loadAsText("grammar.grm"),
-		loadAsText("grammarvo2.grm"),
+		loadAsText("data/grammar.grm"),
+		#loadAsText("data/grammarvo2.grm"),
 		verbose=True
 	)
 
@@ -54,31 +54,31 @@ if __name__ == '__main__':
 	grammar = get2nf (grammar)
 	print (grammar)
 	
-	grammar.save("somewhere.pkl")
+	grammar.save("data/somewhere.pkl")
 	#================ END : Grammar parsing
 
 	#================ BEGIN : membership test
-	#grammar.load("somewhere.pkl")
+	grammar.load("data/somewhere.pkl")
 	
-	##get tokens from source code
-	#TokCode = Tokenizer(grammar.tokens)
-	#TokCode.parse (
-		#loadAsText ("test.java")
-	#)
+	#get tokens from source code
+	TokCode = Tokenizer(grammar.tokens)
+	TokCode.parse (
+		loadAsText ("data/test.java")
+	)
 
-	##language parser instanciated here
-	#langraph = CYKParser (grammar)
+	#language parser instanciated here
+	langraph = CYKParser (grammar)
 
-	#word = TokCode.tokenized
-	#x = langraph.membership (word)
-	#sourced = processResults (x)
+	word = TokCode.tokenized
+	x = langraph.membership (word)
+	sourced = processResults (x)
 	#================ END : membership test
 
 	#================ BEGIN : source code retokenizing
-	#gramparser.parsecode (
-		#sourced, 
-		#verbose=True
-	#)
+	gramparser.parsecode (
+		sourced, 
+		verbose=True
+	)
 	#================ END : source code retokenizing
 
 
