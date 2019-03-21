@@ -1,15 +1,14 @@
-//urgent : define generator strategies to inject in language
 
 AXIOM -> classes
 
 classes ->  
-	classdec. c_name=identifier. !lcrch. members=classbody rcrch. semic. |
+	classdec. c_name=identifier. lcrch. members=classbody rcrch. semic. |
 	classes classes | ''
 
 //fix whatever this is
 classbody -> 
 	m=method | 
-	a=attribute | 
+	!attribute | 
 	c=classes |
 	classbody classbody | '' //list
 

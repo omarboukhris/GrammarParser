@@ -5,16 +5,34 @@ from parselib.normoperators		import *
 
 import sys, json
 
-def streamResults (x) :
-	if not x :
-		print (x) # x should point errors out if parsing failed
-	else :
-		print ('number of possible parse trees : ', len(x))
-		parsedrawdict = x[0].unfold()
-		print (parsedrawdict)
-		#print (json.dumps(parsedrawdict, indent=3)) #x[0] most pertinent solution
 
+def processResults (x, verbose=True) :
+	""" Unfolds the parse tree and optionnaly prints it
+	
+        Parameters
+        ----------
+        x : UnitNode, TokenNode, BinNode from parselib.parsetree
+			a list of the folded possible parse trees
+		verbose : bool
+			True (by default) to print results, otherwise False
+	"""
+	if not x :
+		if verbose : print (x) # x should point errors out if parsing failed
+		return None
+	else :
+		if verbose : print ('number of possible parse trees : ', len(x))
+		parsedrawdict = x[0].unfold() #all parse tree unfold the same
+		if verbose : print (parsedrawdict)
+		return parsedrawdict 
+	
 def loadAsText (filename) :
+	"""returns raw text read from file
+	
+	Parameters
+	----------
+	filename : str
+		string path to file containing text to load
+	"""
 	fs = open(filename, "r")
 	source = "".join(fs.readlines())
 	fs.close()
@@ -52,6 +70,29 @@ if __name__ == '__main__':
 
 	word = TokCode.tokenized
 	x = langraph.membership (word)
-	streamResults (x)
+	sourced = processResults (x)
 	#================ END : membership test
+
+	#================ BEGIN : source code retokenizing
+	#gramparser.parsecode (
+		#sourced, 
+		#verbose=True
+	#)
+	#================ END : source code retokenizing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

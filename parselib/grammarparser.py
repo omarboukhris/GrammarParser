@@ -12,8 +12,19 @@ class Grammar :
 		self.keeper = odict()
 		self.unitrelation = odict()
 		self.tokens = list()
+		self.structs = "" #for loading struct python code
 
 	def makegrammar (self, tokenizedgrammar, grammartokens) :
+		"""parses a list of tokens in a grammar
+		
+		Parameters
+		----------
+		tokenizedgrammar : list(Token)
+			list of tokens represented by the lexed grammar
+			
+		grammartokens : list(Token)
+			list of tokens representing the lexed grammar
+		"""
 		ngp = NaiveParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
 
 		ngp.parse () 
@@ -28,23 +39,29 @@ class Grammar :
 		return gramtest
 
 	def save (self, filename) :
+		"""save parsed grammar in pickle file"""
 		serialFile = open (filename, "wb")
 		pickle.dump (self.production_rules, serialFile)
 		pickle.dump (self.unitrelation, serialFile)
 		pickle.dump (self.labels, serialFile)
 		pickle.dump (self.keeper, serialFile)
+		pickle.dump (self.generatestructs(), serialFile)
 		pickle.dump (self.tokens, serialFile)
 		serialFile.close()
 	def load (self, filename) :
+		"""load grammar from pickle file"""
 		serialFile = open (filename, "rb")
 		self.production_rules = pickle.load (serialFile)
 		self.unitrelation = pickle.load (serialFile)
 		self.labels = pickle.load (serialFile)
 		self.keeper = pickle.load (serialFile)
+		self.structs = pickle.load (serialFile)
 		self.tokens = pickle.load (serialFile)
 		serialFile.close()
 
 	def __str__ (self) :
+		"""Screaming results for debug resons
+		"""
 		text_rule = ""
 		
 		for key, rules in self.production_rules.items() :
@@ -71,11 +88,33 @@ class Grammar :
 				) for key, val in self.keeper.items()
 			])
 		)
-		
+
 		for regex, label in self.tokens :
 			text_rule += "TOKEN " + label + " = regex('" + regex + "')\n"
+			
+		text_rule += self.generatestructs()
 
 		return text_rule
+
+
+	def generatestructs (self) :
+		"""Return str containing pycode describing language datastructure
+		"""
+		return "\nimport collections\n" + "\n".join([
+			"{struct} = collections.namedtuple('{structname}', [{components}])".format(
+				struct=key.capitalize(),
+				structname=key, 
+				components=", ".join(
+					[
+						str(
+							v.val if type(v) != str else v
+						) for v in val
+					]
+				)
+			) for key, val in self.keeper.items()
+		]) + "\n"
+
+		
 
 class GenericGrammarParser :
 	def __init__ (self) :
@@ -102,8 +141,8 @@ class GenericGrammarParser :
 			#('\]',							'RCRCH'),
 
 			#OPERANDS
-			(label+'?[a-zA-Z_]\w*\.',		'TERMINAL'),
-			(label+'?[a-zA-Z_]\w*',			'NONTERMINAL'),
+			(label+'?[a-zA-Z0-9_]\w*\.',		'TERMINAL'),
+			(label+'?[a-zA-Z0-9_]\w*',			'NONTERMINAL'),
 		]
 		
 		AXIOM = r'AXIOM EQUAL (NONTERMINAL|GENERATOR)'
@@ -124,8 +163,27 @@ class GenericGrammarParser :
 			('LCRCH',		'LCRCH'),
 			('RCRCH',		'RCRCH'),
 		]
+		
+		self.parsedsourcetokens = [
+			("\= \[",                "BEGIN"),
+			("\]",                   "END"),
+			("[a-zA-Z0-9_]\w*\.",    "LABEL"),
+			("\(.*\)",               "TERM"),			
+			("[a-zA-Z0-9_]\w*",      "NONTERM"),
+		]
+		
 
 	def parse (self, txt_grammar="", verbose=False) :
+		"""lex a grammar from textual form to tokenized
+		
+		Parameters
+		----------
+		txt_grammar : str
+			raw grammar source code
+		
+		verbose : bool
+			True to make it talk. False by default
+		"""
 
 		#lex language => tokenized grammar
 		lang = Tokenizer (self.grammartokens)
@@ -152,6 +210,22 @@ class GenericGrammarParser :
 			if verbose : print (result)
 		return grammar
 	
+	def parsecode (self, strcode="", verbose=False) :
+		"""parse code once it passed syntaxic analysis phase
+		
+		strcode : str
+			source code in intermediate form
+		
+		verbose : bool
+			True to make it talk. False by default		
+		"""
+		
+		tokenizer = Tokenizer (self.parsedsourcetokens)
+		tokenizer.parse (strcode)
+		
+		if verbose : 
+			print(tokenizer)
+		return tokenizer.tokenized
 
 """
 TODO : 
