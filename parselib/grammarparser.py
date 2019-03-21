@@ -108,7 +108,7 @@ class Grammar :
 					[
 						str(
 							v.val if type(v) != str else v
-						) for v in val
+						) for v in set(val)
 					]
 				)
 			) for key, val in self.keeper.items()
@@ -127,7 +127,7 @@ class GenericGrammarParser :
 			
 			# OPERATORS
 			#experimental operators
-			('list',						'LIST'),
+			#('list',						'LIST'),
 			('!',							'EXCL'),
 			
 			

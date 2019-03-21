@@ -1,4 +1,4 @@
-DEBUG=True
+DEBUG=False
 
 class UnitNode :
 	def __init__ (self, unit, nodetype) :
@@ -21,10 +21,10 @@ class UnitNode :
 			if self.iscompacted() or parent == self.nodetype :
 				return self.unit.unfold(self.nodetype)
 			else :#if parent != None :
-				return " {} = [ {} ]".format(
-					self.nodetype,
-					self.unit.unfold(self.nodetype),
-				)
+				return [{
+					self.nodetype :
+						self.unit.unfold(self.nodetype)
+				}]
 
 	def __str__ (self) :
 		return self.nodetype
@@ -41,7 +41,7 @@ class TokenNode :
 				self.val
 			)
 		else :
-			return {self.nodetype : self.val}
+			return [{self.nodetype:self.val}]
 	
 	def __str__ (self) :
 		return self.nodetype
@@ -73,16 +73,12 @@ class BinNode :
 				)
 		else :
 			if self.iscompacted() or parent == self.nodetype : 
-				return "{} {}".format( # make it merge two dicts
-					self.left.unfold(self.nodetype),
-					self.right.unfold(self.nodetype),
-				)
+				return self.left.unfold(self.nodetype) + self.right.unfold(self.nodetype)
 			else :
-				return "{} = [ {} {} ]".format(
-					self.nodetype,
-					self.left.unfold(self.nodetype),
-					self.right.unfold(self.nodetype),
-				)
+				return [{
+					self.nodetype :
+						self.left.unfold(self.nodetype) + self.right.unfold(self.nodetype)
+				}]
 	
 	def __str__ (self) :
 		return self.unfold().__str__() #self.nodetype

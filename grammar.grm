@@ -9,7 +9,7 @@ classes ->
 classbody -> 
 	m=method | 
 	!attribute | 
-	c=classes |
+	c=classes | 
 	classbody classbody | '' //list
 
 attribute -> scope=visibility. t=type. at_name=identifier. semic.  //comment testing
