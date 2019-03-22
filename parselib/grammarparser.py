@@ -163,15 +163,6 @@ class GenericGrammarParser :
 			('LCRCH',		'LCRCH'),
 			('RCRCH',		'RCRCH'),
 		]
-		
-		self.parsedsourcetokens = [
-			("[a-zA-Z0-9_]\w*\.",    "LABEL"),
-			("\(.*\)",               "TERM"),
-			("[a-zA-Z0-9_]\w*",      "NONTERM"),
-			("\= \[",                "BEGIN"),
-			("\]",                   "END"),
-		]
-		
 
 	def parse (self, txt_grammar="", verbose=False) :
 		"""lex a grammar from textual form to tokenized
@@ -209,23 +200,7 @@ class GenericGrammarParser :
 		else :
 			if verbose : print (result)
 		return grammar
-	
-	def parsecode (self, strcode="", verbose=False) :
-		"""parse code once it passed syntaxic analysis phase
-		
-		strcode : str
-			source code in intermediate form
-		
-		verbose : bool
-			True to make it talk. False by default		
-		"""
-		
-		tokenizer = Tokenizer (self.parsedsourcetokens)
-		tokenizer.parse (strcode)
-		
-		if verbose : 
-			print(tokenizer)
-		return tokenizer.tokenized
+
 
 """
 TODO : 
