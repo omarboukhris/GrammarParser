@@ -46,7 +46,7 @@ class Token(object):
 
 		
 	def __str__(self):
-		ss = '%s(%s)' % (self.type, str(elf.val))
+		ss = '%s(%s)' % (self.type, str(self.val))
 		return ss
 
 
