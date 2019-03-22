@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
 	#================ BEGIN : source code retokenizing
 	interm = IntermediateParser()
-	interm.parsecode (
+	interm.parse (
 		sourced, 
 		verbose=True
 	)
