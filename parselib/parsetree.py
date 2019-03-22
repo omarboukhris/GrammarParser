@@ -1,4 +1,6 @@
-DEBUG=True
+from lexlib mport Token
+
+DEBUG=False
 
 class UnitNode :
 	def __init__ (self, unit, nodetype) :
@@ -41,7 +43,7 @@ class TokenNode :
 				self.val
 			)
 		else :
-			return [{self.nodetype:self.val}]
+			return [Token(self.nodetype, self.val, 0)]
 	
 	def __str__ (self) :
 		return self.nodetype
