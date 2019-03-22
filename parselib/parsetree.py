@@ -1,4 +1,4 @@
-from lexlib mport Token
+from lexlib import Token
 
 DEBUG=False
 
