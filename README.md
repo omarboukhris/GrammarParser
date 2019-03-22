@@ -123,16 +123,15 @@ RULE b. = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-- **LL(deprecated) and CYK parsers for grammars in CNF and 2NF<sup>[1]</sup>**
+- **CYK parsers for grammars in CNF and 2NF<sup>[1]</sup>**
 
 ```python
 #import the good stuff
-from parselib.parsers import LLParser as LL, CYKParser as CYK
+from parselib.parsers import CYKParser as CYK
 
 # ... load, parse and normalize grammar
 
-langraph = CYKParser (grammar) # or ...
-#langraph = LLParser (grammar)
+langraph = CYK (grammar)
 
 #tokenizer to transform source code to tokens
 TokCode = Tokenizer(grammar.tokens) 
@@ -147,8 +146,26 @@ word = TokCode.tokenized
 # in CNF, 2NF example to come
 x = langraph.membership (word) 
 ```
-x is false if *word* is not contained in the language, otherwise can unfold an *experimental* parse tree (that has yet to be improved).
-
-## To come : pipeline for language processing
+x is false if *word* is not contained in the language, otherwise can unfold a parse tree
 
 ## V 0.2 : (in progress)
+
+### labeling operators :
+
+each operand associated with the operators `!` or `label=` in a production rule tells the parser to save the data in a data structure formed by the production rule non terminals.
+
+Example :
+let S=(a S b | eps) our grammar. We want to save each parsed `S` in a data structure containing the informations we need from S. 
+We write the grammar as follows :
+```javascript
+S -> !a. S_child=S !b. | ''
+```
+This generates a data structure similar to this 
+```c++
+struct S {
+	string a ;
+	struct S S_child ;
+	string b ;
+} ;
+```
+... in which a correctly parsed source code will eventually be stored.
