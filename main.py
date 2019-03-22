@@ -21,7 +21,7 @@ def processResults (x, verbose=True) :
 		return None
 	else :
 		if verbose : print ('number of possible parse trees : ', len(x))
-		parsedrawdict = x[0].unfold()[0]["AXIOM"][0] #all parse tree unfold the same
+		parsedrawdict = x[0].unfold()#[0]["AXIOM"][0] #all parse tree unfold the same
 		if verbose : print (parsedrawdict)
 		return parsedrawdict 
 
@@ -74,9 +74,20 @@ if __name__ == '__main__':
 	#================ END : membership test
 
 	#================ BEGIN : source code retokenizing
-	gramparser.parsecode (
+	tokenslist = gramparser.parsecode (
 		sourced, 
 		verbose=True
 	)
+	
+	
+	
+	
+	
 	#================ END : source code retokenizing
+
+
+
+
+
+
 

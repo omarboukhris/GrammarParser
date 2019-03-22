@@ -225,6 +225,7 @@ class GenericGrammarParser :
 		
 		if verbose : 
 			print(tokenizer)
+			print(tokenizer.tokenized)
 		return tokenizer.tokenized
 
 """
