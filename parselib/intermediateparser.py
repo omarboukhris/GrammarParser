@@ -12,7 +12,7 @@ class IntermediateParser :
 			("\]",                   "END"),
 		]
 	
-	def parsecode (self, strcode="", verbose=False) :
+	def parse_ (self, strcode="", verbose=False) :
 		"""parse code once it passed syntaxic analysis phase
 		
 		strcode : str
@@ -29,5 +29,23 @@ class IntermediateParser :
 			print(tokenizer)
 		return tokenizer.tokenized
 
+	def parse (self, strcode="", verbose=False) :
+		parsed = self.parse_ (strcode, verbose)
+
+		for element in parsed :
+			
+			if element.type == "LABEL" : #this is a labeled terminal
+				#deal with terminal
+				pass
+			elif element.type == "BEGIN" :
+				#read until element.type == "END"
+				#this is the parsed right side of a production rule
+				pass
+			elif element.type == "NONTERM" :
+				#create non termina node
+				pass
+			else :
+				#shit hit the fan
+				pass
 
 
