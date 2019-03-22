@@ -10,9 +10,9 @@ import sys, json
 def processResults (x, verbose=True) :
 	""" Unfolds the parse tree and optionnaly prints it
 	
-        Parameters
-        ----------
-        x : UnitNode, TokenNode, BinNode from parselib.parsetree
+		Parameters
+		----------
+		x : UnitNode, TokenNode, BinNode from parselib.parsetree
 			a list of the folded possible parse trees
 		verbose : bool
 			True (by default) to print results, otherwise False
@@ -22,10 +22,10 @@ def processResults (x, verbose=True) :
 		return None
 	else :
 		if verbose : print ('number of possible parse trees : ', len(x))
-		parsedrawdict = x[0].unfold() #all parse tree unfold the same
+		parsedrawdict = x[0].unfold()#[0]["AXIOM"][0] #all parse tree unfold the same
 		if verbose : print (parsedrawdict)
 		return parsedrawdict 
-	
+
 def loadAsText (filename) :
 	"""returns raw text read from file
 	
@@ -42,7 +42,6 @@ def loadAsText (filename) :
 if __name__ == '__main__':
 	
 	#================ BEGIN : Grammar parsing
-	
 	gramparser = GenericGrammarParser ()
 	grammar = gramparser.parse (
 		loadAsText("data/grammar.grm"),
@@ -81,17 +80,12 @@ if __name__ == '__main__':
 		sourced, 
 		verbose=True
 	)
+	
+	
+	
+	
+	
 	#================ END : source code retokenizing
-
-
-
-
-
-
-
-
-
-
 
 
 
