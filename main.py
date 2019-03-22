@@ -2,6 +2,7 @@ from parselib.grammarparser		import *
 from parselib.parsers			import *
 from parselib.generaloperators	import *
 from parselib.normoperators		import *
+from parselib.intermediateparser	import *
 
 import sys, json
 
@@ -75,7 +76,8 @@ if __name__ == '__main__':
 	#================ END : membership test
 
 	#================ BEGIN : source code retokenizing
-	gramparser.parsecode (
+	interm = IntermediateParser()
+	interm.parsecode (
 		sourced, 
 		verbose=True
 	)
