@@ -1,7 +1,7 @@
-from parselib.grammarparser		import *
-from parselib.parsers			import *
-from parselib.generaloperators	import *
-from parselib.normoperators		import *
+from parselib.grammarparser			import *
+from parselib.parsers				import *
+from parselib.generaloperators		import *
+from parselib.normoperators			import *
 from parselib.intermediateparser	import *
 
 import sys, json
@@ -75,12 +75,15 @@ if __name__ == '__main__':
 	#================ END : membership test
 
 	#================ BEGIN : source code retokenizing
+	StructFactory.readGrammar(grammar) #setup factory
+
 	interm = IntermediateParser()
-	interm.parse (
-		sourced, 
-		verbose=True
+	print (
+		interm.parse ( #information gets destroyed here, please fix
+			sourced, 
+			verbose=True
+		)
 	)
-	
 	
 	
 	

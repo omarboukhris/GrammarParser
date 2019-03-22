@@ -12,7 +12,6 @@ class Grammar :
 		self.keeper = odict()
 		self.unitrelation = odict()
 		self.tokens = list()
-		self.structs = "" #for loading struct python code
 
 	def makegrammar (self, tokenizedgrammar, grammartokens) :
 		"""parses a list of tokens in a grammar
@@ -28,7 +27,7 @@ class Grammar :
 		ngp = NaiveParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
 
 		ngp.parse () 
-			
+
 		self.production_rules = ngp.production_rules
 		self.tokens = ngp.tokens
 		self.labels = ngp.labels
@@ -45,7 +44,6 @@ class Grammar :
 		pickle.dump (self.unitrelation, serialFile)
 		pickle.dump (self.labels, serialFile)
 		pickle.dump (self.keeper, serialFile)
-		pickle.dump (self.generatestructs(), serialFile)
 		pickle.dump (self.tokens, serialFile)
 		serialFile.close()
 	def load (self, filename) :
@@ -55,9 +53,23 @@ class Grammar :
 		self.unitrelation = pickle.load (serialFile)
 		self.labels = pickle.load (serialFile)
 		self.keeper = pickle.load (serialFile)
-		self.structs = pickle.load (serialFile)
 		self.tokens = pickle.load (serialFile)
 		serialFile.close()
+
+	def generatestructs (self) :
+		"""Return str containing pycode describing language datastructure
+		"""
+		for key, val in self.keeper.items() :
+			structname = key.capitalize()
+			components=", ".join(
+				[
+					str(
+						v.val if type(v) != str else v
+					) for v in set(val)
+				]
+			)
+			structs[structname] = namedtuple(key, components)
+		return structs
 
 	def __str__ (self) :
 		"""Screaming results for debug resons
@@ -91,30 +103,8 @@ class Grammar :
 
 		for regex, label in self.tokens :
 			text_rule += "TOKEN " + label + " = regex('" + regex + "')\n"
-			
-		text_rule += self.generatestructs()
 
 		return text_rule
-
-
-	def generatestructs (self) :
-		"""Return str containing pycode describing language datastructure
-		"""
-		return "\nimport collections\n" + "\n".join([
-			"{struct} = collections.namedtuple('{structname}', [{components}])".format(
-				struct=key.capitalize(),
-				structname=key, 
-				components=", ".join(
-					[
-						str(
-							v.val if type(v) != str else v
-						) for v in set(val)
-					]
-				)
-			) for key, val in self.keeper.items()
-		]) + "\n"
-		ss += ""
-
 		
 
 class GenericGrammarParser :
@@ -211,7 +201,7 @@ class NaiveParser :
 	def __init__ (self, grammar, parsedtokens) :
 		self.production_rules = odict()
 		self.labels = odict()
-		self.keeper = odict()
+		self.keeper = odict({'all' : []})
 		self.tokens = list()
 		
 		self.grammar = grammar
@@ -275,19 +265,28 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		while self.grammar[i].type == "RSIDE" :
-			#print (self.current_rule, self.parsedtokens[j], "mmm")
+
 			if self.parsedtokens[j].type == "EXCL" :
-				#print (self.current_rule, self.parsedtokens[j], self.parsedtokens[j+1])
+
 				if self.current_rule in self.keeper.keys() :
 					self.keeper[self.current_rule].append(self.parsedtokens[j+1])
 				else :
 					self.keeper[self.current_rule] = [self.parsedtokens[j+1]]
+
+				if not self.parsedtokens[j+1].val in self.keeper["all"] :
+					if self.parsedtokens[j+1].type == "TERMINAL" :
+						self.keeper["all"].append(self.parsedtokens[j+1].val[:-1])
+					else :
+						self.keeper["all"].append(self.parsedtokens[j+1].val)
 				j += 1
 				i += 1
 				continue
+
 			if self.parsedtokens[j].type == "TERMINAL" :
 				self.parsedtokens[j].val = self.parsedtokens[j].val[:-1] #eliminate . at terminals
+
 			if self.parsedtokens[j].val.find('=') != -1 :
+
 				label, operand= self.parsedtokens[j].val.split('=', 1)
 				self.parsedtokens[j].val = operand
 				if self.current_rule in self.labels.keys() :
@@ -298,6 +297,9 @@ class NaiveParser :
 					self.keeper[self.current_rule].append(label)
 				else :
 					self.keeper[self.current_rule] = [label]
+				if not label in self.keeper["all"] :
+					self.keeper["all"].append(label)
+
 			self.production_rules[self.current_rule][-1].append(self.parsedtokens[j])			
 			i += 1
 			j += 1

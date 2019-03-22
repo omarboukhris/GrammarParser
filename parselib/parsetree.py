@@ -1,6 +1,8 @@
 from parselib.lexlib import Token
+from collections import OrderedDict as odict, namedtuple
 
 DEBUG=False
+
 
 class UnitNode :
 	def __init__ (self, unit, nodetype) :
@@ -32,17 +34,23 @@ class UnitNode :
 		return self.nodetype
 
 class TokenNode :
+	
 	def __init__ (self, nodetype, val) :
 		self.nodetype = nodetype
 		self.val = val
 
 	def unfold(self, parent=None):
 		if DEBUG :
-			return "{}({})".format(
-				self.nodetype,
-				self.val
+			return "{key}({val})".format(
+				key=self.nodetype,
+				val=self.val
 			)
 		else :
+			#MyNode = StructFactory.getStruct(self.nodetype)
+			#if MyNode == None :
+				#return [] #do not keep this token
+			
+			#return [MyNode(self.val)]
 			return [Token(self.nodetype, self.val, 0)]
 	
 	def __str__ (self) :
@@ -77,10 +85,11 @@ class BinNode :
 			if self.iscompacted() or parent == self.nodetype : 
 				return self.left.unfold(self.nodetype) + self.right.unfold(self.nodetype)
 			else :
-				return [{
-					self.nodetype :
-						self.left.unfold(self.nodetype) + self.right.unfold(self.nodetype)
-				}]
+				return [Token(
+					self.nodetype,
+					self.left.unfold(self.nodetype) + self.right.unfold(self.nodetype),
+					0
+				)]
 	
 	def __str__ (self) :
 		return self.unfold().__str__() #self.nodetype

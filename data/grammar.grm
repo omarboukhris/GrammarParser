@@ -2,18 +2,18 @@
 AXIOM -> classes
 
 classes ->  
-	classdec. c_name=identifier. lcrch. members=classbody rcrch. semic. |
+	classdec. !identifier. lcrch. !classbody rcrch. semic. |
 	classes classes | ''
 
 //fix whatever this is
 classbody -> 
-	m=method | 
+	!method | 
 	!attribute | 
-	c=classes | 
+	!classes | 
 	classbody classbody | '' //list
 
-attribute -> scope=visibility. t=type. at_name=identifier. semic.  //comment testing
-method -> scope=visibility. t=type. meth_name=identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
+attribute -> !visibility. !type. !identifier. semic.  //comment testing
+method -> scope=visibility. !type. meth_name=identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
 
 classdec.("class")
 visibility.("(public|private|protected)")
