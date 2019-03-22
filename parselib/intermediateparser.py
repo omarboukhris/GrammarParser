@@ -32,9 +32,9 @@ class IntermediateParser :
 
 	def parse (self, strcode="", verbose=False) :
 		parsed = self.parse_ (strcode, verbose)
-
-		for element in parsed :
-			
+		i = 0
+		while i < len(parsed) :
+			element = parsed[i]
 			if element.type == "LABEL" : #this is a labeled terminal
 				#deal with terminal
 				pass
@@ -48,5 +48,5 @@ class IntermediateParser :
 			else :
 				#shit hit the fan
 				pass
-
+			i += 1
 
