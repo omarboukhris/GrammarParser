@@ -1,3 +1,4 @@
+from parselib.lexlib import Tokenizer
 
 class IntermediateParser :
 
