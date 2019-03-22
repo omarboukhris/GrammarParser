@@ -23,10 +23,10 @@ class UnitNode :
 			if self.iscompacted() or parent == self.nodetype :
 				return self.unit.unfold(self.nodetype)
 			else :#if parent != None :
-				return [{
-					self.nodetype :
-						self.unit.unfold(self.nodetype)
-				}]
+				return [Token (
+					self.nodetype,
+					self.unit.unfold(self.nodetype), 0
+				)]
 
 	def __str__ (self) :
 		return self.nodetype
