@@ -113,6 +113,7 @@ class Grammar :
 				)
 			) for key, val in self.keeper.items()
 		]) + "\n"
+		ss += ""
 
 		
 
@@ -165,11 +166,11 @@ class GenericGrammarParser :
 		]
 		
 		self.parsedsourcetokens = [
-			("[a-zA-Z0-9_]\w*\.",    "LABEL"),
-			("\(.*\)",               "TERM"),
-			("[a-zA-Z0-9_]\w*",      "NONTERM"),
 			("\= \[",                "BEGIN"),
 			("\]",                   "END"),
+			("[a-zA-Z0-9_]\w*\.",    "LABEL"),
+			("\(.*\)",               "TERM"),			
+			("[a-zA-Z0-9_]\w*",      "NONTERM"),
 		]
 		
 
@@ -225,7 +226,6 @@ class GenericGrammarParser :
 		
 		if verbose : 
 			print(tokenizer)
-			print(tokenizer.tokenized)
 		return tokenizer.tokenized
 
 """
