@@ -145,15 +145,15 @@ class GenericGrammarParser :
 				True to make it talk. False by default
 		"""
 		#tokenize grammar source
-		source = io.gettextfilecontent (filename)
+		#source = io.gettextfilecontent (filename)
 		lang = GenericGrammarTokenizer._tokenize (
 			Tokenizer (GenericGrammarTokenizer.grammartokens), 
-			source, 
+			filename, #source, 
 			verbose
 		)
 		
 		#preprocessor here (one pass preprocessor)
-		lang.tokenized = self.preproc.preprocess (lang.tokenized)
+		lang.tokenized = self.preproc.preprocess (filename, lang.tokenized)
 
 		#text tokens are needed for next step
 		txtok = transformtosource (lang.tokenized)
