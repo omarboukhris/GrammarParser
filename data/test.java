@@ -7,8 +7,6 @@ class myclass {
 	} ;
 	public int a ;
 	public int b () {} ;
-	public int b2 () {} ;
-	public int b3 () {} ;
 } ;
 
 class myclass2 {

@@ -13,7 +13,7 @@ classbody ->
 	classbody classbody | '' //list
 
 attribute -> !visibility. !type. !identifier. semic.  //comment testing
-method -> scope=visibility. !type. meth_name=identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
+method -> !visibility. !type. !identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
 
 classdec.("class")
 visibility.("(public|private|protected)")
