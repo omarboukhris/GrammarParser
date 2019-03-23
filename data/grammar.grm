@@ -10,10 +10,11 @@ classbody ->
 	!method | 
 	!attribute | 
 	!classes | 
-	classbody classbody | '' //list
+//	list
+ 	classbody classbody | '' //list
 
-attribute -> !visibility. !type. !identifier. semic.  //comment testing
-method -> !visibility. !type. !identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
+attribute -> !visibility. t=type. att_name=identifier. semic.  //comment testing
+method -> !visibility. !type. met_name=identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
 
 classdec.("class")
 visibility.("(public|private|protected)")

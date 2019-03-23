@@ -1,6 +1,14 @@
 from collections import OrderedDict as odict
 
 def eliminatedoubles (grammar) :
+	"""eliminates duplicate rules in a grammar
+	
+	Parameters
+	grammar : grammar in
+	
+	Returns
+	grammar : grammar out
+	"""
 	production_rules = odict()
 	for key in grammar.production_rules.keys() :
 		rules = grammar.production_rules[key]
@@ -17,12 +25,30 @@ def eliminatedoubles (grammar) :
 	return grammar
 
 def checkunique (uniquerules, rule) :
+	"""check if rule already exists
+	
+	Parameters
+	uniquerules : list of unique rules
+	
+	rule : rule to check
+	
+	Returns
+	True or False
+	"""
 	for r in uniquerules :
 		if samerule (r, rule) :
 			return True
 	return False
 	
 def samerule (rulea, ruleb) :
+	"""check is rule a & b are the same
+	
+	Parameters
+	a, b : rules to compare
+	
+	Returns
+	True or False
+	"""
 	if len(rulea) == len(ruleb) :
 		for opa, opb in zip (rulea, ruleb) :
 			if not (opa.type == opb.type and opa.val == opb.val) : 
@@ -31,18 +57,16 @@ def samerule (rulea, ruleb) :
 	else :
 		return False
 
-#check if semi-proper grammar (if all non terminals used got defined)
 def checkproductionrules (production_rules) :
+	"""check if semi-proper grammar (if all non terminals used got defined)
+	"""
 	keys = ["AXIOM"]
 	for key, rules in production_rules.items() :
 		for rule in rules :
 			for operand in rule :
 				if (not operand.val in keys) and (not operand.type in ["TERMINAL", "EMPTY"]) :
 					keys.append(operand.val)
-	if set(production_rules.keys()) == set(keys) :
-		return True, list()
-	else :
-		return False, list(set(production_rules.keys())-set(keys))
+	return list(set(production_rules.keys())-set(keys))
 
 def transformtosource (tokenizedgrammar) :
 	source = ""
@@ -50,7 +74,16 @@ def transformtosource (tokenizedgrammar) :
 		source += token.type + " "
 	return source
 
-def getnullables (grammar) : #only if binned (less of a headache)
+def getnullables (grammar) : 
+	"""only if binned (less of a headache to implement)
+	returns a list of all nullable rules in a grammar
+	
+	Parameters
+	grammar : grammar input
+	
+	Returns
+	list of unique nullables
+	"""
 	production_rules = grammar.production_rules
 	
 	nullables = []
@@ -79,6 +112,8 @@ def getnullables (grammar) : #only if binned (less of a headache)
 	return list(set(nullables))
 
 def removenullables (grammar) :
+	"""self explanatory
+	"""
 	production_rules = odict()
 	for key, rules in grammar.production_rules.items() :
 		production_rules[key] = []
@@ -90,6 +125,15 @@ def removenullables (grammar) :
 	return grammar
 
 def getunitrelation (grammar) :
+	"""calculates unit relations (used in cyk2nf) in a grammar
+	may cause bugs? to check
+	
+	Parameters
+	grammar : grammar
+	
+	Returns 
+	grammar 
+	"""
 	nullables = getnullables (grammar)
 	
 	production_rules = grammar.production_rules
@@ -152,11 +196,10 @@ def cmpstrdict (d1, d2) :
 			return False
 	return True
 
-"""
-cartesian product between activated production rules in matrix
-to see if their combination yields a registred production rule
-"""
 def cartesianprod (A, B) :
+	"""cartesian product between activated production rules in matrix
+	to see if their combination yields a registred production rule
+	"""
 	AB = []
 	if A == [] :
 		return []

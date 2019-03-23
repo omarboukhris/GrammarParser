@@ -2,6 +2,9 @@ from parselib.lexlib import Token
 
 DEBUG=False
 
+"""
+classes to unfold the parsetree into someting understandable
+"""
 
 class UnitNode :
 	def __init__ (self, unit, nodetype) :

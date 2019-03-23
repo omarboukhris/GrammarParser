@@ -56,20 +56,20 @@ class Grammar :
 		self.tokens = pickle.load (serialFile)
 		serialFile.close()
 
-	def generatestructs (self) :
-		"""Return str containing pycode describing language datastructure
-		"""
-		for key, val in self.keeper.items() :
-			structname = key.capitalize()
-			components=", ".join(
-				[
-					str(
-						v.val if type(v) != str else v
-					) for v in set(val)
-				]
-			)
-			structs[structname] = namedtuple(key, components)
-		return structs
+	#def generatestructs (self) :
+		#"""Return str containing pycode describing language datastructure
+		#"""
+		#for key, val in self.keeper.items() :
+			#structname = key.capitalize()
+			#components=", ".join(
+				#[
+					#str(
+						#v.val if type(v) != str else v
+					#) for v in set(val)
+				#]
+			#)
+			#structs[structname] = namedtuple(key, components)
+		#return structs
 
 	def __str__ (self) :
 		"""Screaming results for debug resons
@@ -118,7 +118,7 @@ class GenericGrammarParser :
 			
 			# OPERATORS
 			#experimental operators
-			#('list',						'LIST'),
+			('list',						'LIST'),
 			('!',							'EXCL'),
 			
 			
@@ -138,7 +138,7 @@ class GenericGrammarParser :
 		
 		AXIOM = r'AXIOM EQUAL (NONTERMINAL|GENERATOR)'
 		LSIDE = r'NONTERMINAL EQUAL'
-		RSIDE = r'EXCL|TERMINAL|NONTERMINAL|EMPTY'
+		RSIDE = r'EXCL|LIST|TERMINAL|NONTERMINAL|EMPTY'
 		TOKEN = r'TERMINAL REGEX'
 		
 		self.genericgrammarprodrules = [
@@ -186,7 +186,7 @@ class GenericGrammarParser :
 			lang.tokenized,
 		)
 
-		if (result == (True,[])) :
+		if (result == []) :
 			if verbose : print (grammar)
 		else :
 			if verbose : print (result)
@@ -265,7 +265,14 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		while self.grammar[i].type == "RSIDE" :
-
+			#if self.parsedtokens[j].type == "LIST" :
+				#thisnode = Token ("NONTERMINAL", self.current_rule, 0)
+				#eps = Token("EMPTY", '""', 0)
+				#self.production_rules[self.current_rule].append([thisnode, thisnode])
+				#self.production_rules[self.current_rule].append([eps])
+				#j+=1
+				#i+=1
+				#continue
 			if self.parsedtokens[j].type == "EXCL" :
 
 				if self.current_rule in self.keeper.keys() :
@@ -290,9 +297,10 @@ class NaiveParser :
 				label, operand= self.parsedtokens[j].val.split('=', 1)
 				self.parsedtokens[j].val = operand
 				if self.current_rule in self.labels.keys() :
-					self.labels[self.current_rule].append({operand : label})
+					self.labels[self.current_rule].update({operand : label})
 				else :
-					self.labels[self.current_rule] = [{operand : label}]
+					self.labels[self.current_rule] = {operand : label}
+
 				if self.current_rule in self.keeper.keys() :
 					self.keeper[self.current_rule].append(label)
 				else :
