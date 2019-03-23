@@ -1,3 +1,6 @@
+//add import primitive
+
+%import "data/parts.grm"
 
 AXIOM -> classes
 

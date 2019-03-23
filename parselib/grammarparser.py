@@ -119,7 +119,7 @@ class GenericGrammarParser :
 			# SPECIAL OPERATORS
 			('(\_\_list\_\_|\[\])',			'LIST'),
 			('!',							'EXCL'),
-			
+			('\%import \".*\"',				'IMPORT'),
 			
 			('\(\".*\"\)',					'REGEX'),
 			('(\->|\=)',					'EQUAL'),
@@ -138,12 +138,14 @@ class GenericGrammarParser :
 		AXIOM = r'AXIOM EQUAL (NONTERMINAL|GENERATOR)'
 		LSIDE = r'NONTERMINAL EQUAL'
 		RSIDE = r'EXCL|LIST|TERMINAL|NONTERMINAL|EMPTY'
+		IMPORT= r"IMPORT"
 		TOKEN = r'TERMINAL REGEX'
 		
 		self.genericgrammarprodrules = [
 			('LINECOMMENT',	'LINECOMMENT'),
 			(AXIOM,			'AXIOM'),
 			(TOKEN,			'TOKEN'),
+			(IMPORT,		'IMPORT'),
 
 			(LSIDE,			'LSIDE'),
 			(RSIDE,			'RSIDE'),
@@ -206,22 +208,39 @@ class NaiveParser :
 		self.grammar = grammar
 		self.parsedtokens = parsedtokens
 		
+		self.importation = []
+		
 		self.axiomflag = True
 		
 		self.i, self.j, self.current_rule = 0, 0, ""
 
 	def parse (self) :
-		self.checkaxiom ()
 		while self.stillparsing() :
+			self.checkaxiom ()
+			self.checkimport ()
+
 			self.checkleftside()
 			self.checkrightside()
-			
+
 			self.checkoperators ()
 			self.checkfortoken()
-	
+
 	def stillparsing (self) :
 		return self.i < len(self.grammar)
-	
+
+	def checkimport (self) :
+		"""just reads the filename to import (if any)
+		grammar doesn't support importation yet
+		"""
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		if self.grammar[i].type == "IMPORT" :
+			self.importation.append(self.parsedtokens[j].val.split("%import")[1])
+			j+=1
+			i+=1
+		self.i, self.j = i, j
+			
 	def checkaxiom (self) :
 		i, j = self.i, self.j
 		if not i < len(self.grammar) :
