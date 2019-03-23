@@ -37,7 +37,7 @@ class Preprocessor :
 		out_tokenlist += self._processimports (tokenlist) #1st pass
 		self.processed.append (filename)
 		
-		#out_tokenlist += self.processQueue ()
+		out_tokenlist += self.processQueue ()
 		
 		print ([str(i) for i in out_tokenlist])
 		
