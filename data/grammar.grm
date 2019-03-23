@@ -1,19 +1,16 @@
-//labels are broken
-
 
 AXIOM -> classes
 
 classes ->  
 	classdec. classname=identifier. lcrch. !classbody rcrch. semic. |
-	classes classes | ''
+[] // list operator~~~ classes classes | eps('')
 
 //fix whatever this is
 classbody -> 
 	!method | 
 	!attribute | 
 	!classes | 
-//	list
- 	classbody classbody | '' //list
+__list__ // ~~~ classbody classbody | epsilon
 
 attribute -> !visibility. t=type. att_name=identifier. semic.  //comment testing
 method -> !visibility. t=type. met_name=identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
