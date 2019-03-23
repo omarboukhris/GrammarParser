@@ -1,8 +1,10 @@
+//labels are broken
+
 
 AXIOM -> classes
 
 classes ->  
-	classdec. !identifier. lcrch. !classbody rcrch. semic. |
+	classdec. classname=identifier. lcrch. !classbody rcrch. semic. |
 	classes classes | ''
 
 //fix whatever this is
@@ -14,7 +16,7 @@ classbody ->
  	classbody classbody | '' //list
 
 attribute -> !visibility. t=type. att_name=identifier. semic.  //comment testing
-method -> !visibility. !type. met_name=identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
+method -> !visibility. t=type. met_name=identifier. lpar. rpar. lcrch. rcrch. semic. //comment testing
 
 classdec.("class")
 visibility.("(public|private|protected)")

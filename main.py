@@ -1,8 +1,8 @@
 from parselib.parselibinstance import ParselibInstance
 
 if __name__ == '__main__':
-	#=================================== Begin : source code parsing
 
+	#=================================== Begin : source code parsing
 	parseinst = ParselibInstance ()
 
 	parseinst.loadGrammar("data/grammar.grm")#, verbose=True)
@@ -10,7 +10,9 @@ if __name__ == '__main__':
 	#parseinst.grammar.load("data/somewhere.pkl")	
 	final = parseinst.processSource("data/test.java")#, verbose=True)
 
-	print (final)
+	print (final) #datastructure with parsed savable data
+
+
 	#==================================== Begin : source code generating
 	
 	

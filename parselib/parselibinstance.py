@@ -1,13 +1,10 @@
-from parselib.grammarparser			import *
-from parselib.parsers				import *
-from parselib.generaloperators		import *
-from parselib.normoperators			import *
-from parselib.lexlib				import Tokenizer, Token
-from parselib.io					import Printer
+from parselib.grammarparser	 import GenericGrammarParser
+from parselib.parsers		 import CYKParser
+from parselib.normoperators	 import get2nf
+from parselib.lexlib		 import Tokenizer
+from parselib.io			 import Printer
 
 from collections import OrderedDict as odict, namedtuple
-
-
 
 class StructFactory :
 	struct = odict()
@@ -136,22 +133,25 @@ class ParselibInstance :
 				return self.__parse (element.val, "AXIOM", verbose)
 			
 			element.type = ParselibInstance.__processnodename(element.type)
-						
+			
+			#part that handles labels changing (aliases)
+			if parent in self.grammar.labels.keys() :
+				if element.type in self.grammar.labels[parent].keys() :
+					element.type = self.grammar.labels[parent][element.type]
+			
+			
 			if StructFactory.keyInFactory(element.type) : #is savable
 
-				#part that handles labels changing (aliases)
-				if parent in self.grammar.labels.keys() :
-					if element.type in self.grammar.labels[parent].keys() :
-						element.type = self.grammar.labels[parent][element.type]
-			
 				#get node from factory
 				tmpClass = StructFactory.getStruct(element.type)
 				
+				#object is non terminal
 				if tmpClass != None or type(element.val) == list :
 					lst = self.__parse(element.val, element.type, verbose) #recurse
 					#Printer.showinfo ("element val is list : ", element.type, "::",  len(lst), "::", lst, "::", tmpClass._fields)
 					out_element = tmpClass(**lst)
-				else :
+
+				else : #terminal node
 					#print ("element val ::::: ", element.val) 
 					out_element = element.val
 				
@@ -162,9 +162,4 @@ class ParselibInstance :
 					out[element.type]=[out_element]
 			i += 1
 		return out
-
-
-
-
-
 
