@@ -24,7 +24,7 @@ class Grammar :
 		grammartokens : list(Token)
 			list of tokens representing the lexed grammar
 		"""
-		ngp = NaiveParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
+		ngp = SequentialParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
 
 		ngp.parse () 
 
@@ -196,7 +196,7 @@ class GenericGrammarParser :
 TODO : 
 	parse list() operator in a production rule
 """
-class NaiveParser :
+class SequentialParser :
 	def __init__ (self, grammar, parsedtokens) :
 		self.production_rules = odict()
 		self.labels = odict()
