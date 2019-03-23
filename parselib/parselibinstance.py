@@ -58,7 +58,7 @@ class ParselibInstance :
 		"""
 
 		gramparser = GenericGrammarParser ()
-		grammar = gramparser.parse (filename,	verbose=verbose)
+		grammar = gramparser.parse (filename, verbose=verbose)
 
 		#normalization
 		#grammar = getcnf (grammar)
