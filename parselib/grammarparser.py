@@ -145,10 +145,10 @@ class GenericGrammarParser :
 				True to make it talk. False by default
 		"""
 		#tokenize grammar source
-		#source = io.gettextfilecontent (filename)
+		source = io.gettextfilecontent (filename)
 		lang = GenericGrammarTokenizer._tokenize (
 			Tokenizer (GenericGrammarTokenizer.grammartokens), 
-			filename, #source, 
+			source,
 			verbose
 		)
 		

@@ -37,7 +37,7 @@ class Preprocessor :
 		out_tokenlist += self._processimports (tokenlist) #1st pass
 		self.processed.append (filename)
 		
-		out_tokenlist += self.processQueue ()
+		#out_tokenlist += self.processQueue ()
 		
 		print ([str(i) for i in out_tokenlist])
 		
@@ -54,15 +54,15 @@ class Preprocessor :
 				source,
 				verbose=Preprocessor.verbose
 			)
-			#out_tokenlist += tokenlist.tokenized
+			out_tokenlist += tokenlist.tokenized
 			
 			#vector concatenation
-			out_tokenlist += self._processimports (tokenlist.tokenized) #all the other passes
-			self.processed.append (langfile)
-			out_tokenlist += self.processQueue ()
+			#out_tokenlist += self._processimports (tokenlist.tokenized) #all the other passes
+			#self.processed.append (langfile)
+			#out_tokenlist += self.processQueue ()
 			
 			
-		#self.queue = []
+		self.queue = []
 
 		return out_tokenlist
 
