@@ -3,7 +3,7 @@ from parselib.normoperators import *
 from parselib.generaloperators import *
 
 from collections import OrderedDict as odict
-import pickle, random, json
+import pickle, random, json, os
 
 class Grammar :
 	def __init__ (self) :
@@ -36,6 +36,35 @@ class Grammar :
 
 		gramtest = checkproductionrules(self.production_rules) #is fuckedup with the excl add
 		return gramtest
+	
+	def saveGraph (self, filename) :
+		"""generates dot graph from a grammar and stores it in filename.png
+		this should be updated .. and moved
+		"""
+		ss = "digraph {\n"
+		for key, rules in self.production_rules.items() :
+			for rule in rules :
+				r = [op.val for op in rule]
+				r = [i.replace ("-", "") for i in r]
+				r = [i.replace (".", "") for i in r]
+				r = [i.replace ("\'\'", "eps") for i in r]
+				r = [i.replace ("\"\"", "eps") for i in r]
+				r = [i.replace ("/", "_") for i in r]
+				k = key.replace ("-", "")
+				k = k.replace ("/", "_")
+				k = k.replace (".", "_tok")
+				ss += "\t" + k + " -> " 
+				ss += " -> ".join (r)
+				ss += " ;\n"
+		ss += "}"
+		filestream = open (filename + '.dot', 'w') 
+		filestream.write(ss)
+		filestream.close ()
+		cmd = 'dot -Tpng -o ' + filename + '.png ' + filename + '.dot'
+		os.system (cmd)
+		cmd = 'rm ' + filename + '.dot'
+		os.system (cmd)
+
 
 	def save (self, filename) :
 		"""save parsed grammar in pickle file"""
@@ -56,20 +85,20 @@ class Grammar :
 		self.tokens = pickle.load (serialFile)
 		serialFile.close()
 
-	def generatestructs (self) :
-		"""Return str containing pycode describing language datastructure
-		"""
-		for key, val in self.keeper.items() :
-			structname = key.capitalize()
-			components=", ".join(
-				[
-					str(
-						v.val if type(v) != str else v
-					) for v in set(val)
-				]
-			)
-			structs[structname] = namedtuple(key, components)
-		return structs
+	#def generatestructs (self) :
+		#"""Return str containing pycode describing language datastructure
+		#"""
+		#for key, val in self.keeper.items() :
+			#structname = key.capitalize()
+			#components=", ".join(
+				#[
+					#str(
+						#v.val if type(v) != str else v
+					#) for v in set(val)
+				#]
+			#)
+			#structs[structname] = namedtuple(key, components)
+		#return structs
 
 	def __str__ (self) :
 		"""Screaming results for debug resons
@@ -116,9 +145,8 @@ class GenericGrammarParser :
 			('\'\'|\"\"',					'EMPTY'),
 			('AXIOM',						'AXIOM'),
 			
-			# OPERATORS
-			#experimental operators
-			#('list',						'LIST'),
+			# SPECIAL OPERATORS
+			('(\_\_list\_\_|\[\])',			'LIST'),
 			('!',							'EXCL'),
 			
 			
@@ -138,7 +166,7 @@ class GenericGrammarParser :
 		
 		AXIOM = r'AXIOM EQUAL (NONTERMINAL|GENERATOR)'
 		LSIDE = r'NONTERMINAL EQUAL'
-		RSIDE = r'EXCL|TERMINAL|NONTERMINAL|EMPTY'
+		RSIDE = r'EXCL|LIST|TERMINAL|NONTERMINAL|EMPTY'
 		TOKEN = r'TERMINAL REGEX'
 		
 		self.genericgrammarprodrules = [
@@ -186,7 +214,7 @@ class GenericGrammarParser :
 			lang.tokenized,
 		)
 
-		if (result == (True,[])) :
+		if (result == []) :
 			if verbose : print (grammar)
 		else :
 			if verbose : print (result)
@@ -212,8 +240,8 @@ class NaiveParser :
 		self.i, self.j, self.current_rule = 0, 0, ""
 
 	def parse (self) :
+		self.checkaxiom ()
 		while self.stillparsing() :
-			self.checkaxiom ()
 			self.checkleftside()
 			self.checkrightside()
 			
@@ -265,6 +293,14 @@ class NaiveParser :
 		if not i < len(self.grammar) :
 			return
 		while self.grammar[i].type == "RSIDE" :
+			if self.parsedtokens[j].type == "LIST" :
+				thisnode = Token ("NONTERMINAL", self.current_rule, 0)
+				eps = Token("EMPTY", '""', 0)
+				self.production_rules[self.current_rule][-1] = [thisnode, thisnode]
+				self.production_rules[self.current_rule].append([eps])
+				j+=1
+				i+=1
+				continue
 
 			if self.parsedtokens[j].type == "EXCL" :
 
@@ -290,9 +326,10 @@ class NaiveParser :
 				label, operand= self.parsedtokens[j].val.split('=', 1)
 				self.parsedtokens[j].val = operand
 				if self.current_rule in self.labels.keys() :
-					self.labels[self.current_rule].append({operand : label})
+					self.labels[self.current_rule].update({operand : label})
 				else :
-					self.labels[self.current_rule] = [{operand : label}]
+					self.labels[self.current_rule] = {operand : label}
+
 				if self.current_rule in self.keeper.keys() :
 					self.keeper[self.current_rule].append(label)
 				else :

@@ -1,17 +1,14 @@
-from parselib.grammarparser			import *
-from parselib.parsers				import *
-from parselib.generaloperators		import *
-from parselib.normoperators			import *
-from parselib.lexlib				import Tokenizer, Token
-from parselib.io					import Printer
+from parselib.grammarparser	 import GenericGrammarParser
+from parselib.parsers		 import CYKParser
+from parselib.normoperators	 import get2nf
+from parselib.lexlib		 import Tokenizer
+from parselib.io			 import Printer, gettextfilecontent
 
 from collections import OrderedDict as odict, namedtuple
 
-
-
 class StructFactory :
 	struct = odict()
-	keeper_all = odict()
+	keeper_all = []
 	keeper = odict()
 
 	@staticmethod
@@ -59,9 +56,7 @@ class ParselibInstance :
 		filename : str
 			string path to file containing text to load
 		"""
-		fs = open(filename, "r")
-		source = "".join(fs.readlines())
-		fs.close()
+		source = gettextfilecontent(filename)
 
 		gramparser = GenericGrammarParser ()
 		grammar = gramparser.parse (source,	verbose=verbose)
@@ -74,9 +69,7 @@ class ParselibInstance :
 		StructFactory.readGrammar(self.grammar)
 
 	def processSource (self, filename, verbose=False) :
-		fs = open(filename, "r")
-		source = "".join(fs.readlines())
-		fs.close()
+		source = gettextfilecontent(filename)
 		
 		tokenizer = Tokenizer(self.grammar.tokens)
 		tokenizer.parse (source)
@@ -101,7 +94,10 @@ class ParselibInstance :
 		else :
 			if verbose : 
 				Printer.showinfo ('number of possible parse trees : ', len(x))
-			return self.__parse (x[0].unfold(),verbose=verbose)
+			return self.__parse (
+				x[0].unfold(),
+				verbose=verbose
+			)
 
 	@staticmethod
 	def __processnodename (name) :
@@ -109,41 +105,57 @@ class ParselibInstance :
 			return name[:-1]
 		return name
 	
-	def __parse (self, strcode=[], verbose=False) :
+	def __parse (self, code=[], parent="", verbose=False) :
+		"""unfolds parse tree in a factory generated dataformat
+		
+		Parameters
+		----------
+		code : parse tree
+			result from membership method
+		
+		parent : str 
+			node's parent name
+		
+		verbose : bool
+			True to talk
+		"""
 		i = 0
 		out = odict()
-		while i < len(strcode) :
-			element = strcode[i]
+		while i < len(code) :
+			element = code[i]
 			out_element = None
 			
 			if element.type == "AXIOM" :
-				return self.__parse (element.val, verbose)
-			
-			#works nice (almost)
-			#needs to aggregate missing data in branching nodes -ex classbody
+				return self.__parse (element.val, "AXIOM", verbose)
 			
 			element.type = ParselibInstance.__processnodename(element.type)
+			
+			#part that handles labels changing (aliases)
+			if parent in self.grammar.labels.keys() :
+				if element.type in self.grammar.labels[parent].keys() :
+					element.type = self.grammar.labels[parent][element.type]
+			
+			
 			if StructFactory.keyInFactory(element.type) : #is savable
-				#print ("key in factory : ", element.type, StructFactory.keeper_all)
+
+				#get node from factory
 				tmpClass = StructFactory.getStruct(element.type)
 				
+				#object is non terminal
 				if tmpClass != None or type(element.val) == list :
-					lst = self.__parse(element.val, verbose) #recurse
+					lst = self.__parse(element.val, element.type, verbose) #recurse
 					#Printer.showinfo ("element val is list : ", element.type, "::",  len(lst), "::", lst, "::", tmpClass._fields)
-					#lst = IntermediateParser.__mergenodes (lst, tmpClass)
 					out_element = tmpClass(**lst)
-				else :
+
+				else : #terminal node
 					#print ("element val ::::: ", element.val) 
 					out_element = element.val
+				
+				#appending to result
 				if element.type in out.keys() :
 					out[element.type].append(out_element)
 				else :
 					out[element.type]=[out_element]
 			i += 1
 		return out
-
-
-
-
-
 

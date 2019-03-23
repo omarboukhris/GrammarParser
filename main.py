@@ -1,16 +1,21 @@
 from parselib.parselibinstance import ParselibInstance
 
-import sys, json
-
 if __name__ == '__main__':
-	
+
+	#=================================== Begin : source code parsing
+	#list operator not implemented yet
 	parseinst = ParselibInstance ()
 
-	parseinst.loadGrammar("data/grammar.grm")
+	parseinst.loadGrammar("data/grammar.grm", verbose=True)
+	parseinst.grammar.saveGraph ("data/out")
+	#parseinst.grammar.save("data/somewhere.pkl")
+	#parseinst.grammar.load("data/somewhere.pkl")	
+	final = parseinst.processSource("data/test.java")#, verbose=True)
 
-	parseinst.grammar.save("data/somewhere.pkl")
-
-	parseinst.grammar.load("data/somewhere.pkl")
-	final = parseinst.processSource("data/test.java")
-
-	print (final)
+	print (final) #datastructure with parsed savable data
+	
+	#==================================== Begin : source code generating
+	
+	
+	# :) :) :) :)
+	

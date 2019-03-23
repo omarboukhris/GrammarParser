@@ -1,8 +1,10 @@
 from parselib.lexlib import Token
-from collections import OrderedDict as odict, namedtuple
 
 DEBUG=False
 
+"""
+classes to unfold the parsetree into someting understandable
+"""
 
 class UnitNode :
 	def __init__ (self, unit, nodetype) :
@@ -46,11 +48,6 @@ class TokenNode :
 				val=self.val
 			)
 		else :
-			#MyNode = StructFactory.getStruct(self.nodetype)
-			#if MyNode == None :
-				#return [] #do not keep this token
-			
-			#return [MyNode(self.val)]
 			return [Token(self.nodetype, self.val, 0)]
 	
 	def __str__ (self) :
