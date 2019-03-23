@@ -1,5 +1,10 @@
-from parselib.lexlib import Tokenizer, Token
-from parselib.io import Printer
+from parselib.grammarparser			import *
+from parselib.parsers				import *
+from parselib.generaloperators		import *
+from parselib.normoperators			import *
+from parselib.lexlib				import Tokenizer, Token
+from parselib.io					import Printer
+
 from collections import OrderedDict as odict, namedtuple
 
 
@@ -37,33 +42,66 @@ class StructFactory :
 		return None
 
 
-class IntermediateParser :
+class ParselibInstance :
 
 	def __init__ (self) :
-		self.parsedsourcetokens = [
-			("[a-zA-Z0-9_]\w*\.",    "LABEL"),
-			("\(.*\)",               "TERM"),
-			("[a-zA-Z0-9_]\w*",      "NONTERM"),
-			("\= \[",                "BEGIN"),
-			("\]",                   "END"),
-		]
-	
-	def tokenize (self, strcode="", verbose=False) :
-		"""tokenize code once it passed syntaxic analysis phase
+		self.grammar   = None
+		self.parser    = None
+		self.tokenizer = None
 		
-		strcode : str
-			source code in intermediate form
 		
-		verbose : bool
-			True to make it talk. False by default
+	def loadGrammar (self, filename, verbose=False) :
+		"""builds the instance by loading 
+		the grammar from a text file
+		
+		Parameters
+		----------
+		filename : str
+			string path to file containing text to load
 		"""
+		fs = open(filename, "r")
+		source = "".join(fs.readlines())
+		fs.close()
+
+		gramparser = GenericGrammarParser ()
+		grammar = gramparser.parse (source,	verbose=verbose)
+
+		#normalization
+		#grammar = getcnf (grammar)
+		grammar = get2nf (grammar)
+		self.grammar = grammar
+		self.parser = CYKParser (self.grammar)
+		StructFactory.readGrammar(self.grammar)
+
+	def processSource (self, filename, verbose=False) :
+		fs = open(filename, "r")
+		source = "".join(fs.readlines())
+		fs.close()
 		
-		tokenizer = Tokenizer (self.parsedsourcetokens)
-		tokenizer.parse (strcode)
+		tokenizer = Tokenizer(self.grammar.tokens)
+		tokenizer.parse (source)
+
+		result = self.parser.membership (tokenizer.tokenized)
+		return self.__processResults(result, verbose)
+
+	def __processResults (self, x, verbose=False) :
+		""" Unfolds the parse tree and optionnaly prints it
 		
-		if verbose : 
-			print(tokenizer)
-		return tokenizer.tokenized
+			Parameters
+			----------
+			x : UnitNode, TokenNode, BinNode from parselib.parsetree
+				a list of the folded possible parse trees
+			verbose : bool
+				True (by default) to print results, otherwise False
+		"""
+		if not x :
+			if verbose : 
+				Printer.showerr (x) # x should point errors out if parsing failed
+			return None
+		else :
+			if verbose : 
+				Printer.showinfo ('number of possible parse trees : ', len(x))
+			return self.__parse (x[0].unfold(),verbose=verbose)
 
 	@staticmethod
 	def __processnodename (name) :
@@ -71,22 +109,7 @@ class IntermediateParser :
 			return name[:-1]
 		return name
 	
-	@staticmethod
-	def __mergenodes (nodes, _Class) :
-		out = odict()
-		for elm in _Class._fields :
-			out[elm] = []
-			for node in nodes :
-				name = node.lower() if type(node) == str else node.type.lower() #== nom de la regle
-				if name == elm :
-					out[elm].append(node)
-			if len(out[elm]) == 1 :
-				print(out[elm])
-				out[elm] = out[elm][0]
-		Printer.showinfo(out, "::", nodes)
-		return out
-
-	def parse (self, strcode=[], verbose=False) :
+	def __parse (self, strcode=[], verbose=False) :
 		i = 0
 		out = odict()
 		while i < len(strcode) :
@@ -94,18 +117,18 @@ class IntermediateParser :
 			out_element = None
 			
 			if element.type == "AXIOM" :
-				return self.parse (element.val, verbose)
+				return self.__parse (element.val, verbose)
 			
 			#works nice (almost)
 			#needs to aggregate missing data in branching nodes -ex classbody
 			
-			element.type = IntermediateParser.__processnodename(element.type)
+			element.type = ParselibInstance.__processnodename(element.type)
 			if StructFactory.keyInFactory(element.type) : #is savable
 				#print ("key in factory : ", element.type, StructFactory.keeper_all)
 				tmpClass = StructFactory.getStruct(element.type)
 				
 				if tmpClass != None or type(element.val) == list :
-					lst = self.parse(element.val, verbose) #recurse
+					lst = self.__parse(element.val, verbose) #recurse
 					#Printer.showinfo ("element val is list : ", element.type, "::",  len(lst), "::", lst, "::", tmpClass._fields)
 					#lst = IntermediateParser.__mergenodes (lst, tmpClass)
 					out_element = tmpClass(**lst)
@@ -118,7 +141,6 @@ class IntermediateParser :
 					out[element.type]=[out_element]
 			i += 1
 		return out
-
 
 
 
