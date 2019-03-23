@@ -1,9 +1,12 @@
 from parselib.lexlib import Tokenizer
 from parselib.normoperators import *
 from parselib.generaloperators import *
+from parselib.preprocessor import *
 
 from collections import OrderedDict as odict
 import pickle, random, json, os
+
+import parselib.io as io
 
 class Grammar :
 	def __init__ (self) :
@@ -24,7 +27,7 @@ class Grammar :
 		grammartokens : list(Token)
 			list of tokens representing the lexed grammar
 		"""
-		ngp = NaiveParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
+		ngp = SequentialParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
 
 		ngp.parse () 
 
@@ -137,9 +140,17 @@ class Grammar :
 		
 
 class GenericGrammarParser :
-	def __init__ (self) :
+	def __init__ (self, _PreProc=DummyPreprocessor, **kwargs) :
+		
+		#preprocessor class
+		self.preproc = _PreProc(**kwargs) 
+		
+		
 		label="([a-zA-Z_]\w*=)"
 		self.grammartokens = [
+			# PREPROCESSOR
+			('\%(import|include) \".*\"',	'IMPORT'),
+			
 			#KEYWORDS
 			('(//|\;).*',					'LINECOMMENT'),
 			('\'\'|\"\"',					'EMPTY'),
@@ -148,7 +159,6 @@ class GenericGrammarParser :
 			# SPECIAL OPERATORS
 			('(\_\_list\_\_|\[\])',			'LIST'),
 			('!',							'EXCL'),
-			
 			
 			('\(\".*\"\)',					'REGEX'),
 			('(\->|\=)',					'EQUAL'),
@@ -186,26 +196,32 @@ class GenericGrammarParser :
 	def parse (self, txt_grammar="", verbose=False) :
 		"""lex a grammar from textual form to tokenized
 		
-		Parameters
-		----------
-		txt_grammar : str
-			raw grammar source code
-		
-		verbose : bool
-			True to make it talk. False by default
+			Parameters
+			----------
+			txt_grammar : str
+				raw grammar source code
+			
+			verbose : bool
+				True to make it talk. False by default
 		"""
-
-		#lex language => tokenized grammar
-		lang = Tokenizer (self.grammartokens)
-		#lex tokenized grammar => tokenized language
-		gram = Tokenizer (self.genericgrammarprodrules)
-
-		lang.parse (txt_grammar)
-		if verbose : print(lang)
+		#tokenize grammar source
+		lang = self._tokenize (
+			Tokenizer (self.grammartokens), 
+			txt_grammar, 
+			verbose
+		)
 		
+		#preprocessor here 
+		lang.tokenized = self.preproc.preprocess (lang.tokenized)
+
+		#text tokens are needed for next step
 		txtok = transformtosource (lang.tokenized)
-		gram.parse (txtok)
-		if verbose : print(gram)
+		#tokenize in abstract grammar tokens
+		gram = self._tokenize (
+			Tokenizer (self.genericgrammarprodrules),
+			txtok,
+			verbose
+		)
 
 		##make production rules
 		grammar = Grammar ()
@@ -217,15 +233,19 @@ class GenericGrammarParser :
 		if (result == []) :
 			if verbose : print (grammar)
 		else :
-			if verbose : print (result)
+			if verbose : io.Printer.showerr (result)
 		return grammar
 
+	def _tokenize (self, tokObj, txt_grammar, verbose) :
+		tokObj.parse (txt_grammar)
+		if verbose : print(tokObj)
+		return tokObj
 
 """
 TODO : 
 	parse list() operator in a production rule
 """
-class NaiveParser :
+class SequentialParser :
 	def __init__ (self, grammar, parsedtokens) :
 		self.production_rules = odict()
 		self.labels = odict()

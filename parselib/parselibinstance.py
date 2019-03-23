@@ -49,12 +49,12 @@ class ParselibInstance :
 		
 	def loadGrammar (self, filename, verbose=False) :
 		"""builds the instance by loading 
-		the grammar from a text file
-		
-		Parameters
-		----------
-		filename : str
-			string path to file containing text to load
+			the grammar from a text file
+			
+			Parameters
+			----------
+			filename : str
+				string path to file containing text to load
 		"""
 		source = gettextfilecontent(filename)
 
@@ -108,16 +108,16 @@ class ParselibInstance :
 	def __parse (self, code=[], parent="", verbose=False) :
 		"""unfolds parse tree in a factory generated dataformat
 		
-		Parameters
-		----------
-		code : parse tree
-			result from membership method
-		
-		parent : str 
-			node's parent name
-		
-		verbose : bool
-			True to talk
+			Parameters
+			----------
+			code : parse tree
+				result from membership method
+			
+			parent : str 
+				node's parent name
+			
+			verbose : bool
+				True to talk
 		"""
 		i = 0
 		out = odict()
