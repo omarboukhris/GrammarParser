@@ -127,13 +127,6 @@ TOKEN b = regex('b')
 
 ```python
 #import the good stuff
-<<<<<<< HEAD
-from parselib.parsers import CYKParser as CYK
-
-# ... load, parse and normalize grammar
-
-langraph = CYK (grammar)
-=======
 from parselib.parsers       import CYKParser as CYK
 from parselib.normoperators	import get2nf
 # ... load, parse and normalize grammar
@@ -141,7 +134,6 @@ from parselib.normoperators	import get2nf
 grammar = get2nf (grammar)
 
 langraph = CYK (grammar) 
->>>>>>> unfolder
 
 #tokenizer to transform source code to tokens
 TokCode = Tokenizer(grammar.tokens) 
