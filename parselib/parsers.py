@@ -1,33 +1,6 @@
 from collections import OrderedDict as odict
 from parselib.generaloperators import cartesianprod
 from parselib.parsetree import TokenNode, BinNode, UnitNode
-import os
-
-def dotgraph (gram, filename) :
-	"""generates dot graph from a grammar and stores it in filename.png
-	this should be updated .. and moved
-	"""
-	ss = "graph {\n"
-	for key, rules in gram.production_rules.items() :
-		for rule in rules :
-			r = [op.val for op in rule]
-			r = [i.replace ("-", "") for i in r]
-			r = [i.replace (".", "") for i in r]
-			r = [i.replace ("\'\'", "eps") for i in r]
-			r = [i.replace ("\"\"", "eps") for i in r]
-			k = key.replace ("-", "")
-			k = k.replace (".", "_tok")
-			ss += "\t" + k + " -- " 
-			ss += " -- ".join (r)
-			ss += " ;\n"
-	ss += "}"
-	filestream = open (filename + '.dot', 'w') 
-	filestream.write(ss)
-	filestream.close ()
-	cmd = 'dot -Tpng -o ' + filename + '.png ' + filename + '.dot'
-	os.system (cmd)
-	cmd = 'rm ' + filename + '.dot'
-	os.system (cmd)
 
 class CYKParser :
 	def __init__ (self, grammar) :

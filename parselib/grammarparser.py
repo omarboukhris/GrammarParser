@@ -3,7 +3,7 @@ from parselib.normoperators import *
 from parselib.generaloperators import *
 
 from collections import OrderedDict as odict
-import pickle, random, json
+import pickle, random, json, os
 
 class Grammar :
 	def __init__ (self) :
@@ -36,6 +36,35 @@ class Grammar :
 
 		gramtest = checkproductionrules(self.production_rules) #is fuckedup with the excl add
 		return gramtest
+	
+	def saveGraph (self, filename) :
+		"""generates dot graph from a grammar and stores it in filename.png
+		this should be updated .. and moved
+		"""
+		ss = "digraph {\n"
+		for key, rules in self.production_rules.items() :
+			for rule in rules :
+				r = [op.val for op in rule]
+				r = [i.replace ("-", "") for i in r]
+				r = [i.replace (".", "") for i in r]
+				r = [i.replace ("\'\'", "eps") for i in r]
+				r = [i.replace ("\"\"", "eps") for i in r]
+				r = [i.replace ("/", "_") for i in r]
+				k = key.replace ("-", "")
+				k = k.replace ("/", "_")
+				k = k.replace (".", "_tok")
+				ss += "\t" + k + " -> " 
+				ss += " -> ".join (r)
+				ss += " ;\n"
+		ss += "}"
+		filestream = open (filename + '.dot', 'w') 
+		filestream.write(ss)
+		filestream.close ()
+		cmd = 'dot -Tpng -o ' + filename + '.png ' + filename + '.dot'
+		os.system (cmd)
+		cmd = 'rm ' + filename + '.dot'
+		os.system (cmd)
+
 
 	def save (self, filename) :
 		"""save parsed grammar in pickle file"""

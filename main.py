@@ -7,13 +7,13 @@ if __name__ == '__main__':
 	parseinst = ParselibInstance ()
 
 	parseinst.loadGrammar("data/grammar.grm", verbose=True)
+	parseinst.grammar.saveGraph ("data/out")
 	#parseinst.grammar.save("data/somewhere.pkl")
 	#parseinst.grammar.load("data/somewhere.pkl")	
 	final = parseinst.processSource("data/test.java")#, verbose=True)
 
 	print (final) #datastructure with parsed savable data
-
-
+	
 	#==================================== Begin : source code generating
 	
 	
