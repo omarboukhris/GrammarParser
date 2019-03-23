@@ -45,8 +45,14 @@ class ParselibInstance :
 		self.grammar   = None
 		self.parser    = None
 		self.tokenizer = None
-		
-		
+	
+	@staticmethod
+	def __getfile (filename) :
+		fs = open(filename, "r")
+		source = "".join(fs.readlines())
+		fs.close()
+		return source
+	
 	def loadGrammar (self, filename, verbose=False) :
 		"""builds the instance by loading 
 		the grammar from a text file
@@ -56,12 +62,11 @@ class ParselibInstance :
 		filename : str
 			string path to file containing text to load
 		"""
-		fs = open(filename, "r")
-		source = "".join(fs.readlines())
-		fs.close()
 
+		source = ParselibInstance.__getfile (filename)
 		gramparser = GenericGrammarParser ()
 		grammar = gramparser.parse (source,	verbose=verbose)
+		#print (grammar.importation)
 
 		#normalization
 		#grammar = getcnf (grammar)
@@ -71,9 +76,7 @@ class ParselibInstance :
 		StructFactory.readGrammar(self.grammar)
 
 	def processSource (self, filename, verbose=False) :
-		fs = open(filename, "r")
-		source = "".join(fs.readlines())
-		fs.close()
+		source = ParselibInstance.__getfile (filename)
 		
 		tokenizer = Tokenizer(self.grammar.tokens)
 		tokenizer.parse (source)

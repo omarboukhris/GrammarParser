@@ -11,6 +11,7 @@ class Grammar :
 		self.labels = odict()
 		self.keeper = odict()
 		self.unitrelation = odict()
+		self.importation = []
 		self.tokens = list()
 
 	def makegrammar (self, tokenizedgrammar, grammartokens) :
@@ -32,6 +33,7 @@ class Grammar :
 		self.tokens = ngp.tokens
 		self.labels = ngp.labels
 		self.keeper = ngp.keeper
+		self.importation = ngp.importation
 		self = eliminatedoubles (self)
 
 		gramtest = checkproductionrules(self.production_rules) #is fuckedup with the excl add
@@ -236,7 +238,7 @@ class SequentialParser :
 		if not i < len(self.grammar) :
 			return
 		if self.grammar[i].type == "IMPORT" :
-			self.importation.append(self.parsedtokens[j].val.split("%import")[1])
+			self.importation.append(self.parsedtokens[j].val.split("%import")[1].strip()[1:-1])
 			j+=1
 			i+=1
 		self.i, self.j = i, j
