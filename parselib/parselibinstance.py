@@ -56,10 +56,9 @@ class ParselibInstance :
 			filename : str
 				string path to file containing text to load
 		"""
-		source = gettextfilecontent(filename)
 
 		gramparser = GenericGrammarParser ()
-		grammar = gramparser.parse (source,	verbose=verbose)
+		grammar = gramparser.parse (filename,	verbose=verbose)
 
 		#normalization
 		#grammar = getcnf (grammar)

@@ -2,6 +2,7 @@ from parselib.lexlib import Tokenizer
 from parselib.normoperators import *
 from parselib.generaloperators import *
 from parselib.preprocessor import *
+from parselib.naiveparsers import *
 
 from collections import OrderedDict as odict
 import pickle, random, json, os
@@ -88,21 +89,6 @@ class Grammar :
 		self.tokens = pickle.load (serialFile)
 		serialFile.close()
 
-	#def generatestructs (self) :
-		#"""Return str containing pycode describing language datastructure
-		#"""
-		#for key, val in self.keeper.items() :
-			#structname = key.capitalize()
-			#components=", ".join(
-				#[
-					#str(
-						#v.val if type(v) != str else v
-					#) for v in set(val)
-				#]
-			#)
-			#structs[structname] = namedtuple(key, components)
-		#return structs
-
 	def __str__ (self) :
 		"""Screaming results for debug resons
 		"""
@@ -140,60 +126,14 @@ class Grammar :
 		
 
 class GenericGrammarParser :
+	
 	def __init__ (self, _PreProc=DummyPreprocessor, **kwargs) :
 		
 		#preprocessor class
 		self.preproc = _PreProc(**kwargs) 
 		
-		
-		label="([a-zA-Z_]\w*=)"
-		self.grammartokens = [
-			# PREPROCESSOR
-			('\%(import|include) \".*\"',	'IMPORT'),
-			
-			#KEYWORDS
-			('(//|\;).*',					'LINECOMMENT'),
-			('\'\'|\"\"',					'EMPTY'),
-			('AXIOM',						'AXIOM'),
-			
-			# SPECIAL OPERATORS
-			('(\_\_list\_\_|\[\])',			'LIST'),
-			('!',							'EXCL'),
-			
-			('\(\".*\"\)',					'REGEX'),
-			('(\->|\=)',					'EQUAL'),
-			#('\,',							'COMMA'),
-			('\|',							'OR'),
-			('\(',							'LPAR'),
-			('\)',							'RPAR'),
-			#('\[',							'LCRCH'),
-			#('\]',							'RCRCH'),
 
-			#OPERANDS
-			(label+'?[a-zA-Z0-9_]\w*\.',		'TERMINAL'),
-			(label+'?[a-zA-Z0-9_]\w*',			'NONTERMINAL'),
-		]
-		
-		AXIOM = r'AXIOM EQUAL (NONTERMINAL|GENERATOR)'
-		LSIDE = r'NONTERMINAL EQUAL'
-		RSIDE = r'EXCL|LIST|TERMINAL|NONTERMINAL|EMPTY'
-		TOKEN = r'TERMINAL REGEX'
-		
-		self.genericgrammarprodrules = [
-			('LINECOMMENT',	'LINECOMMENT'),
-			(AXIOM,			'AXIOM'),
-			(TOKEN,			'TOKEN'),
-
-			(LSIDE,			'LSIDE'),
-			(RSIDE,			'RSIDE'),
-
-			('OR',			'OR'),
-			#('COMMA',		'COMMA'),
-			('LCRCH',		'LCRCH'),
-			('RCRCH',		'RCRCH'),
-		]
-
-	def parse (self, txt_grammar="", verbose=False) :
+	def parse (self, filename, verbose=False) :
 		"""lex a grammar from textual form to tokenized
 		
 			Parameters
@@ -205,20 +145,25 @@ class GenericGrammarParser :
 				True to make it talk. False by default
 		"""
 		#tokenize grammar source
-		lang = self._tokenize (
-			Tokenizer (self.grammartokens), 
-			txt_grammar, 
+		source = io.gettextfilecontent (filename)
+		lang = GenericGrammarTokenizer._tokenize (
+			Tokenizer (GenericGrammarTokenizer.grammartokens), 
+			source, 
 			verbose
 		)
 		
 		#preprocessor here 
 		lang.tokenized = self.preproc.preprocess (lang.tokenized)
 
+
+
+
+
 		#text tokens are needed for next step
 		txtok = transformtosource (lang.tokenized)
 		#tokenize in abstract grammar tokens
-		gram = self._tokenize (
-			Tokenizer (self.genericgrammarprodrules),
+		gram = GenericGrammarTokenizer._tokenize (
+			Tokenizer (GenericGrammarTokenizer.genericgrammarprodrules),
 			txtok,
 			verbose
 		)
@@ -235,146 +180,4 @@ class GenericGrammarParser :
 		else :
 			if verbose : io.Printer.showerr (result)
 		return grammar
-
-	def _tokenize (self, tokObj, txt_grammar, verbose) :
-		tokObj.parse (txt_grammar)
-		if verbose : print(tokObj)
-		return tokObj
-
-"""
-TODO : 
-	parse list() operator in a production rule
-"""
-class SequentialParser :
-	def __init__ (self, grammar, parsedtokens) :
-		self.production_rules = odict()
-		self.labels = odict()
-		self.keeper = odict({'all' : []})
-		self.tokens = list()
-		
-		self.grammar = grammar
-		self.parsedtokens = parsedtokens
-		
-		self.axiomflag = True
-		
-		self.i, self.j, self.current_rule = 0, 0, ""
-
-	def parse (self) :
-		self.checkaxiom ()
-		while self.stillparsing() :
-			self.checkleftside()
-			self.checkrightside()
-			
-			self.checkoperators ()
-			self.checkfortoken()
-	
-	def stillparsing (self) :
-		return self.i < len(self.grammar)
-	
-	def checkaxiom (self) :
-		i, j = self.i, self.j
-		if not i < len(self.grammar) :
-			return
-		if self.grammar[i].type == "AXIOM" and self.axiomflag :
-			axiom = self.parsedtokens[j+2]
-			self.production_rules["AXIOM"] = [[axiom]]
-			self.axiomflag = False
-			i += 1
-			j += 3
-		self.i, self.j = i, j
-
-	def checkleftside (self) :
-		i, j = self.i, self.j
-		if not i < len(self.grammar) :
-			return
-		if self.grammar[i].type == "LSIDE" :
-			self.current_rule = self.parsedtokens[j].val
-			if not self.current_rule in self.production_rules.keys() :
-				self.production_rules[self.current_rule] = [[]]
-			i += 1
-			j += 2
-		self.i, self.j = i, j
-	
-	def checkoperators (self) :
-		i, j = self.i, self.j
-		if not i < len(self.grammar) :
-			return
-		if (self.grammar[i].type == "OR" and self.parsedtokens[j].type == "OR") :
-			self.production_rules[self.current_rule].append([])
-			j += 1
-			i += 1
-		if self.grammar[i].type == "LINECOMMENT" and self.parsedtokens[j].type == "LINECOMMENT" :
-			j += 1
-			i += 1
-		self.i, self.j = i, j
-
-	def checkrightside (self) :
-		i, j = self.i, self.j
-		if not i < len(self.grammar) :
-			return
-		while self.grammar[i].type == "RSIDE" :
-			if self.parsedtokens[j].type == "LIST" :
-				thisnode = Token ("NONTERMINAL", self.current_rule, 0)
-				eps = Token("EMPTY", '""', 0)
-				self.production_rules[self.current_rule][-1] = [thisnode, thisnode]
-				self.production_rules[self.current_rule].append([eps])
-				j+=1
-				i+=1
-				continue
-
-			if self.parsedtokens[j].type == "EXCL" :
-
-				if self.current_rule in self.keeper.keys() :
-					self.keeper[self.current_rule].append(self.parsedtokens[j+1])
-				else :
-					self.keeper[self.current_rule] = [self.parsedtokens[j+1]]
-
-				if not self.parsedtokens[j+1].val in self.keeper["all"] :
-					if self.parsedtokens[j+1].type == "TERMINAL" :
-						self.keeper["all"].append(self.parsedtokens[j+1].val[:-1])
-					else :
-						self.keeper["all"].append(self.parsedtokens[j+1].val)
-				j += 1
-				i += 1
-				continue
-
-			if self.parsedtokens[j].type == "TERMINAL" :
-				self.parsedtokens[j].val = self.parsedtokens[j].val[:-1] #eliminate . at terminals
-
-			if self.parsedtokens[j].val.find('=') != -1 :
-
-				label, operand= self.parsedtokens[j].val.split('=', 1)
-				self.parsedtokens[j].val = operand
-				if self.current_rule in self.labels.keys() :
-					self.labels[self.current_rule].update({operand : label})
-				else :
-					self.labels[self.current_rule] = {operand : label}
-
-				if self.current_rule in self.keeper.keys() :
-					self.keeper[self.current_rule].append(label)
-				else :
-					self.keeper[self.current_rule] = [label]
-				if not label in self.keeper["all"] :
-					self.keeper["all"].append(label)
-
-			self.production_rules[self.current_rule][-1].append(self.parsedtokens[j])			
-			i += 1
-			j += 1
-		self.i, self.j = i, j
-
-	def checkfortoken (self) :
-		i, j = self.i, self.j
-		if not i < len(self.grammar) :
-			return
-		if self.grammar[i].type == "TOKEN" :
-			label = self.parsedtokens[j].val[:-1] #eliminate the dot
-			regex = self.parsedtokens[j+1].val[2:-2] #eliminate the ("...")
-			self.tokens.append((regex, label)) 
-			i += 1
-			j += 2
-		self.i, self.j = i, j
-
-
-
-
 
