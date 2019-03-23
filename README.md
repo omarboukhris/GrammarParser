@@ -79,9 +79,6 @@ TOKEN b = regex('b')
 
 Note : START operator is forced by the language by the AXIOM keyword
 
-example :
-
-testcnf.py 
 ```python
 from parselib.normoperators import TERM, BIN, DEL, UNIT
 
@@ -124,7 +121,6 @@ TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
 - **CYK parsers for grammars in CNF and 2NF<sup>[1]</sup>**
-*CNF is deprecated for CYK parser*
 
 ```python
 #import the good stuff
@@ -132,6 +128,7 @@ from parselib.parsers       import CYKParser as CYK
 from parselib.normoperators	import get2nf
 # ... load, parse and normalize grammar
 
+#CNF is deprecated for CYK parser
 grammar = get2nf (grammar)
 
 langraph = CYK (grammar) 
@@ -146,7 +143,6 @@ TokCode.parse (litterature) # tokenize source code
 word = TokCode.tokenized
 
 # this is where the magic happens
-# in CNF, 2NF example to come
 x = langraph.membership (word) 
 ```
 x is false if *word* is not contained in the language, otherwise can unfold a parse tree
@@ -157,7 +153,7 @@ x is false if *word* is not contained in the language, otherwise can unfold a pa
 
 All the mentioned functions and more are wrapped in a utility class (`parselib.parselibinstance.ParselibInstance`).
 
-Reading a grammar and parsing a source code is trivial :
+Reading a grammar and parsing a source code becomes trivial :
 ```python
 from parselib.parselibinstance import ParselibInstance
 
@@ -177,7 +173,9 @@ Example :
 let S=(a S b | eps) our grammar. We want to save each parsed `S` in a data structure containing the informations we need from S. 
 We write the grammar as follows :
 ```javascript
-S -> !a. S_child=S !b. | ''
+S -> 
+	!a. S_child=S !b. | 
+	''
 ```
 This generates a data structure similar to this 
 ```c++
