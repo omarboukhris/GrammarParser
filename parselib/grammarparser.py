@@ -127,10 +127,10 @@ class Grammar :
 
 class GenericGrammarParser :
 	
-	def __init__ (self, _PreProc=DummyPreprocessor, **kwargs) :
+	def __init__ (self, preproc=Preprocessor()) :
 		
 		#preprocessor class
-		self.preproc = _PreProc(**kwargs) 
+		self.preproc = preproc
 		
 
 	def parse (self, filename, verbose=False) :
@@ -152,12 +152,8 @@ class GenericGrammarParser :
 			verbose
 		)
 		
-		#preprocessor here 
+		#preprocessor here (one pass preprocessor)
 		lang.tokenized = self.preproc.preprocess (lang.tokenized)
-
-
-
-
 
 		#text tokens are needed for next step
 		txtok = transformtosource (lang.tokenized)

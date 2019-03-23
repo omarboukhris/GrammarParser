@@ -1,4 +1,4 @@
-// %import "members.grm"
+%import "data/members.grm"
 
 AXIOM -> classes
 
@@ -13,8 +13,8 @@ classbody ->
 	!classes | 
 __list__ // ~~~ classbody classbody | epsilon
 
-attribute -> !visibility. t=type. att_name=identifier. semic. 
-method -> !visibility. t=type. met_name=identifier. lpar. rpar. lcrch. rcrch. semic.
+// attribute -> !visibility. t=type. att_name=identifier. semic. 
+// method -> !visibility. t=type. met_name=identifier. lpar. rpar. lcrch. rcrch. semic.
 
 classdec.("class")
 visibility.("(public|private|protected)")
