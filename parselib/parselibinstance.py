@@ -143,11 +143,8 @@ class ParselibInstance :
 				#object is non terminal
 				if tmpClass != None or type(element.val) == list :
 					lst = self.__parse(element.val, element.type, verbose) #recurse
-					#Printer.showinfo ("element val is list : ", element.type, "::",  len(lst), "::", lst, "::", tmpClass._fields)
 					out_element = tmpClass(**lst)
-
 				else : #terminal node
-					#print ("element val ::::: ", element.val) 
 					out_element = element.val
 				
 				#appending to result

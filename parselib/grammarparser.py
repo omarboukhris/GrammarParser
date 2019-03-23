@@ -127,7 +127,7 @@ class Grammar :
 
 class GenericGrammarParser :
 	
-	def __init__ (self, preproc=Preprocessor()) :
+	def __init__ (self, preproc=OnePassPreprocessor()) :
 		
 		#preprocessor class
 		self.preproc = preproc

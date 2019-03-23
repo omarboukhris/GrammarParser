@@ -14,7 +14,7 @@ class DummyPreprocessor :
 		#return out_tokenlist
 		return tokenlist
 
-class Preprocessor :
+class OnePassPreprocessor :
 	verbose=True
 	
 	def __init__ (self) :
@@ -39,7 +39,7 @@ class Preprocessor :
 		
 		out_tokenlist += self.processQueue ()
 		
-		print ([str(i) for i in out_tokenlist])
+		#print ([str(i) for i in out_tokenlist])
 		
 		return out_tokenlist
 
@@ -52,7 +52,7 @@ class Preprocessor :
 			tokenlist = GenericGrammarTokenizer._tokenize (
 				Tokenizer (GenericGrammarTokenizer.grammartokens), 
 				source,
-				verbose=Preprocessor.verbose
+				verbose=OnePassPreprocessor.verbose
 			)
 			out_tokenlist += tokenlist.tokenized
 			
