@@ -267,10 +267,8 @@ class NaiveParser :
 			if self.parsedtokens[j].type == "LIST" :
 				thisnode = Token ("NONTERMINAL", self.current_rule, 0)
 				eps = Token("EMPTY", '""', 0)
-				print (self.production_rules[self.current_rule])
 				self.production_rules[self.current_rule][-1] = [thisnode, thisnode]
 				self.production_rules[self.current_rule].append([eps])
-				print (self.production_rules[self.current_rule])
 				j+=1
 				i+=1
 				continue
