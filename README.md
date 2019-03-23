@@ -120,7 +120,7 @@ RULE b. = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-- **CYK parsers for grammars in CNF and 2NF<sup>[1]</sup>**
+- **CYK parsers for grammars in 2NF<sup>[1]</sup>**
 
 ```python
 #import the good stuff
