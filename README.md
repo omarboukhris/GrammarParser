@@ -79,9 +79,6 @@ TOKEN b = regex('b')
 
 Note : START operator is forced by the language by the AXIOM keyword
 
-example :
-
-testcnf.py 
 ```python
 from parselib.normoperators import TERM, BIN, DEL, UNIT
 
@@ -123,25 +120,18 @@ RULE b. = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-- **CYK parsers for grammars in CNF and 2NF<sup>[1]</sup>**
+- **CYK parsers for grammars in 2NF<sup>[1]</sup>**
 
 ```python
 #import the good stuff
-<<<<<<< HEAD
-from parselib.parsers import CYKParser as CYK
-
-# ... load, parse and normalize grammar
-
-langraph = CYK (grammar)
-=======
 from parselib.parsers       import CYKParser as CYK
 from parselib.normoperators	import get2nf
 # ... load, parse and normalize grammar
 
+#CNF is deprecated for CYK parser
 grammar = get2nf (grammar)
 
 langraph = CYK (grammar) 
->>>>>>> unfolder
 
 #tokenizer to transform source code to tokens
 TokCode = Tokenizer(grammar.tokens) 
@@ -153,22 +143,39 @@ TokCode.parse (litterature) # tokenize source code
 word = TokCode.tokenized
 
 # this is where the magic happens
-# in CNF, 2NF example to come
 x = langraph.membership (word) 
 ```
 x is false if *word* is not contained in the language, otherwise can unfold a parse tree
 
 ## V 0.2 : (in progress)
 
-### labeling operators :
+### Main interface :
 
-each operand associated with the operators `!` or `label=` in a production rule tells the parser to save the data in a data structure formed by the production rule non terminals.
+All the mentioned functions and more are wrapped in a utility class (`parselib.parselibinstance.ParselibInstance`).
+
+Reading a grammar and parsing a source code becomes trivial :
+```python
+from parselib.parselibinstance import ParselibInstance
+
+parseinst = ParselibInstance ()
+
+parseinst.loadGrammar("data/grammar.grm", verbose=True)
+parsedDataStruct = parseinst.processSource("data/test.java") #any source code
+```
+This can mainly be useful to setup a transcompiling framework
+
+
+### Labeling operators :
+
+Each operand associated with the operators `!` or `label=` in a production rule tells the parser to save the data in a data structure formed by the production rule non terminals.
 
 Example :
 let S=(a S b | eps) our grammar. We want to save each parsed `S` in a data structure containing the informations we need from S. 
 We write the grammar as follows :
 ```javascript
-S -> !a. S_child=S !b. | ''
+S -> 
+	!a. S_child=S !b. | 
+	''
 ```
 This generates a data structure similar to this 
 ```c++
@@ -179,3 +186,25 @@ struct S {
 } ;
 ```
 ... in which a correctly parsed source code will eventually be stored.
+
+### Lists :
+`list` operators have been implemented in the grammar's accepted syntax.
+Example :
+```javascript
+aListNode ->
+	element1. element2. anotherNode |
+	aListNode aListNode |
+	'' //epsilone
+```
+Can become
+```javascript
+aListNode ->
+	element1. element2. anotherNode |
+__list__ // [] is also accepted
+```
+The list operator basically generates a rule to be used as a loop guard for the list parsing.
+
+
+
+
+
