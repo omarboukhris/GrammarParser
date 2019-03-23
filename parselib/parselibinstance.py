@@ -2,7 +2,7 @@ from parselib.grammarparser	 import GenericGrammarParser
 from parselib.parsers		 import CYKParser
 from parselib.normoperators	 import get2nf
 from parselib.lexlib		 import Tokenizer
-from parselib.io			 import Printer
+from parselib.io			 import Printer, gettextfilecontent
 
 from collections import OrderedDict as odict, namedtuple
 
@@ -56,9 +56,7 @@ class ParselibInstance :
 		filename : str
 			string path to file containing text to load
 		"""
-		fs = open(filename, "r")
-		source = "".join(fs.readlines())
-		fs.close()
+		source = gettextfilecontent(filename)
 
 		gramparser = GenericGrammarParser ()
 		grammar = gramparser.parse (source,	verbose=verbose)
@@ -71,9 +69,7 @@ class ParselibInstance :
 		StructFactory.readGrammar(self.grammar)
 
 	def processSource (self, filename, verbose=False) :
-		fs = open(filename, "r")
-		source = "".join(fs.readlines())
-		fs.close()
+		source = gettextfilecontent(filename)
 		
 		tokenizer = Tokenizer(self.grammar.tokens)
 		tokenizer.parse (source)
