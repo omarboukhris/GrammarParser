@@ -69,8 +69,19 @@ class ParselibInstance :
 		self.grammar   = Grammar()
 		self.parser    = None
 		self.tokenizer = None
+<<<<<<< HEAD
 		
 		
+=======
+	
+	@staticmethod
+	def __getfile (filename) :
+		fs = open(filename, "r")
+		source = "".join(fs.readlines())
+		fs.close()
+		return source
+	
+>>>>>>> 2nf
 	def loadGrammar (self, filename, verbose=False) :
 		"""builds the instance by loading 
 			the grammar from a text file
@@ -90,6 +101,10 @@ class ParselibInstance :
 		self.grammar = grammar
 
 	def processSource (self, filename, verbose=False) :
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2nf
 		StructFactory.readGrammar(self.grammar)
 		self.parser = CYKParser (self.grammar)
 		source = gettextfilecontent(filename)
