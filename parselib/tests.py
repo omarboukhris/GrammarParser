@@ -1,4 +1,4 @@
-from parselib.parselibinstance import *
+from parselib import *
 
 def processverbose (verbose) :
 	try :
