@@ -10,7 +10,7 @@ No dependencies required (yet?)
 
 [1] Lange, Martin; Leiß, Hans (2009). "To CNF or not to CNF? An Efficient Yet Presentable Version of the CYK Algorithm". 
 
-### Grammar definition syntax :
+### Grammars :
 
 Let G be a CFG, such as G = (NT, T, Pr, AXIOM) with
 
@@ -27,7 +27,7 @@ R1 : S → a S b | ε
 
 The language described by the grammar is L(G) = { a<sup>n</sup>b<sup>n</sup> }.
 
-* Grammar Syntax V 0.1 : dummygrammar.grm
+written following the parselib convention in a text file would look like :
 
 ```javascript
 AXIOM -> S //this is a comment
@@ -40,9 +40,9 @@ b.("b") //{a., b.} are terminals
 
 ### Main interface :
 
-All the mentioned functions and more are wrapped in a utility class (`parselib.parselibinstance.ParselibInstance`).
+All functions mentioned later and more are wrapped in a utility class (`parselib.parselibinstance.ParselibInstance`).
 
-Reading a grammar and parsing a source code becomes trivial :
+Reading a grammar and parsing a source code then becomes trivial :
 ```python
 from parselib.parselibinstance import ParselibInstance
 
@@ -51,7 +51,7 @@ parseinst = ParselibInstance ()
 parseinst.loadGrammar("data/grammar.grm", verbose=True)
 parsedDataStruct = parseinst.processSource("data/test.java") #any source code
 ```
-This can mainly be useful to setup a transcompiling framework
+This can mainly be useful to setup a transcompiling framework.
 
 ## Grammar's syntax
 
