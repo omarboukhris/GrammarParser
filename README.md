@@ -147,8 +147,6 @@ x = langraph.membership (word)
 ```
 x is false if *word* is not contained in the language, otherwise can unfold a parse tree
 
-## V 0.2 : (in progress)
-
 ### Main interface :
 
 All the mentioned functions and more are wrapped in a utility class (`parselib.parselibinstance.ParselibInstance`).
