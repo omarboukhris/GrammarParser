@@ -1,7 +1,7 @@
-from parselib.lexlib import Token
+from parselib.datastructure.lexlib import Token
 from collections import OrderedDict as odict
 
-from parselib.generaloperators import eliminatedoubles, getunitrelation, removenullables
+from parselib.operations.generaloperators import eliminatedoubles, getunitrelation, removenullables
 
 def getcnf (grammar) :
 	production_rules = grammar.production_rules

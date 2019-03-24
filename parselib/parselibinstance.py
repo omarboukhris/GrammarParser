@@ -1,12 +1,12 @@
-from parselib.grammarparser	 import GenericGrammarParser, Grammar
-from parselib.parsers		 import CYKParser
-from parselib.normoperators	 import get2nf
-from parselib.lexlib		 import Tokenizer, Token
-from parselib.io			 import Printer, gettextfilecontent
-from parselib.preprocessor	 import OnePassPreprocessor
+from parselib.parsers.parsers		 	import CYKParser
+from parselib.parsers.grammarparser	 	import GenericGrammarParser, Grammar
+from parselib.operations.normoperators	import get2nf
+from parselib.datastructure.lexlib		import Tokenizer, Token
 
+from parselib.preprocessor.onepasspreprocessor	import OnePassPreprocessor
 from collections import OrderedDict as odict, namedtuple
 
+from parselib.io import Printer, gettextfilecontent
 
 class StructFactory :
 	"""Factory generating dataformat from grammar after parsing

@@ -1,6 +1,6 @@
 from collections import OrderedDict as odict
-from parselib.generaloperators import cartesianprod
-from parselib.parsetree import TokenNode, BinNode, UnitNode
+from parselib.operations.generaloperators import cartesianprod
+from parselib.datastructure.parsetree import TokenNode, BinNode, UnitNode
 
 class CYKParser :
 	def __init__ (self, grammar) :

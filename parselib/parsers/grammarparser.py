@@ -1,6 +1,6 @@
-from parselib.lexlib import Tokenizer
-from parselib.generaloperators import transformtosource, eliminatedoubles
-from parselib.naiveparsers import SequentialParser, GenericGrammarTokenizer
+from parselib.datastructure.lexlib 		import Tokenizer
+from parselib.operations.generaloperators 	import transformtosource, eliminatedoubles
+from parselib.operations.naiveparsers 		import SequentialParser, GenericGrammarTokenizer
 
 from collections import OrderedDict as odict
 import pickle, random, json, os

@@ -1,5 +1,5 @@
 from collections import OrderedDict as odict
-from parselib.lexlib import Token
+from parselib.datastructure.lexlib import Token
 
 
 class GenericGrammarTokenizer :
@@ -100,6 +100,18 @@ class SequentialParser :
 			j += 3
 		self.i, self.j = i, j
 
+	def checkfortoken (self) :
+		i, j = self.i, self.j
+		if not i < len(self.grammar) :
+			return
+		if self.grammar[i].type == "TOKEN" :
+			label = self.parsedtokens[j].val[:-1] #eliminate the dot
+			regex = self.parsedtokens[j+1].val[2:-2] #eliminate the ("...")
+			self.tokens.append((regex, label)) 
+			i += 1
+			j += 2
+		self.i, self.j = i, j
+
 	def checkleftside (self) :
 		i, j = self.i, self.j
 		if not i < len(self.grammar) :
@@ -198,14 +210,3 @@ class SequentialParser :
 		if not nodename in self.strnodes:
 			self.strnodes.append(nodename)
 
-	def checkfortoken (self) :
-		i, j = self.i, self.j
-		if not i < len(self.grammar) :
-			return
-		if self.grammar[i].type == "TOKEN" :
-			label = self.parsedtokens[j].val[:-1] #eliminate the dot
-			regex = self.parsedtokens[j+1].val[2:-2] #eliminate the ("...")
-			self.tokens.append((regex, label)) 
-			i += 1
-			j += 2
-		self.i, self.j = i, j
