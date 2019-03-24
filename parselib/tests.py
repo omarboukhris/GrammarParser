@@ -15,8 +15,6 @@ def test_syntax_pipeline (verbose=False) :
 
 	parseinst.loadGrammar("data/grammar.grm", verbose=verbose)
 	
-	print (parseinst.grammar)
-
 	final = parseinst.processSource("data/test.java", verbose=verbose)
 
 	print (final) #datastructure with parsed savable data
