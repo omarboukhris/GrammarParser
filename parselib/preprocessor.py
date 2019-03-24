@@ -1,6 +1,3 @@
-from parselib.naiveparsers 	import GenericGrammarTokenizer
-from parselib.lexlib		import Tokenizer
-from parselib.io			import gettextfilecontent
 
 class DummyPreprocessor :
 	
@@ -38,7 +35,6 @@ class OnePassPreprocessor :
 	def preprocess (self, filename, tokenlist) :
 		self.removeFromQueue (filename)
 		
-		# if processed then exit function
 		if self.isProcessed(filename) :
 			return []
 

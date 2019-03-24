@@ -31,7 +31,3 @@ def test_load_gram_from_file (filename) :
 	final = parseinst.processSource("data/test.java", verbose=True)
 
 	print (final) #datastructure with parsed savable data
-
-
-
-

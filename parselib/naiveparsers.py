@@ -131,73 +131,30 @@ class SequentialParser :
 			return
 		while self.grammar[i].type == "RSIDE" :
 
+			if self.parsedtokens[j].type == "TERMINAL" :
+				self.parsedtokens[j].val = self.parsedtokens[j].val[:-1] #eliminate . at terminals
+
 			if self.parsedtokens[j].type == "STR" :
-				nodename = self.parsedtokens[j+1].val
-				if self.parsedtokens[j+1].type == "TERMINAL" :
-					nodename = nodename[:-1]
-				#add to strnodes
-				if not nodename in self.strnodes :
-					self.strnodes.append(nodename)
-
-				# add to keeper to tell the parser to save this node's content
-				if self.current_rule in self.keeper.keys():
-					self.keeper[self.current_rule].append(self.parsedtokens[j + 1])
-				else:
-					self.keeper[self.current_rule] = [self.parsedtokens[j + 1]]
-
-				if not self.parsedtokens[j + 1].val in self.keeper["all"]:
-					if self.parsedtokens[j + 1].type == "TERMINAL":
-						self.keeper["all"].append(self.parsedtokens[j + 1].val[:-1])
-					else:
-						self.keeper["all"].append(self.parsedtokens[j + 1].val)
+				self.addtostr(j)
+				self.addtokeeper(j)
 				j+=1
 				i+=1
 				continue
 
 			if self.parsedtokens[j].type == "LIST" :
-				thisnode = Token ("NONTERMINAL", self.current_rule, 0)
-				eps = Token("EMPTY", '""', 0)
-				self.production_rules[self.current_rule][-1] = [thisnode, thisnode]
-				self.production_rules[self.current_rule].append([eps])
+				self.makelist()
 				j+=1
 				i+=1
 				continue
 
 			if self.parsedtokens[j].type == "EXCL" :
-
-				#add to keeper to tell the parser to save this node's content
-				if self.current_rule in self.keeper.keys() :
-					self.keeper[self.current_rule].append(self.parsedtokens[j+1])
-				else :
-					self.keeper[self.current_rule] = [self.parsedtokens[j+1]]
-
-				if not self.parsedtokens[j+1].val in self.keeper["all"] :
-					if self.parsedtokens[j+1].type == "TERMINAL" :
-						self.keeper["all"].append(self.parsedtokens[j+1].val[:-1])
-					else :
-						self.keeper["all"].append(self.parsedtokens[j+1].val)
+				self.addtokeeper(j)
 				j += 1
 				i += 1
 				continue
 
-			if self.parsedtokens[j].type == "TERMINAL" :
-				self.parsedtokens[j].val = self.parsedtokens[j].val[:-1] #eliminate . at terminals
-
 			if self.parsedtokens[j].val.find('=') != -1 :
-
-				label, operand= self.parsedtokens[j].val.split('=', 1)
-				self.parsedtokens[j].val = operand
-				if self.current_rule in self.labels.keys() :
-					self.labels[self.current_rule].update({operand : label})
-				else :
-					self.labels[self.current_rule] = {operand : label}
-
-				if self.current_rule in self.keeper.keys() :
-					self.keeper[self.current_rule].append(label)
-				else :
-					self.keeper[self.current_rule] = [label]
-				if not label in self.keeper["all"] :
-					self.keeper["all"].append(label)
+				self.processlabel(j)
 
 			self.production_rules[self.current_rule][-1].append(self.parsedtokens[j])
 			i += 1
@@ -205,6 +162,44 @@ class SequentialParser :
 			if i <= len(self.grammar) :
 				break
 		self.i, self.j = i, j
+
+	def processlabel(self, j):
+		label, operand = self.parsedtokens[j].val.split('=', 1)
+		self.parsedtokens[j].val = operand
+		if self.current_rule in self.labels.keys():
+			self.labels[self.current_rule].update({operand: label})
+		else:
+			self.labels[self.current_rule] = {operand: label}
+		if self.current_rule in self.keeper.keys():
+			self.keeper[self.current_rule].append(label)
+		else:
+			self.keeper[self.current_rule] = [label]
+		if not label in self.keeper["all"]:
+			self.keeper["all"].append(label)
+
+	# operators on grammar datastructure
+	def makelist(self):
+		thisnode = Token("NONTERMINAL", self.current_rule, 0)
+		eps = Token("EMPTY", '""', 0)
+		self.production_rules[self.current_rule][-1] = [thisnode, thisnode]
+		self.production_rules[self.current_rule].append([eps])
+
+	def addtokeeper(self, j):
+		# add to keeper to tell the parser to save this node's content
+		if self.current_rule in self.keeper.keys():
+			self.keeper[self.current_rule].append(self.parsedtokens[j + 1])
+		else:
+			self.keeper[self.current_rule] = [self.parsedtokens[j + 1]]
+		if not self.parsedtokens[j + 1].val in self.keeper["all"]:
+			self.keeper["all"].append(self.parsedtokens[j + 1].val)
+
+	def addtostr(self, j):
+		nodename = self.parsedtokens[j + 1].val
+		if self.parsedtokens[j + 1].type == "TERMINAL":
+			nodename = nodename[:-1]
+		# add to strnodes
+		if not nodename in self.strnodes:
+			self.strnodes.append(nodename)
 
 	def checkfortoken (self) :
 		i, j = self.i, self.j
@@ -217,9 +212,3 @@ class SequentialParser :
 			i += 1
 			j += 2
 		self.i, self.j = i, j
-
-
-
-
-
-

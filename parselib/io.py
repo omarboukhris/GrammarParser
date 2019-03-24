@@ -28,7 +28,14 @@ class Printer :
 		print ("[error] ", *ss)
 
 def gettextfilecontent (filename):
-	fs = open(filename, "r")
-	source = "".join(fs.readlines())
-	fs.close()
-	return source
+	try :
+		fs = open(filename, "r")
+		source = "".join(fs.readlines())
+		fs.close()
+		return source
+	except :
+		Printer.showerr(
+			"can't open file ", filename,
+			"\ncheck if it exists"
+		)
+		exit()

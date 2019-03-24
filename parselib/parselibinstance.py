@@ -152,28 +152,14 @@ class ParselibInstance :
 			if parent in self.grammar.labels.keys() :
 				if element.type in self.grammar.labels[parent].keys() :
 					element.type = self.grammar.labels[parent][element.type]
-			
-			
+
+
 			if StructFactory.keyInFactory(element.type) : #is savable
 
 				if StructFactory.keyIsStr(element.type): # node is str
-					#out element is str
 					out_element = StructFactory.strUnfold (element.val)
 				else :
-					#check if object in factory
-					tmpClass = StructFactory.getStruct(element.type)
-
-					#object is non terminal
-					if tmpClass != None or type(element.val) == list :
-						lst = self.__parse(
-							code=element.val,
-							parent=element.type,
-							verbose=verbose
-						) #recurse
-						out_element = tmpClass(**lst)
-
-					else : #terminal node
-						out_element = element.val
+					out_element = self.processnode (element, verbose)
 				
 				#appending to result
 				if element.type in out.keys() :
@@ -182,4 +168,21 @@ class ParselibInstance :
 					out[element.type]=[out_element]
 			i += 1
 		return out
+
+	def processnode(self, element, verbose):
+		# check if object in factory
+		tmpClass = StructFactory.getStruct(element.type)
+		# object is non terminal
+		if tmpClass != None or type(element.val) == list:
+			lst = self.__parse(
+				code=element.val,
+				parent=element.type,
+				verbose=verbose
+			)  # recurse
+			return tmpClass(**lst)
+
+		else:  # terminal node
+			return element.val
+
+
 

@@ -1,7 +1,6 @@
 from parselib.lexlib import Tokenizer
-from parselib.normoperators import *
-from parselib.generaloperators import *
-from parselib.naiveparsers import *
+from parselib.generaloperators import transformtosource, eliminatedoubles
+from parselib.naiveparsers import SequentialParser, GenericGrammarTokenizer
 
 from collections import OrderedDict as odict
 import pickle, random, json, os
@@ -33,7 +32,7 @@ class Grammar :
 				self.labels[key].update(val)
 			else :
 				self.labels[key] = val
-		
+
 		#keeper merge
 		for key, val in grammar.keeper.items() :
 			if key in self.keeper.keys() :
