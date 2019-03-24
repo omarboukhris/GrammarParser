@@ -10,9 +10,12 @@ if __name__ == '__main__':
 	if argshlex.get("--loadgram") :
 		test_grammar_loading ()
 	
-	if argshlex.get("--all") :
-		test_syntax_pipeline()
+	elif argshlex.get("--parsesave") :
+		test_parse_save (argshlex.get("--parsesave"))
+	
+	elif argshlex.get("--all") :
+		test_syntax_pipeline(argshlex.get("--all"))
 
-	if argshlex.get("--loadsaved") :
+	elif argshlex.get("--loadsaved") :
 		test_load_gram_from_file (argshlex.get("--loadsaved"))
 

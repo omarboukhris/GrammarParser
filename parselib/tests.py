@@ -1,20 +1,21 @@
 from parselib.parselibinstance import *
 
-def test_syntax_pipeline () :
+def processverbose (verbose) :
+	try :
+		return int(verbose) != 0
+	except :
+		print ("ValueError : verbose set on True")
+		return True
+
+
+def test_syntax_pipeline (verbose=False) :
+	verbose = processverbose (verbose)
+	
 	parseinst = ParselibInstance ()
 
-	#test grammar loading
-	parseinst.loadGrammar("data/grammar.grm", verbose=False)
-	print (parseinst.grammar)
-	
-	#graph exportation using dot
-	#parseinst.grammar.saveGraph ("data/out")
+	parseinst.loadGrammar("data/grammar.grm", verbose=verbose)
 
-	#serialization
-	#parseinst.grammar.save("data/somewhere.pkl")
-	#parseinst.grammar.load("data/somewhere.pkl")
-
-	final = parseinst.processSource("data/test.java", verbose=True)
+	final = parseinst.processSource("data/test.java", verbose=verbose)
 
 	print (final) #datastructure with parsed savable data
 
@@ -24,6 +25,20 @@ def test_grammar_loading () :
 
 	#test grammar loading
 	parseinst.loadGrammar("data/grammar.grm", verbose=True)
+
+def test_parse_save (verbose=False) :
+	verbose = processverbose (verbose) 
+	
+	parseinst = ParselibInstance ()
+
+	#test grammar loading
+	parseinst.loadGrammar("data/grammar.grm", verbose=verbose)
+	
+	#graph exportation using dot
+	parseinst.grammar.saveGraph ("data/out")
+
+	#serialization
+	parseinst.grammar.save("data/somewhere.pkl")
 
 def test_load_gram_from_file (filename) :	
 	parseinst = ParselibInstance ()

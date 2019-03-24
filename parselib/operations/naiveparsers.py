@@ -33,12 +33,12 @@ class GenericGrammarTokenizer :
 	]
 	
 	genericgrammarprodrules = [
-		('LINECOMMENT',					          'LINECOMMENT'),
-		(r'AXIOM EQUAL (NONTERMINAL|GENERATOR)',		'AXIOM'),
-		(r'TERMINAL REGEX',								'TOKEN'),
+		('LINECOMMENT',						          'LINECOMMENT'),
+		(r'AXIOM EQUAL (NONTERMINAL|GENERATOR)',			'AXIOM'),
+		(r'TERMINAL REGEX',									'TOKEN'),
 
-		(r'NONTERMINAL EQUAL',							'LSIDE'),
-		(r'EXCL|STR|LIST|TERMINAL|NONTERMINAL|EMPTY',	'RSIDE'),
+		(r'NONTERMINAL EQUAL',								'LSIDE'),
+		(r'EXCL|STR|LIST|REGEX|TERMINAL|NONTERMINAL|EMPTY',	'RSIDE'),
 
 		('OR',			'OR'),
 		#('COMMA',		'COMMA'),
