@@ -1,0 +1,13 @@
+
+attribute -> 
+	!visibility. 
+	t=type. 
+	att_name=identifier. 
+semic. 
+
+
+method -> 
+	visibility. 
+	t=type. 
+	met_name=identifier. 
+lpar. rpar. lcrch. rcrch. semic.
