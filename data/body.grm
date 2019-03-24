@@ -1,7 +1,9 @@
-%import "data/body_.grm"
+
+%import "data/members.grm"
+
 //fix whatever this is
 classbody -> 
-// 	!method |
-	!attribute | 
-	!classes | 
+ 	!method |
+	s:attribute | //s: operator
+	!classes |
 __list__ // ~~~ classbody classbody | epsilon

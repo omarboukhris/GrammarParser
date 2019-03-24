@@ -1,7 +1,7 @@
 from parselib.lexlib import Token
-from parselib.generaloperators import eliminatedoubles, getunitrelation, removenullables
 from collections import OrderedDict as odict
-from copy import deepcopy
+
+from parselib.generaloperators import eliminatedoubles, getunitrelation, removenullables
 
 def getcnf (grammar) :
 	production_rules = grammar.production_rules
@@ -75,7 +75,7 @@ class BIN :
 
 	def binonce (self) :
 		normalForm = odict ()
-		production_rules = deepcopy(self.production_rules)
+		production_rules = self.production_rules
 		changed = False
 		for key, rules in production_rules.items () :
 			if not (key in normalForm.keys ()) :
@@ -174,66 +174,45 @@ class DEL :
 		op1_allcool, op2_allcool = (not op1_erasable and not op1_nullable), (not op2_erasable and not op2_nullable)
 		
 		if op1_erasable and op2_erasable :
-			fixedrules.append (
-				[Token("EMPTY", '""', op1.pos)]
-			)
+			fixedrules = self.addempty(fixedrules)
 		elif op1_erasable and op2_nullable :
-			fixedrules.append (
-				[Token("EMPTY", '""', op1.pos)]
-			)
-			fixedrules.append (
-				[op2]
-			)
+			fixedrules = self.addempty(fixedrules)
+			fixedrules = self.addrule(fixedrules, [op2])
+
 		elif op1_erasable and op2_allcool :
-			fixedrules.append (
-				[op2]
-			)
+			fixedrules = self.addrule(fixedrules, [op2])
+
 		elif op1_nullable and op2_erasable :
-			fixedrules.append (
-				[Token("EMPTY", '""', op1.pos)]
-			)
-			fixedrules.append (
-				[op1]
-			)
+			fixedrules = self.addempty(fixedrules)
+			fixedrules = self.addrule(fixedrules, [op1])
+
 		elif op1_nullable and op2_nullable :
-			fixedrules.append (
-				[Token("EMPTY", '""', op1.pos)]
-			)
-			fixedrules.append (
-				[op1]
-			)
-			fixedrules.append (
-				[op2]
-			)
-			fixedrules.append (
-				[op1, op2]
-			)
+			fixedrules = self.addempty(fixedrules)
+			fixedrules = self.addrule(fixedrules, [op1])
+			fixedrules = self.addrule(fixedrules, [op2])
+			fixedrules = self.addrule(fixedrules, [op1, op2])
 		elif op1_nullable and op2_allcool :
-			fixedrules.append (
-				[op2]
-			)
-			fixedrules.append (
-				[op1, op2]
-			)
+			fixedrules = self.addrule(fixedrules, [op2])
+			fixedrules = self.addrule(fixedrules, [op1, op2])
+
 		elif op1_allcool and op2_erasable :
-			fixedrules.append (
-				[op1]
-			)
+			fixedrules = self.addrule(fixedrules, [op1])
 		elif op1_allcool and op2_nullable :
-			fixedrules.append (
-				[op1, op2]
-			)
-			fixedrules.append (
-				[op1]
-			)
+			fixedrules = self.addrule(fixedrules, [op1, op2])
+			fixedrules = self.addrule(fixedrules, [op1])
 		elif op1_allcool and op2_allcool :
-			fixedrules.append (
-				[op1, op2]
-			)
+			fixedrules = self.addrule(fixedrules, [op1, op2])
 		return True, fixedrules
 
+	def addrule(self, fixedrules, rule):
+		fixedrules.append(rule)
 
-	
+	def addempty(self, fixedrules):
+		fixedrules.append(
+			[Token("EMPTY", '""', 0)]
+		)
+		return fixedrules
+
 	def getemptykeys (self) :
 		production_rules = odict ()
 		keys = []

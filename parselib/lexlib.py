@@ -27,6 +27,7 @@ class Tokenizer :
 				tokenized.append(tok)
 		except LexerError as err:
 			print('LexerError at position {pos}'.format(pos=err.pos))
+			exit ()
 		self.tokenized = tokenized
 
 	def __str__ (self) :

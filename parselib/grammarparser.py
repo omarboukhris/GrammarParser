@@ -1,7 +1,6 @@
 from parselib.lexlib import Tokenizer
-from parselib.normoperators import *
-from parselib.generaloperators import *
-from parselib.naiveparsers import *
+from parselib.generaloperators import transformtosource, eliminatedoubles
+from parselib.naiveparsers import SequentialParser, GenericGrammarTokenizer
 
 from collections import OrderedDict as odict
 import pickle, random, json, os
@@ -14,6 +13,7 @@ class Grammar :
 		self.labels = odict()
 		self.keeper = odict()
 		self.unitrelation = odict()
+		self.strnodes = list()
 		self.tokens = list()
 
 	def merge (self, grammar) :
@@ -32,7 +32,7 @@ class Grammar :
 				self.labels[key].update(val)
 			else :
 				self.labels[key] = val
-		
+
 		#keeper merge
 		for key, val in grammar.keeper.items() :
 			if key in self.keeper.keys() :
@@ -41,6 +41,7 @@ class Grammar :
 				self.keeper[key] = val
 			
 			self.keeper["all"] = list(set(self.keeper["all"]+val))
+		self.strnodes += grammar.strnodes
 
 
 
@@ -57,18 +58,19 @@ class Grammar :
 		"""
 		ngp = SequentialParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
 
-		ngp.parse () 
+		ngp.parse ()
 
 		self.production_rules = ngp.production_rules
 		self.tokens = ngp.tokens
 		self.labels = ngp.labels
-		
+		self.strnodes = ngp.strnodes
+
 		self.keeper = odict() #ngp.keeper
 		for k, val in ngp.keeper.items() :
 			self.keeper[k] = [v.val if type(v) != str else v for v in val]
-		
-		self = eliminatedoubles (self)
 
+
+		self = eliminatedoubles (self)
 		#gramtest = checkproductionrules(self.production_rules) #is fuckedup
 		#return gramtest
 		return []
@@ -109,6 +111,7 @@ class Grammar :
 		pickle.dump (self.unitrelation, serialFile)
 		pickle.dump (self.labels, serialFile)
 		pickle.dump (self.keeper, serialFile)
+		pickle.dump (self.strnodes, serialFile)
 		pickle.dump (self.tokens, serialFile)
 		serialFile.close()
 	def load (self, filename) :
@@ -118,6 +121,7 @@ class Grammar :
 		self.unitrelation = pickle.load (serialFile)
 		self.labels = pickle.load (serialFile)
 		self.keeper = pickle.load (serialFile)
+		self.strnodes = pickle.load(serialFile)
 		self.tokens = pickle.load (serialFile)
 		serialFile.close()
 
@@ -144,7 +148,9 @@ class Grammar :
 				) for key, val in self.keeper.items()
 			])
 		)
-
+		text_rule += "STRNODE = [\n{}\n]\n\n".format(
+			"".join(self.strnodes)
+		)
 		for regex, label in self.tokens :
 			text_rule += "TOKEN " + label + " = regex('" + regex + "')\n"
 

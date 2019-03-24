@@ -10,8 +10,8 @@ def test_syntax_pipeline () :
 	parseinst.grammar.saveGraph ("data/out")
 
 	#serialization
-	parseinst.grammar.save("data/somewhere.pkl")
-	parseinst.grammar.load("data/somewhere.pkl")
+	#parseinst.grammar.save("data/somewhere.pkl")
+	#parseinst.grammar.load("data/somewhere.pkl")
 
 	final = parseinst.processSource("data/test.java", verbose=True)
 
@@ -31,7 +31,3 @@ def test_load_gram_from_file (filename) :
 	final = parseinst.processSource("data/test.java", verbose=True)
 
 	print (final) #datastructure with parsed savable data
-
-
-
-

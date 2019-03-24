@@ -1,21 +1,46 @@
 from parselib.grammarparser	 import GenericGrammarParser, Grammar
 from parselib.parsers		 import CYKParser
 from parselib.normoperators	 import get2nf
-from parselib.lexlib		 import Tokenizer
+from parselib.lexlib		 import Tokenizer, Token
 from parselib.io			 import Printer, gettextfilecontent
 from parselib.preprocessor	 import OnePassPreprocessor
 
 from collections import OrderedDict as odict, namedtuple
 
+
 class StructFactory :
+	"""Factory generating dataformat from grammar after parsing
+	"""
 	struct = odict()
 	keeper_all = []
 	keeper = odict()
+	strnodes = list()
 
 	@staticmethod
+	def keyInFactory (key) :
+		return key in StructFactory.keeper_all
+	@staticmethod
+	def keyIsStr (key) :
+		return key in StructFactory.strnodes
+	@staticmethod
+	def strUnfold (node) :
+		ss = ""
+		for n in node :
+			if type(n) == Token :
+				ss += n.val + " " #last leaf
+			elif type (n) == list :
+				ss += StructFactory.strUnfold(n)
+			else :
+				Printer.showerr("StructFactory.StrUnfold : TypeError")
+				exit ()
+		return ss.strip() #make it tight 
+	@staticmethod
 	def readGrammar (grammar) :
-		struct = odict()
 		StructFactory.keeper_all = grammar.keeper["all"]
+		StructFactory.strnodes = grammar.strnodes
+		StructFactory.keeper = grammar.keeper
+
+		struct = odict()
 		del grammar.keeper["all"]
 		for key, val in grammar.keeper.items() :
 			structname = key.capitalize()
@@ -23,11 +48,7 @@ class StructFactory :
 			#Printer.showinfo ("next in factory : ", key, "::", components)
 			struct[key] = namedtuple(structname, components, defaults=(None,)*len(components))
 		StructFactory.struct = struct
-		StructFactory.keeper = grammar.keeper
 
-	@staticmethod
-	def keyInFactory (key) :
-		return key in StructFactory.keeper_all
 
 	@staticmethod
 	def getStruct (structname) :
@@ -131,19 +152,14 @@ class ParselibInstance :
 			if parent in self.grammar.labels.keys() :
 				if element.type in self.grammar.labels[parent].keys() :
 					element.type = self.grammar.labels[parent][element.type]
-			
-			
+
+
 			if StructFactory.keyInFactory(element.type) : #is savable
 
-				#get node from factory
-				tmpClass = StructFactory.getStruct(element.type)
-				
-				#object is non terminal
-				if tmpClass != None or type(element.val) == list :
-					lst = self.__parse(element.val, element.type, verbose) #recurse
-					out_element = tmpClass(**lst)
-				else : #terminal node
-					out_element = element.val
+				if StructFactory.keyIsStr(element.type): # node is str
+					out_element = StructFactory.strUnfold (element.val)
+				else :
+					out_element = self.processnode (element, verbose)
 				
 				#appending to result
 				if element.type in out.keys() :
@@ -152,4 +168,21 @@ class ParselibInstance :
 					out[element.type]=[out_element]
 			i += 1
 		return out
+
+	def processnode(self, element, verbose):
+		# check if object in factory
+		tmpClass = StructFactory.getStruct(element.type)
+		# object is non terminal
+		if tmpClass != None or type(element.val) == list:
+			lst = self.__parse(
+				code=element.val,
+				parent=element.type,
+				verbose=verbose
+			)  # recurse
+			return tmpClass(**lst)
+
+		else:  # terminal node
+			return element.val
+
+
 

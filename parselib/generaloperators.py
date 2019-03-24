@@ -127,6 +127,7 @@ def removenullables (grammar) :
 def getunitrelation (grammar) :
 	"""calculates unit relations (used in cyk2nf) in a grammar
 	may cause bugs? to check
+	Re-read the paper one of these days
 	
 	Parameters
 	grammar : grammar
