@@ -1,5 +1,23 @@
 from parselib.parselibinstance import *
 
+class ArgvLex :
+	
+	def __init__ (self, argv) :
+		self.parsedargv = {}
+		for arg in argv :
+			s = arg.split("=")
+			if len(s) == 1 :
+				self.parsedargv[s[0]] = True
+			elif len(s) == 2 :
+				self.parsedargv[s[0]] = s[1]
+			#else :
+				#pass
+	def get (self, key) :
+		if key in self.parsedargv.keys() :
+			return self.parsedargv[key]
+		return False
+		
+
 def test_syntax_pipeline () :
 	parseinst = ParselibInstance ()
 
@@ -20,8 +38,7 @@ def test_syntax_pipeline () :
 
 def test_grammar_loading () :
 	parseinst = ParselibInstance ()
-	
-	
+
 	#test grammar loading
 	parseinst.loadGrammar("data/grammar.grm", verbose=True)
 

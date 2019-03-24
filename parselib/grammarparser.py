@@ -1,7 +1,6 @@
 from parselib.lexlib import Tokenizer
 from parselib.normoperators import *
 from parselib.generaloperators import *
-from parselib.preprocessor import *
 from parselib.naiveparsers import *
 
 from collections import OrderedDict as odict
@@ -127,7 +126,7 @@ class Grammar :
 
 class GenericGrammarParser :
 	
-	def __init__ (self, preproc=OnePassPreprocessor()) :
+	def __init__ (self, preproc) :
 		
 		#preprocessor class
 		self.preproc = preproc

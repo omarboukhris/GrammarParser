@@ -3,6 +3,7 @@ from parselib.parsers		 import CYKParser
 from parselib.normoperators	 import get2nf
 from parselib.lexlib		 import Tokenizer
 from parselib.io			 import Printer, gettextfilecontent
+from parselib.preprocessor	 import OnePassPreprocessor
 
 from collections import OrderedDict as odict, namedtuple
 
@@ -57,7 +58,7 @@ class ParselibInstance :
 				string path to file containing text to load
 		"""
 
-		gramparser = GenericGrammarParser ()
+		gramparser = GenericGrammarParser (OnePassPreprocessor())
 		grammar = gramparser.parse (filename, verbose=verbose)
 
 		#normalization
