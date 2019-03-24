@@ -14,6 +14,7 @@ class Grammar :
 		self.labels = odict()
 		self.keeper = odict()
 		self.unitrelation = odict()
+		self.strnodes = odict()
 		self.tokens = list()
 
 	def merge (self, grammar) :
@@ -66,9 +67,12 @@ class Grammar :
 		self.keeper = odict() #ngp.keeper
 		for k, val in ngp.keeper.items() :
 			self.keeper[k] = [v.val if type(v) != str else v for v in val]
-		
-		self = eliminatedoubles (self)
 
+		self.strnodes = odict()
+		for k, val in ngp.strnodes.items() :
+			self.strnodes[k] = [v.val if type(v) != str else v for v in val]
+
+		self = eliminatedoubles (self)
 		#gramtest = checkproductionrules(self.production_rules) #is fuckedup
 		#return gramtest
 		return []
@@ -144,7 +148,13 @@ class Grammar :
 				) for key, val in self.keeper.items()
 			])
 		)
-
+		text_rule += "STRNODE = [\n{}\n]\n\n".format(
+			"".join([
+				"\t{} : {{\n\t\t{}\n\t}}\n".format(
+					key, ", \n\t\t".join([str(v) for v in val])
+				) for key, val in self.strnodes.items()
+			])
+		)
 		for regex, label in self.tokens :
 			text_rule += "TOKEN " + label + " = regex('" + regex + "')\n"
 

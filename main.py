@@ -6,7 +6,7 @@ import sys
 if __name__ == '__main__':
 	#command line argument parser
 	argshlex = ArgvLex (sys.argv[1:])
-	#test_grammar_loading()
+	test_grammar_loading()
 	if argshlex.get("--loadgram") :
 		test_grammar_loading ()
 	

@@ -16,6 +16,7 @@ class GenericGrammarTokenizer :
 		# SPECIAL OPERATORS
 		('(\_\_list\_\_|\[\])',			'LIST'),
 		('!',							'EXCL'),
+		('s\:',							'STR'),
 		
 		('\(\".*\"\)',					'REGEX'),
 		('(\->|\=)',					'EQUAL'),
@@ -32,12 +33,12 @@ class GenericGrammarTokenizer :
 	]
 	
 	genericgrammarprodrules = [
-		('LINECOMMENT',								'LINECOMMENT'),
-		(r'AXIOM EQUAL (NONTERMINAL|GENERATOR)',	'AXIOM'),
-		(r'TERMINAL REGEX',							'TOKEN'),
+		('LINECOMMENT',					          'LINECOMMENT'),
+		(r'AXIOM EQUAL (NONTERMINAL|GENERATOR)',		'AXIOM'),
+		(r'TERMINAL REGEX',								'TOKEN'),
 
-		(r'NONTERMINAL EQUAL',						'LSIDE'),
-		(r'EXCL|LIST|TERMINAL|NONTERMINAL|EMPTY',	'RSIDE'),
+		(r'NONTERMINAL EQUAL',							'LSIDE'),
+		(r'EXCL|STR|LIST|TERMINAL|NONTERMINAL|EMPTY',	'RSIDE'),
 
 		('OR',			'OR'),
 		#('COMMA',		'COMMA'),
@@ -58,16 +59,21 @@ TODO :
 """
 class SequentialParser :
 	def __init__ (self, grammar, parsedtokens) :
+
+		self.axiomflag = True
+
 		self.production_rules = odict()
-		self.labels = odict()
+
+		self.strnodes = odict()
 		self.keeper = odict({'all' : []})
+		self.labels = odict()
+
 		self.tokens = list()
-		
+
 		self.grammar = grammar
 		self.parsedtokens = parsedtokens
-		
-		self.axiomflag = True
-		
+
+
 		self.i, self.j, self.current_rule = 0, 0, ""
 
 	def parse (self) :
@@ -124,6 +130,28 @@ class SequentialParser :
 		if not i < len(self.grammar) :
 			return
 		while self.grammar[i].type == "RSIDE" :
+
+			if self.parsedtokens[j].type == "STR" :
+				#add to strnodes
+				if self.current_rule in self.strnodes.keys() :
+					self.strnodes[self.current_rule].append(self.parsedtokens[j+1])
+				else :
+					self.strnodes[self.current_rule] = [self.parsedtokens[j+1]]
+
+				#add to keeper to tell the parser to save this node's content
+				if self.current_rule in self.keeper.keys() :
+					self.keeper[self.current_rule].append(self.parsedtokens[j+1])
+				else :
+					self.keeper[self.current_rule] = [self.parsedtokens[j+1]]
+
+				if not self.parsedtokens[j+1].val in self.keeper["all"] :
+					if self.parsedtokens[j+1].type == "TERMINAL" :
+						self.keeper["all"].append(self.parsedtokens[j+1].val[:-1])
+					else :
+						self.keeper["all"].append(self.parsedtokens[j+1].val)
+				j+=1
+				i+=1
+				continue
 
 			if self.parsedtokens[j].type == "LIST" :
 				thisnode = Token ("NONTERMINAL", self.current_rule, 0)
