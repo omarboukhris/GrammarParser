@@ -152,6 +152,8 @@ class SequentialParser :
 			
 			elif self.parsedtokens[j].type == "LIST" :
 				self.makelist()
+			elif self.parsedtokens[j].type == "REGEX" :
+				self.makeregex()
 
 			elif self.parsedtokens[j].type == "EXCL" :
 				#naming process
@@ -194,7 +196,18 @@ class SequentialParser :
 		eps = Token("EMPTY", '""', 0)
 		self.production_rules[self.current_rule][-1] = [thisnode, thisnode]
 		self.production_rules[self.current_rule].append([eps])
+	
+	def makeregex(self):
+		
+		regex = self.parsedtokens[j].val[2:-2] #eliminate the ("...")
 
+		label = "__" + self.current_rule + "[" + regex + "]__"
+		
+		self.tokens.append((regex, label)) 
+
+		thisnode = Token("TERMINAL", self.label, 0)
+		self.production_rules[self.current_rule][-1].append(thisnode)
+		
 	def addtokeeper(self, j):
 		# add to keeper to tell the parser to save this node's content
 		if self.current_rule in self.keeper.keys():
