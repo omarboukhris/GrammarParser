@@ -4,7 +4,6 @@ from parselib.io	import ArgvLex
 import sys
 
 if __name__ == '__main__':
-
 	#command line argument parser
 	argshlex = ArgvLex (sys.argv[1:])
 	#test_grammar_loading()
@@ -16,3 +15,4 @@ if __name__ == '__main__':
 	
 	if argshlex.get("--loadsaved") :
 		test_load_gram_from_file (argshlex.get("--loadsaved"))
+

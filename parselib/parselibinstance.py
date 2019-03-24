@@ -7,6 +7,9 @@ from parselib.preprocessor	 import OnePassPreprocessor
 
 from collections import OrderedDict as odict, namedtuple
 
+"""
+"""
+
 class StructFactory :
 	struct = odict()
 	keeper_all = []
