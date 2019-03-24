@@ -1,4 +1,4 @@
-# Grammar parselib
+## Grammar parselib
 
 This is intended to be a simple yet "efficient" (as efficient as Python can be) framework for context free grammar (CFG) parsing.
 
@@ -212,16 +212,17 @@ It is possible to break a grammar in submodules, importable using :
 
 AXIOM -> //...
 ```
-NOTE:Doesn't support path
+The preprocessor is protected against nested imports.
+NOTE:Doesn't support path yet
 
 ### Str :
 
-If you want to convert a non terminal node's value to str, the `s:` operator can be used.
+If you want to convert a non terminal node's value to str instead of catching a strucutre, the `s:` operator can be used to convert the node to a string.
 ```javascript
 //...
-someHeader -> s:complexNode theRestofit | '' //...
+someHeader -> s:complexNodeToConvert theRestofit | '' //...
 ```
-
+This is mainly to catch strings that regexs can't.
 
 
 
