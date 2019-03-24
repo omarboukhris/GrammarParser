@@ -38,114 +38,6 @@ a.("a") //terminals/tokens are regex for efficiency/convenience purposes
 b.("b") //{a., b.} are terminals
 ```
 
-### Graph encoder for generic textual CFG
-
-```python
-#import important stuff
-from parselib.grammarparser import GenericGrammarParser
-
-#load grammar file
-fstream = open ("dummygrammar.grm", "r")
-txtgrammar = "".join(fstream.readlines())
-fstream.close ()
-
-#create parser object
-gramparser = GenericGrammarParser ()
-grammar = gramparser.parse (txtgrammar) #, verbose=True) #you can make the parser talk
-
-print (grammar)	#print result
-```
-Results on display :
-```javascript
-RULE AXIOM = [
-	S(NONTERMINAL)
-]
-RULE S = [
-	a(TERMINAL) + S(NONTERMINAL) + b(TERMINAL)
-	''(EMPTY)
-]
-
-TOKEN a = regex('a')
-TOKEN b = regex('b')
-```
-### Operators for grammar transformation ...
-
-...to Chomsky Normal Form (or any other less restricted normal form, like 2NF<sup>[1]</sup>)
-
-- TERM : creates production rule pointing to a specific terminal for each terminal in a production rule
-- BIN  : binarize all rules
-- DEL  : eliminates epsilone rules (grammar must be binned)
-- UNIT : eliminates unit rules (grammar must be binned)
-
-Note : START operator is forced by the language by the AXIOM keyword
-
-```python
-from parselib.normoperators import TERM, BIN, DEL, UNIT
-
-def getcnf (grammar) :
-	production_rules = grammar.production_rules
-	term = TERM (production_rules) # creates operator
-	term.apply () # process the rules
-	bins = BIN (term.production_rules) # ...
-	bins.apply ()
-	dels = DEL (bins.production_rules)
-	dels.apply ()
-	unit = UNIT (dels.production_rules)
-	unit.apply ()
-	grammar.production_rules = unit.production_rules
-	return grammar
-	
-grammar = getcnf (grammar)
-print (grammar)
-```
-Result on display :
-```javascript
-RULE AXIOM = [
-	S(NONTERMINAL)
-]
-RULE S = [
-	a.(NONTERMINAL) + S-b(NONTERMINAL)
-]
-RULE S-b = [
-	S(NONTERMINAL) + b.(NONTERMINAL)
-	b(TERMINAL)
-]
-RULE a. = [
-	a(TERMINAL)
-]
-RULE b. = [
-	b(TERMINAL)
-]
-
-TOKEN a = regex('a')
-TOKEN b = regex('b')
-```
-### CYK parsers for grammars in 2NF<sup>[1]</sup>
-
-```python
-#import the good stuff
-from parselib.parsers       import CYKParser as CYK
-from parselib.normoperators	import get2nf
-# ... load, parse and normalize grammar
-
-#CNF is deprecated for CYK parser
-grammar = get2nf (grammar)
-
-langraph = CYK (grammar) 
-
-#tokenizer to transform source code to tokens
-TokCode = Tokenizer(grammar.tokens) 
-#grammar.tokens are language tokens parsed from the file (the regex'es)
-
-#load source to parse
-litterature = "some word for membership checking in full text"
-TokCode.parse (litterature) # tokenize source code
-
-# this is where the magic happens
-x = langraph.membership (TokCode.tokenized) 
-```
-x is false if *word* is not contained in the language, otherwise can unfold a parse tree
-
 ### Main interface :
 
 All the mentioned functions and more are wrapped in a utility class (`parselib.parselibinstance.ParselibInstance`).
@@ -237,6 +129,116 @@ If you want to convert a non terminal node's value to str instead of catching a 
 someHeader -> s:complexNodeToConvert theRestofit | '' //...
 ```
 This is mainly to catch strings that regexs can't.
+
+## Under the hood
+
+### Graph encoder for generic textual CFG
+
+```python
+#import important stuff
+from parselib.parsers.grammarparser import GenericGrammarParser
+
+#load grammar file
+fstream = open ("dummygrammar.grm", "r")
+txtgrammar = "".join(fstream.readlines())
+fstream.close ()
+
+#create parser object
+gramparser = GenericGrammarParser ()
+grammar = gramparser.parse (txtgrammar) #, verbose=True) #you can make the parser talk
+
+print (grammar)	#print result
+```
+Results on display :
+```javascript
+RULE AXIOM = [
+	S(NONTERMINAL)
+]
+RULE S = [
+	a(TERMINAL) + S(NONTERMINAL) + b(TERMINAL)
+	''(EMPTY)
+]
+
+TOKEN a = regex('a')
+TOKEN b = regex('b')
+```
+### Operators for grammar transformation 
+
+to Chomsky Normal Form (or any other less restricted normal form, like 2NF<sup>[1]</sup>)
+
+- TERM : creates production rule pointing to a specific terminal for each terminal in a production rule
+- BIN  : binarize all rules
+- DEL  : eliminates epsilone rules (grammar must be binned)
+- UNIT : eliminates unit rules (grammar must be binned)
+
+Note : START operator is forced by the language by the AXIOM keyword
+
+```python
+from parselib.operations.normoperators import TERM, BIN, DEL, UNIT
+
+def getcnf (grammar) :
+	production_rules = grammar.production_rules
+	term = TERM (production_rules) # creates operator
+	term.apply () # process the rules
+	bins = BIN (term.production_rules) # ...
+	bins.apply ()
+	dels = DEL (bins.production_rules)
+	dels.apply ()
+	unit = UNIT (dels.production_rules)
+	unit.apply ()
+	grammar.production_rules = unit.production_rules
+	return grammar
+	
+grammar = getcnf (grammar)
+print (grammar)
+```
+Result on display :
+```javascript
+RULE AXIOM = [
+	S(NONTERMINAL)
+]
+RULE S = [
+	a.(NONTERMINAL) + S-b(NONTERMINAL)
+]
+RULE S-b = [
+	S(NONTERMINAL) + b.(NONTERMINAL)
+	b(TERMINAL)
+]
+RULE a. = [
+	a(TERMINAL)
+]
+RULE b. = [
+	b(TERMINAL)
+]
+
+TOKEN a = regex('a')
+TOKEN b = regex('b')
+```
+### CYK parsers for grammars in 2NF<sup>[1]</sup>
+
+```python
+#import the good stuff
+from parselib.parsers.parsers import CYKParser as CYK
+from parselib.operations.normoperators import get2nf
+# ... load, parse and normalize grammar
+
+#CNF is deprecated for CYK parser
+grammar = get2nf (grammar)
+
+langraph = CYK (grammar) 
+
+#tokenizer to transform source code to tokens
+TokCode = Tokenizer(grammar.tokens) 
+#grammar.tokens are language tokens parsed from the file (the regex'es)
+
+#load source to parse
+litterature = "some word for membership checking in full text"
+TokCode.parse (litterature) # tokenize source code
+
+# this is where the magic happens
+x = langraph.membership (TokCode.tokenized) 
+```
+x is false if *word* is not contained in the language, otherwise can unfold a parse tree
 
 
 
