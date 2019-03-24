@@ -1,0 +1,41 @@
+
+AXIOM -> productionRules
+
+productionRules ->
+	leftside=nonterminaltok. assign. rightside=listoperand |
+	leftside=terminaltok. left. rightside=regex. right. |
+	quote. rightside=regex. quote. |
+	dquote. rightside=regex. dquote. |
+__list__
+
+listoperand ->
+        operator !operand |
+        regexnode |
+__list__
+
+regexnode -> "\'" | all | "\'"
+operator -> "!" | "s:" | ''
+
+
+
+operand -> 
+	label=word "\=" termnonterm |
+	termnonterm
+
+termnonterm ->
+	!nonterminal
+	!terminal
+
+terminal -> word. "\."
+nonterminal -> word.
+
+
+word.("w*")
+
+quote.("\'")
+dquote.("\"")
+
+left.("\(")
+right.("\)")
+
+all.(".*")

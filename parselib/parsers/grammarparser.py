@@ -68,6 +68,7 @@ class Grammar :
 		self.keeper = odict() #ngp.keeper
 		for k, val in ngp.keeper.items() :
 			self.keeper[k] = [v.val if type(v) != str else v for v in val]
+			self.keeper[k] = list(set(self.keeper[k]))
 
 
 		self = eliminatedoubles (self)
@@ -144,7 +145,7 @@ class Grammar :
 		text_rule += "STRUCT = [\n{}\n]\n\n".format(
 			"".join([
 				"\t{} : {{\n\t\t{}\n\t}}\n".format (
-					key, ", \n\t\t".join([ str(v) for v in val ])
+					key, ", \n\t\t".join(val)
 				) for key, val in self.keeper.items()
 			])
 		)
