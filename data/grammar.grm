@@ -5,6 +5,6 @@
 AXIOM -> classes
 
 classes ->  
-	classdec. classname=identifier. lcrch. !classbody rcrch. semic. |
+	"class" classname=identifier. lcrch. !classbody rcrch. semic. |
 [] // list operator~~~ classes classes | eps('')
 

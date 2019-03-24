@@ -8,31 +8,30 @@ def processverbose (verbose) :
 		return True
 
 
-def test_syntax_pipeline (verbose=False) :
+def pipeline (gramfile, filename, verbose) :
 	verbose = processverbose (verbose)
 	
 	parseinst = ParselibInstance ()
 
-	parseinst.loadGrammar("data/grammar.grm", verbose=verbose)
+	parseinst.loadGrammar(gramfile, verbose=verbose)
 	
-	final = parseinst.processSource("data/test.java", verbose=verbose)
+	final = parseinst.processSource(filename, verbose)
 
 	print (final) #datastructure with parsed savable data
 
 
-def test_grammar_loading () :
+def load_grammar (filename, verbose) :
 	parseinst = ParselibInstance ()
 
-	#test grammar loading
-	parseinst.loadGrammar("data/grammar.grm", verbose=True)
+	parseinst.loadGrammar(filename, verbose)
 
-def test_parse_save (verbose=False) :
+def parse_save (filename, verbose=False) :
 	verbose = processverbose (verbose) 
 	
 	parseinst = ParselibInstance ()
 
 	#test grammar loading
-	parseinst.loadGrammar("data/grammar.grm", verbose=verbose)
+	parseinst.loadGrammar(filename, verbose=verbose)
 	
 	#graph exportation using dot
 	parseinst.grammar.saveGraph ("data/out")

@@ -8,14 +8,31 @@ if __name__ == '__main__':
 	argshlex = ArgvLex (sys.argv[1:])
 
 	if argshlex.get("--loadgram") :
-		test_grammar_loading ()
+		load_grammar (
+			argshlex.get("--loadgram"), 
+			argshlex.get("-v")
+		)
 	
 	elif argshlex.get("--parsesave") :
-		test_parse_save (argshlex.get("--parsesave"))
+		parse_save (
+			argshlex.get("--parsesave"), 
+			argshlex.get("-v")
+		)
 	
 	elif argshlex.get("--all") :
-		test_syntax_pipeline(argshlex.get("--all"))
+		pipeline(
+			argshlex.get("--gram"),
+			argshlex.get("--source"),
+			argshlex.get("-v")
+		)
 
-	elif argshlex.get("--loadsaved") :
-		test_load_gram_from_file (argshlex.get("--loadsaved"))
-
+	else :
+		print ("""
+options :
+	--loadgram=file  : load grammar
+	--parsesave=file : parse grammar file and serialize
+	--all            : load, store, parse ...
+	--gram           : grammar file
+	--source         : source file
+	-v               : verbose
+		""")

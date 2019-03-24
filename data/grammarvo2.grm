@@ -2,32 +2,30 @@
 AXIOM -> productionRules
 
 productionRules ->
-	leftside=nonterminaltok. equals. !listoperand |
-	leftside=terminaltok. beginpar. !regex. endpar. |
+	leftside=nonterminaltok. "\=" !listoperand |
+	leftside=terminaltok. left. !regex. right. |
 	productionRules productionRules |
 	''
 
 listoperand ->
-	!label. !termnonterm |
-	epsilon.
+        operator !operand |
+        regexnode |
+__list__
+regexnode -> "\'" | all | "\'"
+operator -> "!" | "s:" | ''
+
+operand -> oplabel termnonterm 
+oplabel -> !label. "="
 
 termnonterm ->
-	!terminal |
 	!nonterminaltok.
-	
-terminal ->
-	!terminaltok. |
-	!terminalregex.
+	!terminaltok. 
 
 
 label.("w*")
+terminaltok.("w*\.")
 nonterminaltok.("w*")
-equals.("w*")
-terminal.("w*")
-beginpar.("w*")
-endpar.("w*")
-regex.("w*")
-epsilon.("w*")
-terminalregex.("w*")
-terminaltok.("w*")
 
+all.(".*")
+left.("\(")
+right.("\)")
