@@ -12,16 +12,21 @@ class StructFactory :
 	"""Factory generating dataformat from grammar after parsing
 	"""
 	struct = odict()
-	keeper_all = []
 	keeper = odict()
 	strnodes = list()
 
 	@staticmethod
-	def keyInFactory (key) :
-		return key in StructFactory.keeper_all
+	def keyInFactory (parent, key) :
+		if parent == "AXIOM" : return True
+		if not parent in StructFactory.keeper.keys() :
+			return False
+
+		return key in StructFactory.keeper[parent]
+
 	@staticmethod
 	def keyIsStr (key) :
 		return key in StructFactory.strnodes
+
 	@staticmethod
 	def strUnfold (node) :
 		ss = ""
@@ -36,7 +41,6 @@ class StructFactory :
 		return ss.strip() #make it tight 
 	@staticmethod
 	def readGrammar (grammar) :
-		StructFactory.keeper_all = grammar.keeper["all"]
 		StructFactory.strnodes = grammar.strnodes
 		StructFactory.keeper = grammar.keeper
 
@@ -46,7 +50,8 @@ class StructFactory :
 			structname = key.capitalize()
 			components=[v for v in set(val)]
 			#Printer.showinfo ("next in factory : ", key, "::", components)
-			struct[key] = namedtuple(structname, components, defaults=(None,)*len(components))
+			struct[key] = namedtuple(structname, components)
+			struct[key].__new__.__defaults__ = (None,) *len(components)
 		StructFactory.struct = struct
 
 
@@ -154,7 +159,7 @@ class ParselibInstance :
 					element.type = self.grammar.labels[parent][element.type]
 
 
-			if StructFactory.keyInFactory(element.type) : #is savable
+			if StructFactory.keyInFactory(parent, element.type) : #is savable
 
 				if StructFactory.keyIsStr(element.type): # node is str
 					out_element = StructFactory.strUnfold (element.val)
