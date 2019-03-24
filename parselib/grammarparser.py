@@ -14,7 +14,7 @@ class Grammar :
 		self.labels = odict()
 		self.keeper = odict()
 		self.unitrelation = odict()
-		self.strnodes = odict()
+		self.strnodes = list()
 		self.tokens = list()
 
 	def merge (self, grammar) :
@@ -42,6 +42,7 @@ class Grammar :
 				self.keeper[key] = val
 			
 			self.keeper["all"] = list(set(self.keeper["all"]+val))
+		self.strnodes += grammar.strnodes
 
 
 
@@ -58,19 +59,17 @@ class Grammar :
 		"""
 		ngp = SequentialParser (tokenizedgrammar, grammartokens) #ngp for naive grammar parser
 
-		ngp.parse () 
+		ngp.parse ()
 
 		self.production_rules = ngp.production_rules
 		self.tokens = ngp.tokens
 		self.labels = ngp.labels
-		
+		self.strnodes = ngp.strnodes
+
 		self.keeper = odict() #ngp.keeper
 		for k, val in ngp.keeper.items() :
 			self.keeper[k] = [v.val if type(v) != str else v for v in val]
 
-		self.strnodes = odict()
-		for k, val in ngp.strnodes.items() :
-			self.strnodes[k] = [v.val if type(v) != str else v for v in val]
 
 		self = eliminatedoubles (self)
 		#gramtest = checkproductionrules(self.production_rules) #is fuckedup
@@ -113,6 +112,7 @@ class Grammar :
 		pickle.dump (self.unitrelation, serialFile)
 		pickle.dump (self.labels, serialFile)
 		pickle.dump (self.keeper, serialFile)
+		pickle.dump (self.strnodes, serialFile)
 		pickle.dump (self.tokens, serialFile)
 		serialFile.close()
 	def load (self, filename) :
@@ -122,6 +122,7 @@ class Grammar :
 		self.unitrelation = pickle.load (serialFile)
 		self.labels = pickle.load (serialFile)
 		self.keeper = pickle.load (serialFile)
+		self.strnodes = pickle.load(serialFile)
 		self.tokens = pickle.load (serialFile)
 		serialFile.close()
 
@@ -149,11 +150,7 @@ class Grammar :
 			])
 		)
 		text_rule += "STRNODE = [\n{}\n]\n\n".format(
-			"".join([
-				"\t{} : {{\n\t\t{}\n\t}}\n".format(
-					key, ", \n\t\t".join([str(v) for v in val])
-				) for key, val in self.strnodes.items()
-			])
+			"".join(self.strnodes)
 		)
 		for regex, label in self.tokens :
 			text_rule += "TOKEN " + label + " = regex('" + regex + "')\n"

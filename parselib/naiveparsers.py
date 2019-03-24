@@ -64,7 +64,7 @@ class SequentialParser :
 
 		self.production_rules = odict()
 
-		self.strnodes = odict()
+		self.strnodes = []
 		self.keeper = odict({'all' : []})
 		self.labels = odict()
 
@@ -132,23 +132,24 @@ class SequentialParser :
 		while self.grammar[i].type == "RSIDE" :
 
 			if self.parsedtokens[j].type == "STR" :
+				nodename = self.parsedtokens[j+1].val
+				if self.parsedtokens[j+1].type == "TERMINAL" :
+					nodename = nodename[:-1]
 				#add to strnodes
-				if self.current_rule in self.strnodes.keys() :
-					self.strnodes[self.current_rule].append(self.parsedtokens[j+1])
-				else :
-					self.strnodes[self.current_rule] = [self.parsedtokens[j+1]]
+				if not nodename in self.strnodes :
+					self.strnodes.append(nodename)
 
-				#add to keeper to tell the parser to save this node's content
-				if self.current_rule in self.keeper.keys() :
-					self.keeper[self.current_rule].append(self.parsedtokens[j+1])
-				else :
-					self.keeper[self.current_rule] = [self.parsedtokens[j+1]]
+				# add to keeper to tell the parser to save this node's content
+				if self.current_rule in self.keeper.keys():
+					self.keeper[self.current_rule].append(self.parsedtokens[j + 1])
+				else:
+					self.keeper[self.current_rule] = [self.parsedtokens[j + 1]]
 
-				if not self.parsedtokens[j+1].val in self.keeper["all"] :
-					if self.parsedtokens[j+1].type == "TERMINAL" :
-						self.keeper["all"].append(self.parsedtokens[j+1].val[:-1])
-					else :
-						self.keeper["all"].append(self.parsedtokens[j+1].val)
+				if not self.parsedtokens[j + 1].val in self.keeper["all"]:
+					if self.parsedtokens[j + 1].type == "TERMINAL":
+						self.keeper["all"].append(self.parsedtokens[j + 1].val[:-1])
+					else:
+						self.keeper["all"].append(self.parsedtokens[j + 1].val)
 				j+=1
 				i+=1
 				continue

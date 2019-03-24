@@ -4,6 +4,6 @@
 //fix whatever this is
 classbody -> 
  	!method |
-	s:attribute |
-	!classes | 
+	s:attribute | //s: operator
+	!classes |
 __list__ // ~~~ classbody classbody | epsilon
