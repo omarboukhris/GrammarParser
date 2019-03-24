@@ -14,6 +14,8 @@ def test_syntax_pipeline (verbose=False) :
 	parseinst = ParselibInstance ()
 
 	parseinst.loadGrammar("data/grammar.grm", verbose=verbose)
+	
+	print (parseinst.grammar)
 
 	final = parseinst.processSource("data/test.java", verbose=verbose)
 

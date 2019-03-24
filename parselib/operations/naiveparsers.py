@@ -19,6 +19,7 @@ class GenericGrammarTokenizer :
 		('s\:',							'STR'),
 		
 		('\(\".*\"\)',					'REGEX'),
+		('\".*\"',						'AREGEX'), #a for anonymous
 		('(\->|\=)',					'EQUAL'),
 		#('\,',							'COMMA'),
 		('\|',							'OR'),
@@ -38,7 +39,7 @@ class GenericGrammarTokenizer :
 		(r'TERMINAL REGEX',									'TOKEN'),
 
 		(r'NONTERMINAL EQUAL',								'LSIDE'),
-		(r'EXCL|STR|LIST|REGEX|TERMINAL|NONTERMINAL|EMPTY',	'RSIDE'),
+		(r'EXCL|STR|LIST|AREGEX|TERMINAL|NONTERMINAL|EMPTY',	'RSIDE'),
 
 		('OR',			'OR'),
 		#('COMMA',		'COMMA'),
@@ -101,6 +102,8 @@ class SequentialParser :
 		self.i, self.j = i, j
 
 	def checkfortoken (self) :
+		"""Read : TERMINAL REGEX
+		"""
 		i, j = self.i, self.j
 		if not i < len(self.grammar) :
 			return
@@ -152,8 +155,8 @@ class SequentialParser :
 			
 			elif self.parsedtokens[j].type == "LIST" :
 				self.makelist()
-			elif self.parsedtokens[j].type == "REGEX" :
-				self.makeregex()
+			elif self.parsedtokens[j].type == "AREGEX" :
+				self.makeregex(j)
 
 			elif self.parsedtokens[j].type == "EXCL" :
 				#naming process
@@ -197,15 +200,15 @@ class SequentialParser :
 		self.production_rules[self.current_rule][-1] = [thisnode, thisnode]
 		self.production_rules[self.current_rule].append([eps])
 	
-	def makeregex(self):
+	def makeregex(self, j):
 		
-		regex = self.parsedtokens[j].val[2:-2] #eliminate the ("...")
+		regex = self.parsedtokens[j].val[1:-1] #eliminate the ["..."]
 
 		label = "__" + self.current_rule + "[" + regex + "]__"
 		
 		self.tokens.append((regex, label)) 
 
-		thisnode = Token("TERMINAL", self.label, 0)
+		thisnode = Token("TERMINAL", label, 0)
 		self.production_rules[self.current_rule][-1].append(thisnode)
 		
 	def addtokeeper(self, j):
