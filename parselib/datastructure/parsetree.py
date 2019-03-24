@@ -1,4 +1,4 @@
-from parselib.lexlib import Token
+from parselib.datastructure.lexlib import Token
 
 DEBUG=False
 

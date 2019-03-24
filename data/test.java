@@ -6,6 +6,7 @@ class myclass {
 		} ;
 	} ;
 	public int a ;
+	public int c2 ;
 	public int b () {} ;
 } ;
 

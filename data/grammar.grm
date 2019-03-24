@@ -1,6 +1,6 @@
-//add import primitive
+%import "ext/sub/body.grm"
 
-%import "data/parts.grm"
+%import "ext/tokens.grm"
 
 AXIOM -> classes
 
@@ -8,23 +8,3 @@ classes ->
 	classdec. classname=identifier. lcrch. !classbody rcrch. semic. |
 [] // list operator~~~ classes classes | eps('')
 
-//fix whatever this is
-classbody -> 
-	!method | 
-	!attribute | 
-	!classes | 
-__list__ // ~~~ classbody classbody | epsilon
-
-attribute -> !visibility. t=type. att_name=identifier. semic. 
-method -> !visibility. t=type. met_name=identifier. lpar. rpar. lcrch. rcrch. semic.
-
-classdec.("class")
-visibility.("(public|private|protected)")
-type.("int")
-lcrch.("\{")
-rcrch.("\}")
-semic.("\;")
-comma.("\,")
-lpar.("\(")
-rpar.("\)")
-identifier.("[a-z_A-Z]\w*")
