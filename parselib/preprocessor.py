@@ -21,49 +21,30 @@ class OnePassPreprocessor :
 		self.queue = []
 		self.processed = [] #to avoid meaningless import looping
 	
-	def preprocess (self, filename, tokenlist) :
+	def addToQueue (self, filename) :
+		self.queue.append(filename)
+	def removeFromQueue (self, filename) :
 		# remove filename from queue
 		while filename in self.queue :
 			self.queue.remove (filename)
-
+	def queueIsEmpty (self) :
+		return self.queue == []
+			
+	def isProcessed (self, filename) :
+		return filename in self.processed
+	def addToProcessed (self, filename) :
+		self.processed.append (filename)
+	
+	def preprocess (self, filename, tokenlist) :
+		self.removeFromQueue (filename)
+		
 		# if processed then exit function
-		if filename in self.processed :
+		if self.isProcessed(filename) :
 			return []
 
-		out_tokenlist = []
+		out_tokenlist = self._processimports (tokenlist)
+		self.addToProcessed (filename)
 		
-		#process imports then queue
-		# _ += _ is vector concat 
-		out_tokenlist += self._processimports (tokenlist) #1st pass
-		self.processed.append (filename)
-		
-		out_tokenlist += self.processQueue ()
-		
-		#print ([str(i) for i in out_tokenlist])
-		
-		return out_tokenlist
-
-	def processQueue (self) :
-		
-		out_tokenlist = []
-		
-		for langfile in self.queue :
-			source = gettextfilecontent (langfile)
-			tokenlist = GenericGrammarTokenizer._tokenize (
-				Tokenizer (GenericGrammarTokenizer.grammartokens), 
-				source,
-				verbose=OnePassPreprocessor.verbose
-			)
-			out_tokenlist += tokenlist.tokenized
-			
-			#vector concatenation
-			#out_tokenlist += self._processimports (tokenlist.tokenized) #all the other passes
-			#self.processed.append (langfile)
-			#out_tokenlist += self.processQueue ()
-			
-			
-		self.queue = []
-
 		return out_tokenlist
 
 	def _processimports (self, tokenlist) :
@@ -72,7 +53,7 @@ class OnePassPreprocessor :
 			
 			if token.type == "IMPORT" :
 				filename = token.val[9:-1]
-				self.queue.append (filename)
+				self.addToQueue (filename)
 			else :
 				outtok.append (token)
 		return outtok

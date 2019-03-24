@@ -1,0 +1,7 @@
+%import "data/body_.grm"
+//fix whatever this is
+classbody -> 
+// 	!method |
+	!attribute | 
+	!classes | 
+__list__ // ~~~ classbody classbody | epsilon

@@ -136,6 +136,7 @@ class SequentialParser :
 
 			if self.parsedtokens[j].type == "EXCL" :
 
+				#add to keeper to tell the parser to save this node's content
 				if self.current_rule in self.keeper.keys() :
 					self.keeper[self.current_rule].append(self.parsedtokens[j+1])
 				else :

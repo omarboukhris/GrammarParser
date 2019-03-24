@@ -16,6 +16,34 @@ class Grammar :
 		self.unitrelation = odict()
 		self.tokens = list()
 
+	def merge (self, grammar) :
+		#unitrelation in computed later
+		self.tokens += grammar.tokens
+		#production_rules merge
+		for key, rules in grammar.production_rules.items() :
+			if key in self.production_rules.keys() :
+				self.production_rules[key] += rules
+			else :
+				self.production_rules[key] = rules
+			
+		#labels merge
+		for key, val in grammar.labels.items() :
+			if key in self.labels.keys() :
+				self.labels[key].update(val)
+			else :
+				self.labels[key] = val
+		
+		#keeper merge
+		for key, val in grammar.keeper.items() :
+			if key in self.keeper.keys() :
+				self.keeper[key] += val
+			else :
+				self.keeper[key] = val
+			
+			self.keeper["all"] = list(set(self.keeper["all"]+val))
+
+
+
 	def makegrammar (self, tokenizedgrammar, grammartokens) :
 		"""parses a list of tokens in a grammar
 		
@@ -34,12 +62,17 @@ class Grammar :
 		self.production_rules = ngp.production_rules
 		self.tokens = ngp.tokens
 		self.labels = ngp.labels
-		self.keeper = ngp.keeper
+		
+		self.keeper = odict() #ngp.keeper
+		for k, val in ngp.keeper.items() :
+			self.keeper[k] = [v.val if type(v) != str else v for v in val]
+		
 		self = eliminatedoubles (self)
 
-		gramtest = checkproductionrules(self.production_rules) #is fuckedup with the excl add
-		return gramtest
-	
+		#gramtest = checkproductionrules(self.production_rules) #is fuckedup
+		#return gramtest
+		return []
+
 	def saveGraph (self, filename) :
 		"""generates dot graph from a grammar and stores it in filename.png
 		this should be updated .. and moved
@@ -107,13 +140,7 @@ class Grammar :
 		text_rule += "STRUCT = [\n{}\n]\n\n".format(
 			"".join([
 				"\t{} : {{\n\t\t{}\n\t}}\n".format (
-					key, ", \n\t\t".join(
-						[
-							str(
-								v.val if type(v) != str else v
-							) for v in val
-						]
-					)
+					key, ", \n\t\t".join([ str(v) for v in val ])
 				) for key, val in self.keeper.items()
 			])
 		)
@@ -143,36 +170,44 @@ class GenericGrammarParser :
 			verbose : bool
 				True to make it talk. False by default
 		"""
-		#tokenize grammar source
-		source = io.gettextfilecontent (filename)
-		lang = GenericGrammarTokenizer._tokenize (
-			Tokenizer (GenericGrammarTokenizer.grammartokens), 
-			source,
-			verbose
-		)
-		
-		#preprocessor here (one pass preprocessor)
-		lang.tokenized = self.preproc.preprocess (filename, lang.tokenized)
+		out_grammar = Grammar()
+		self.preproc.addToQueue (filename)
 
-		#text tokens are needed for next step
-		txtok = transformtosource (lang.tokenized)
-		#tokenize in abstract grammar tokens
-		gram = GenericGrammarTokenizer._tokenize (
-			Tokenizer (GenericGrammarTokenizer.genericgrammarprodrules),
-			txtok,
-			verbose
-		)
+		while not self.preproc.queueIsEmpty() :
 
-		##make production rules
-		grammar = Grammar ()
-		result = grammar.makegrammar (
-			gram.tokenized,
-			lang.tokenized,
-		)
+			#tokenize grammar source
+			filename = self.preproc.queue[0]
+			source = io.gettextfilecontent (filename)
+			lang = GenericGrammarTokenizer._tokenize (
+				Tokenizer (GenericGrammarTokenizer.grammartokens), 
+				source,
+				verbose
+			)
+			
+			#preprocessor here (one pass preprocessor)
+			lang.tokenized = self.preproc.preprocess (filename, lang.tokenized)
 
-		if (result == []) :
-			if verbose : print (grammar)
-		else :
-			if verbose : io.Printer.showerr (result)
-		return grammar
+			#text tokens are needed for next step
+			txtok = transformtosource (lang.tokenized)
+			#tokenize in abstract grammar tokens
+			gram = GenericGrammarTokenizer._tokenize (
+				Tokenizer (GenericGrammarTokenizer.genericgrammarprodrules),
+				txtok,
+				verbose
+			)
+
+			##make production rules
+			grammar = Grammar ()
+			result = grammar.makegrammar (
+				gram.tokenized,
+				lang.tokenized,
+			)
+			if (result == []) :
+				if verbose : print (grammar)
+				out_grammar.merge (grammar)
+			else :
+				io.Printer.showerr (result)
+				return Grammar()
+
+		return out_grammar
 

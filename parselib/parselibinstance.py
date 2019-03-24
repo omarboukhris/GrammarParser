@@ -19,10 +19,7 @@ class StructFactory :
 		del grammar.keeper["all"]
 		for key, val in grammar.keeper.items() :
 			structname = key.capitalize()
-			components=[str(
-					v.val if type(v) != str else v
-				) for v in set(val)
-			]
+			components=[v for v in set(val)]
 			#Printer.showinfo ("next in factory : ", key, "::", components)
 			struct[key] = namedtuple(structname, components, defaults=(None,)*len(components))
 		StructFactory.struct = struct

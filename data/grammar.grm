@@ -1,4 +1,6 @@
-// %import "data/members.grm"
+%import "data/members.grm"
+
+ %import "data/body.grm"
 
 AXIOM -> classes
 
@@ -6,15 +8,15 @@ classes ->
 	classdec. classname=identifier. lcrch. !classbody rcrch. semic. |
 [] // list operator~~~ classes classes | eps('')
 
-//fix whatever this is
-classbody -> 
-	!method | 
-	!attribute | 
-	!classes | 
-__list__ // ~~~ classbody classbody | epsilon
+// //fix whatever this is
+// classbody -> 
+// 	!method | 
+// 	!attribute | 
+// 	!classes | 
+// __list__ // ~~~ classbody classbody | epsilon
 
-attribute -> !visibility. t=type. att_name=identifier. semic. 
-method -> !visibility. t=type. met_name=identifier. lpar. rpar. lcrch. rcrch. semic.
+// attribute -> !visibility. t=type. att_name=identifier. semic. 
+// method -> !visibility. t=type. met_name=identifier. lpar. rpar. lcrch. rcrch. semic.
 
 classdec.("class")
 visibility.("(public|private|protected)")
