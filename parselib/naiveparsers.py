@@ -129,7 +129,7 @@ class SequentialParser :
 		i, j = self.i, self.j
 		if not i < len(self.grammar) :
 			return
-		while self.grammar[i].type == "RSIDE" :
+		while i < len(self.grammar) and self.grammar[i].type == "RSIDE" :
 
 			if self.parsedtokens[j].type == "TERMINAL" :
 				self.parsedtokens[j].val = self.parsedtokens[j].val[:-1] #eliminate . at terminals
@@ -137,35 +137,37 @@ class SequentialParser :
 			if self.parsedtokens[j].type == "STR" :
 				self.addtostr(j)
 				self.addtokeeper(j)
-				j+=1
-				i+=1
-				continue
-
-			if self.parsedtokens[j].type == "LIST" :
+			
+			elif self.parsedtokens[j].type == "LIST" :
 				self.makelist()
-				j+=1
-				i+=1
-				continue
 
-			if self.parsedtokens[j].type == "EXCL" :
+			elif self.parsedtokens[j].type == "EXCL" :
+				#naming process
+				label = self.parsedtokens[j+1].val
+				label = label if label[-1] != "." else label[:-1]
+				self.parsedtokens[j].val = label
+
+				self.processlabel (label, label)
 				self.addtokeeper(j)
-				j += 1
-				i += 1
-				continue
+				
+			else :
+				if self.parsedtokens[j].val.find('=') != -1 :
+					#naming process
+					label, operand = self.parsedtokens[j].val.split('=', 1)
+					self.parsedtokens[j].val = operand
 
-			if self.parsedtokens[j].val.find('=') != -1 :
-				self.processlabel(j)
+					self.processlabel(label, operand)
 
-			self.production_rules[self.current_rule][-1].append(self.parsedtokens[j])
+				self.production_rules[self.current_rule][-1].append(self.parsedtokens[j])
 			i += 1
 			j += 1
-			if i <= len(self.grammar) :
-				break
-		self.i, self.j = i, j
 
-	def processlabel(self, j):
-		label, operand = self.parsedtokens[j].val.split('=', 1)
-		self.parsedtokens[j].val = operand
+		self.i, self.j = i, j
+	
+	
+	# operators on grammar datastructure
+	def processlabel(self, label, operand):
+		
 		if self.current_rule in self.labels.keys():
 			self.labels[self.current_rule].update({operand: label})
 		else:
@@ -174,10 +176,7 @@ class SequentialParser :
 			self.keeper[self.current_rule].append(label)
 		else:
 			self.keeper[self.current_rule] = [label]
-		if not label in self.keeper["all"]:
-			self.keeper["all"].append(label)
 
-	# operators on grammar datastructure
 	def makelist(self):
 		thisnode = Token("NONTERMINAL", self.current_rule, 0)
 		eps = Token("EMPTY", '""', 0)
@@ -190,8 +189,6 @@ class SequentialParser :
 			self.keeper[self.current_rule].append(self.parsedtokens[j + 1])
 		else:
 			self.keeper[self.current_rule] = [self.parsedtokens[j + 1]]
-		if not self.parsedtokens[j + 1].val in self.keeper["all"]:
-			self.keeper["all"].append(self.parsedtokens[j + 1].val)
 
 	def addtostr(self, j):
 		nodename = self.parsedtokens[j + 1].val

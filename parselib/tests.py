@@ -4,10 +4,11 @@ def test_syntax_pipeline () :
 	parseinst = ParselibInstance ()
 
 	#test grammar loading
-	parseinst.loadGrammar("data/grammar.grm", verbose=True)
-
+	parseinst.loadGrammar("data/grammar.grm", verbose=False)
+	print (parseinst.grammar)
+	
 	#graph exportation using dot
-	parseinst.grammar.saveGraph ("data/out")
+	#parseinst.grammar.saveGraph ("data/out")
 
 	#serialization
 	#parseinst.grammar.save("data/somewhere.pkl")
