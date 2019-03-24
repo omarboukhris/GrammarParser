@@ -6,11 +6,11 @@ Can be used to code a symbolic mathematical kernel, a source-to-source transcomp
 
 No dependencies required (yet?)
 
-## References :
+### References :
 
 [1] Lange, Martin; Leiß, Hans (2009). "To CNF or not to CNF? An Efficient Yet Presentable Version of the CYK Algorithm". 
 
-## Grammar definition syntax :
+### Grammar definition syntax :
 
 Let G be a CFG, such as G = (NT, T, Pr, AXIOM) with
 
@@ -38,7 +38,7 @@ a.("a") //terminals/tokens are regex for efficiency/convenience purposes
 b.("b") //{a., b.} are terminals
 ```
 
-## Graph encoder for generic textual CFG
+### Graph encoder for generic textual CFG
 
 ```python
 #import important stuff
@@ -68,7 +68,7 @@ RULE S = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-## Operators for grammar transformation ...
+### Operators for grammar transformation ...
 
 ...to Chomsky Normal Form (or any other less restricted normal form, like 2NF<sup>[1]</sup>)
 
@@ -120,7 +120,7 @@ RULE b. = [
 TOKEN a = regex('a')
 TOKEN b = regex('b')
 ```
-- **CYK parsers for grammars in 2NF<sup>[1]</sup>**
+### CYK parsers for grammars in 2NF<sup>[1]</sup>
 
 ```python
 #import the good stuff
@@ -203,6 +203,25 @@ aListNode ->
 __list__ // [] is also accepted
 ```
 The list operator basically generates a rule to be used as a loop guard for the list parsing.
+
+### Import :
+
+It is possible to break a grammar in submodules, importable using :
+```javascript
+%import "submodule.grm"
+
+AXIOM -> //...
+```
+NOTE:Doesn't support path
+
+### Str :
+
+If you want to convert a non terminal node's value to str, the `s:` operator can be used.
+```javascript
+//...
+someHeader -> s:complexNode theRestofit | '' //...
+```
+
 
 
 
