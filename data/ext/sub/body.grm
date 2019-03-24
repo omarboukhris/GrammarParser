@@ -1,0 +1,9 @@
+
+%import "../members.grm"
+
+//fix whatever this is
+classbody -> 
+ 	!method |
+	s:attribute | //s: operator
+	!classes |
+__list__ // ~~~ classbody classbody | epsilon

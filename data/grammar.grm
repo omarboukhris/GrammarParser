@@ -1,0 +1,10 @@
+%import "ext/sub/body.grm"
+
+%import "ext/tokens.grm"
+
+AXIOM -> classes
+
+classes ->  
+	"class" classname=identifier. lcrch. !classbody rcrch. semic. |
+[] // list operator~~~ classes classes | eps('')
+

@@ -26,7 +26,8 @@ class Tokenizer :
 			for tok in lx.tokens():
 				tokenized.append(tok)
 		except LexerError as err:
-			print('LexerError at position %s' % err.pos)
+			print('LexerError at position {pos}'.format(pos=err.pos))
+			exit ()
 		self.tokenized = tokenized
 
 	def __str__ (self) :
@@ -39,18 +40,14 @@ class Token(object):
 	""" A simple Token structure.
 		Contains the token type, value and position.
 	"""
-	def __init__(self, type, val, pos, label=""):
+	def __init__(self, type, val, pos):
 		self.type = type
 		self.val = val
 		self.pos = pos 
-		self.label = label
 
+		
 	def __str__(self):
-		ss = ""
-		if self.label != "" :
-			ss = '"%s"={%s(%s)}' % (self.label, self.type, self.val)
-		else :
-			ss = '%s(%s)' % (self.type, self.val)
+		ss = '%s(%s)' % (self.type, self.val)
 		return ss
 
 
