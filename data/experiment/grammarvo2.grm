@@ -4,16 +4,17 @@ AXIOM -> productionRules
 productionRules ->
 	leftside=nonterminaltok. assign. rightside=listoperand |
 	leftside=terminaltok. left. rightside=regex. right. |
-	quote. rightside=regex. quote. |
-	dquote. rightside=regex. dquote. |
 __list__
 
 listoperand ->
-        operator !operand |
-        regexnode |
+	operator !operand |
+	regexnode |
 __list__
 
-regexnode -> "\'" | all | "\'"
+regexnode -> 
+	quote. !regex. quote. |
+	dquote. !regex. dquote. |
+
 operator -> "!" | "s:" | ''
 
 
@@ -32,10 +33,12 @@ nonterminal -> word.
 
 word.("w*")
 
+assign.("\-\>")
+
 quote.("\'")
 dquote.("\"")
 
 left.("\(")
 right.("\)")
 
-all.(".*")
+regex.(".*")
