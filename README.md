@@ -204,6 +204,25 @@ __list__ // [] is also accepted
 ```
 The list operator basically generates a rule to be used as a loop guard for the list parsing.
 
+### Import :
+
+It is possible to break a grammar in submodules, importable using :
+```javascript
+%import "submodule.grm"
+
+AXIOM -> //...
+```
+NOTE:Doesn't support path
+
+### Str :
+
+If you want to convert a non terminal node's value to str, the `s:` operator can be used.
+```javascript
+//...
+someHeader -> s:complexNode theRestofit | '' //...
+```
+
+
 
 
 
