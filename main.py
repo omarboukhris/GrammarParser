@@ -1,21 +1,38 @@
-from parselib.parselibinstance import ParselibInstance
+from parselib.tests import *
+from parselib.io	import ArgvLex
+
+import sys
 
 if __name__ == '__main__':
+	#command line argument parser
+	argshlex = ArgvLex (sys.argv[1:])
 
-	#=================================== Begin : source code parsing
-	#list operator not implemented yet
-	parseinst = ParselibInstance ()
-
-	parseinst.loadGrammar("data/grammar.grm", verbose=True)
-	#parseinst.grammar.save("data/somewhere.pkl")
-	#parseinst.grammar.load("data/somewhere.pkl")	
-	final = parseinst.processSource("data/test.java")#, verbose=True)
-
-	print (final) #datastructure with parsed savable data
-
-
-	#==================================== Begin : source code generating
+	if argshlex.get("--loadgram") :
+		load_grammar (
+			argshlex.get("--loadgram"), 
+			argshlex.get("-v")
+		)
 	
+	elif argshlex.get("--parsesave") :
+		parse_save (
+			argshlex.get("--parsesave"), 
+			argshlex.get("-v")
+		)
 	
-	# :) :) :) :)
-	
+	elif argshlex.get("--all") :
+		pipeline(
+			argshlex.get("--gram"),
+			argshlex.get("--source"),
+			argshlex.get("-v")
+		)
+
+	else :
+		print ("""
+options :
+	--loadgram=file  : load grammar
+	--parsesave=file : parse grammar file and serialize
+	--all            : load, store, parse ...
+	--gram           : grammar file
+	--source         : source file
+	-v               : verbose
+		""")
