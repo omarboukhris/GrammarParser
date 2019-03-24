@@ -1,5 +1,5 @@
-%import "data/body.grm"
-%import "data/tokens.grm"
+%import "sub/body.grm"
+%import "tokens.grm"
 
 AXIOM -> classes
 

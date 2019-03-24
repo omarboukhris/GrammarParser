@@ -15,6 +15,7 @@ class OnePassPreprocessor :
 	verbose=True
 	
 	def __init__ (self) :
+		self.pwd = ""
 		self.queue = []
 		self.processed = [] #to avoid meaningless import looping
 	
@@ -38,6 +39,9 @@ class OnePassPreprocessor :
 		if self.isProcessed(filename) :
 			return []
 
+		#current grammar directory 
+		self.pwd = "/".join(filename.split("/")[:-1])
+		
 		out_tokenlist = self._processimports (tokenlist)
 		self.addToProcessed (filename)
 		
@@ -48,7 +52,7 @@ class OnePassPreprocessor :
 		for token in tokenlist :
 			
 			if token.type == "IMPORT" :
-				filename = token.val[9:-1]
+				filename = self.pwd + "/" + token.val[9:-1]
 				self.addToQueue (filename)
 			else :
 				outtok.append (token)
