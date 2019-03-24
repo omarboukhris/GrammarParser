@@ -140,10 +140,9 @@ TokCode = Tokenizer(grammar.tokens)
 #load source to parse
 litterature = "some word for membership checking in full text"
 TokCode.parse (litterature) # tokenize source code
-word = TokCode.tokenized
 
 # this is where the magic happens
-x = langraph.membership (word) 
+x = langraph.membership (TokCode.tokenized) 
 ```
 x is false if *word* is not contained in the language, otherwise can unfold a parse tree
 
@@ -162,6 +161,23 @@ parsedDataStruct = parseinst.processSource("data/test.java") #any source code
 ```
 This can mainly be useful to setup a transcompiling framework
 
+## Grammar's syntax
+
+### Terminals
+
+Every terminal node can be written as a regex `terminalnodename.("w*")`.
+They are used in production rules like `terminalnodename.`
+
+### Non terminals
+
+Non terminals are defined in a grammar as non terminal node.
+As an example :
+```javascript
+nonterminal -> nonterm1 nonterm2 term. | term.
+```
+Here we define a non terminal node named `nonterminal` as the concatenation of non terminal nodes `nonterm1, nonterm2` and a terminal node `term.`. 
+
+`term.` alone is also accepted.
 
 ### Labeling operators :
 
@@ -183,16 +199,16 @@ struct S {
 	string b ;
 } ;
 ```
-... in which a correctly parsed source code will eventually be stored.
+in which a correctly parsed source code will eventually be stored.
 
 ### Lists :
+
 `list` operators have been implemented in the grammar's accepted syntax.
 Example :
 ```javascript
 aListNode ->
 	element1. element2. anotherNode |
-	aListNode aListNode |
-	'' //epsilone
+aListNode aListNode | '' //this line define the node as a list
 ```
 Can become
 ```javascript
