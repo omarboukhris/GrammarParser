@@ -1,4 +1,4 @@
-from parselib.grammarparser	 import GenericGrammarParser
+from parselib.grammarparser	 import GenericGrammarParser, Grammar
 from parselib.parsers		 import CYKParser
 from parselib.normoperators	 import get2nf
 from parselib.lexlib		 import Tokenizer
@@ -40,7 +40,7 @@ class StructFactory :
 class ParselibInstance :
 
 	def __init__ (self) :
-		self.grammar   = None
+		self.grammar   = Grammar()
 		self.parser    = None
 		self.tokenizer = None
 		
@@ -62,10 +62,10 @@ class ParselibInstance :
 		#grammar = getcnf (grammar)
 		grammar = get2nf (grammar)
 		self.grammar = grammar
-		self.parser = CYKParser (self.grammar)
-		StructFactory.readGrammar(self.grammar)
 
 	def processSource (self, filename, verbose=False) :
+		StructFactory.readGrammar(self.grammar)
+		self.parser = CYKParser (self.grammar)
 		source = gettextfilecontent(filename)
 		
 		tokenizer = Tokenizer(self.grammar.tokens)

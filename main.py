@@ -13,3 +13,6 @@ if __name__ == '__main__':
 	
 	if argshlex.get("--all") :
 		test_syntax_pipeline()
+	
+	if argshlex.get("--loadsaved") :
+		test_load_gram_from_file (argshlex.get("--loadsaved"))

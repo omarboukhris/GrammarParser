@@ -11,7 +11,7 @@ def test_syntax_pipeline () :
 
 	#serialization
 	parseinst.grammar.save("data/somewhere.pkl")
-	parseinst.grammar.load("data/somewhere.pkl")	
+	parseinst.grammar.load("data/somewhere.pkl")
 
 	final = parseinst.processSource("data/test.java", verbose=True)
 
@@ -24,7 +24,14 @@ def test_grammar_loading () :
 	#test grammar loading
 	parseinst.loadGrammar("data/grammar.grm", verbose=True)
 
-	
+def test_load_gram_from_file (filename) :	
+	parseinst = ParselibInstance ()
+	parseinst.grammar.load(filename)
+
+	final = parseinst.processSource("data/test.java", verbose=True)
+
+	print (final) #datastructure with parsed savable data
+
 
 
 
