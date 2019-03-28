@@ -5,7 +5,7 @@ from parselib.operations.naiveparsers 		import SequentialParser, GenericGrammarT
 from collections import OrderedDict as odict
 import pickle, random, json, os
 
-import parselib.io as io
+import parselib.utils.io as io
 
 class Grammar :
 	def __init__ (self) :

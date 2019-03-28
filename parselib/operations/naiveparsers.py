@@ -1,7 +1,6 @@
 from collections import OrderedDict as odict
 from parselib.datastructure.lexlib import Token
 
-
 class GenericGrammarTokenizer :
 
 	grammartokens = [
@@ -17,7 +16,6 @@ class GenericGrammarTokenizer :
 		('(\_\_list\_\_|\[\])',			'LIST'),
 		('!',							'EXCL'),
 		('s\:',							'STR'),
-		
 		('\(\".*\"\)',					'REGEX'),
 		('\".*\"',						'AREGEX'), #a for anonymous
 		('(\->|\=)',					'EQUAL'),

@@ -1,5 +1,5 @@
 from parselib.tests import *
-from parselib.io	import ArgvLex
+from parselib.utils.io	import ArgvLex
 
 import sys
 
