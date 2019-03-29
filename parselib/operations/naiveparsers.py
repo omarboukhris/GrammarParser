@@ -35,16 +35,16 @@ class GenericGrammarTokenizer :
 	
 	genericgrammarprodrules = [
 		('LINECOMMENT',						          'LINECOMMENT'),
-		(r'AXIOM EQUAL (NONTERMINAL|GENERATOR)',			'AXIOM'),
+		(r'AXIOM EQUAL NONTERMINAL',						'AXIOM'),
 		(r'TERMINAL REGEX',									'TOKEN'),
 
 		(r'NONTERMINAL EQUAL',								'LSIDE'),
-		(r'EXCL|STR|LIST|AREGEX|TERMINAL|NONTERMINAL|EMPTY',	'RSIDE'),
+		(r'EXCL|STR|LIST|AREGEX|TERMINAL|NONTERMINAL|EMPTY','RSIDE'),
 
 		('OR',			'OR'),
 		#('COMMA',		'COMMA'),
-		('LCRCH',		'LCRCH'),
-		('RCRCH',		'RCRCH'),
+		#('LCRCH',		'LCRCH'),
+		#('RCRCH',		'RCRCH'),
 	]
 
 	@staticmethod
@@ -54,10 +54,6 @@ class GenericGrammarTokenizer :
 		return tokObj
 
 
-"""
-TODO : 
-	parse list() operator in a production rule
-"""
 class SequentialParser :
 	def __init__ (self, grammar, parsedtokens) :
 
