@@ -4,7 +4,7 @@ This is intended to be a simple yet "efficient" (as efficient as Python can be) 
 
 Can be used to code a symbolic mathematical kernel, a source-to-source transcompiler or whatever.. The sky is the limit (along with the established expressive power of type 2 grammars)
 
-No dependencies required (yet?)
+No external python dependencies needed.
 
 ### References :
 
@@ -23,7 +23,7 @@ example :
 
 Let G = ({S}, {a,b}, {R1}, AXIOM) be a CFG such as :
 
-R1 : S → a S b | ε
+`R1 : S → a S b | ε`
 
 The language described by the grammar is L(G) = { a<sup>n</sup>b<sup>n</sup> }.
 
