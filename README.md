@@ -110,6 +110,13 @@ __list__ // [] is also accepted
 ```
 The list operator basically generates a rule to be used as a loop guard for the list parsing.
 
+For example, to parse an array of arbitrary length :
+```javascript
+array ->
+	!element |
+__list__ 
+```
+
 ### Import :
 
 It is possible to break a grammar in submodules, importable using :
@@ -119,7 +126,8 @@ It is possible to break a grammar in submodules, importable using :
 AXIOM -> //...
 ```
 The preprocessor is protected against nested imports.
-NOTE:Doesn't support path yet
+
+All nodes in imported modules can be scoped from any other module file, as long as the 2 modules are included in the grammar project.
 
 ### Str :
 
@@ -128,7 +136,7 @@ If you want to convert a non terminal node's value to str instead of catching a 
 //...
 someHeader -> s:complexNodeToConvert theRestofit | '' //...
 ```
-This is mainly to catch strings that regexs can't.
+This is mainly to catch strings that regexs can't, like nested template declaration in C++ as an example.
 
 ## Under the hood
 
