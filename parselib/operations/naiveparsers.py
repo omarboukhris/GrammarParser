@@ -18,8 +18,8 @@ class GenericGrammarTokenizer :
 		('(\_\_list\_\_|\[\])',			'LIST'),
 		('!',							'EXCL'),
 		('s\:',							'STR'),
-		('\(\".*\"\)',					'REGEX'),
-		('\".*\"',						'AREGEX'), #a for anonymous
+		('\(\".*\"\)|\(\'.*\'\)',		'REGEX'),
+		('\".*\"|\'.*\'',				'AREGEX'), #a for anonymous
 		('(\->|\=)',					'EQUAL'),
 		#('\,',							'COMMA'),
 		('\|',							'OR'),
