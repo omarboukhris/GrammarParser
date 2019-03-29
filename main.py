@@ -18,6 +18,11 @@ if __name__ == '__main__':
 			argshlex.get("--parsesave"), 
 			argshlex.get("-v")
 		)
+	elif argshlex.get("--driver") :
+		test_datadrive (
+			argshlex.get("--gram"),
+			argshlex.get("-v")
+		)
 	
 	elif argshlex.get("--all") :
 		pipeline(

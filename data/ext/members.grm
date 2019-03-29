@@ -10,4 +10,4 @@ method ->
 	visibility. 
 	t=type. 
 	met_name=identifier. 
-"\(\)" lcrch. rcrch. semic. //anonymous regex
+"()" lcrch. rcrch. semic. //anonymous regex

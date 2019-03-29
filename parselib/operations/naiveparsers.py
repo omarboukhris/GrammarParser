@@ -1,6 +1,8 @@
 from collections import OrderedDict as odict
 from parselib.datastructure.lexlib import Token
 
+import re
+
 class GenericGrammarTokenizer :
 
 	grammartokens = [
@@ -200,7 +202,7 @@ class SequentialParser :
 	
 	def makeregex(self, j):
 		
-		regex = self.parsedtokens[j].val[1:-1] #eliminate the ["..."]
+		regex = re.escape(self.parsedtokens[j].val[1:-1]) #eliminate the ["..."]
 
 		label = "__" + self.current_rule + "[" + regex + "]__"
 		

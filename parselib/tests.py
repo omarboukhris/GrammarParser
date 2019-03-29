@@ -1,4 +1,5 @@
-from parselib import *
+from parselib import ParselibInstance
+from parselib.utils.datadriver import DataDriver
 
 def processverbose (verbose) :
 	try :
@@ -7,6 +8,15 @@ def processverbose (verbose) :
 		print ("ValueError : verbose set on True")
 		return True
 
+def test_datadrive (gramfile, verbose) :
+	verbose = processverbose (verbose)
+	
+	parseinst = ParselibInstance ()
+
+	parseinst.loadGrammar(gramfile, verbose=verbose)
+	
+	datadr = DataDriver(parseinst.grammar)
+	datadr.deploy()
 
 def pipeline (gramfile, filename, verbose) :
 	verbose = processverbose (verbose)

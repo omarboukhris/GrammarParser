@@ -85,13 +85,13 @@ class ParselibInstance :
 			filename : str
 				string path to file containing text to load
 		"""
-
 		gramparser = GenericGrammarParser (OnePassPreprocessor())
 		grammar = gramparser.parse (filename, verbose=verbose)
 
 		#normalization
 		#grammar = getcnf (grammar)
 		grammar = get2nf (grammar)
+		print (grammar)
 		self.grammar = grammar
 
 	def processSource (self, filename, verbose=False) :
